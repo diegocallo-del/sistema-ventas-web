@@ -1,0 +1,155 @@
+# ===================================================================
+# Manual de Uso de Git para el Equipo de Proyecto Final Java
+# Autor: Diego Callo
+# Fecha: (Get-Date)
+# ===================================================================
+
+$archivo = "Manual_de_Git.txt"
+
+@"
+====================================================================
+MANUAL DE USO DE GIT - PROYECTO FINAL JAVA
+====================================================================
+
+Repositorio principal:
+https://github.com/diegocallo-del/sistema-ventas-web.git
+
+Equipo: 6 integrantes
+Objetivo: Mantener un flujo de trabajo ordenado y evitar conflictos entre ramas.
+
+--------------------------------------------------------------------
+1. CLONAR EL REPOSITORIO (SOLO LA PRIMERA VEZ)
+--------------------------------------------------------------------
+1. Abra PowerShell en la carpeta donde desea guardar el proyecto.
+2. Ejecute los siguientes comandos:
+
+git clone https://github.com/diegocallo-del/sistema-ventas-web.git
+cd sistema-ventas-web
+
+Esto descargará el proyecto completo en su computadora.
+
+--------------------------------------------------------------------
+2. CREAR UNA RAMA PERSONAL
+--------------------------------------------------------------------
+Cada integrante debe crear una rama con su nombre. Ejemplos:
+
+git checkout -b rama-diego
+git checkout -b rama-emerson
+git checkout -b rama-dennis
+git checkout -b rama-rolando
+git checkout -b rama-juan
+git checkout -b rama-luis
+
+Para volver a su rama personal en cualquier momento:
+git checkout rama-nombre
+
+Importante: Nunca trabajar directamente en la rama principal (main).
+
+--------------------------------------------------------------------
+3. GUARDAR Y SUBIR CAMBIOS
+--------------------------------------------------------------------
+Después de realizar modificaciones en el código:
+
+git add .
+git commit -m "Descripción breve y clara del cambio"
+git push -u origin rama-nombre
+
+Ejemplo:
+git commit -m "Se implementó validación en el módulo de login"
+
+Recomendaciones:
+- Utilice mensajes de commit breves y específicos.
+- Revise qué archivos serán subidos antes de hacer push.
+
+--------------------------------------------------------------------
+4. ACTUALIZAR EL CÓDIGO CON LA VERSIÓN MÁS RECIENTE
+--------------------------------------------------------------------
+Antes de iniciar el trabajo diario:
+
+git checkout main
+git pull origin main
+
+Luego regrese a su rama personal:
+git checkout rama-nombre
+git merge main
+
+Esto incorporará los últimos cambios del proyecto a su rama local.
+Si se generan conflictos, resuélvalos antes de continuar.
+
+--------------------------------------------------------------------
+5. SUBIR CAMBIOS FINALES AL PROYECTO (PULL REQUEST)
+--------------------------------------------------------------------
+Cuando su parte esté lista para integrar al proyecto principal:
+
+1. Guarde y suba sus cambios:
+   git push origin rama-nombre
+
+2. En GitHub:
+   - Abra la pestaña "Pull requests"
+   - Cree un nuevo pull request desde su rama hacia main
+   - Añada una descripción clara de los cambios realizados
+
+3. El líder o revisor aprobará e integrará los cambios.
+
+--------------------------------------------------------------------
+6. CONFIGURACIÓN DE USUARIO EN GIT
+--------------------------------------------------------------------
+Para verificar la configuración actual de Git:
+
+git config --global user.name
+git config --global user.email
+
+Si los datos son incorrectos, actualícelos con:
+
+git config --global user.name "diegocallo-del"
+git config --global user.email "su_correo@ejemplo.com"
+
+--------------------------------------------------------------------
+7. COMANDOS ÚTILES DE GIT
+--------------------------------------------------------------------
+Ver ramas disponibles:
+git branch
+
+Cambiar de rama:
+git checkout nombre-rama
+
+Ver historial de commits:
+git log --oneline
+
+Ver estado actual:
+git status
+
+Cancelar cambios en un archivo:
+git checkout -- archivo.txt
+
+Eliminar una rama local:
+git branch -d nombre-rama
+
+--------------------------------------------------------------------
+8. BUENAS PRÁCTICAS DE EQUIPO
+--------------------------------------------------------------------
+- Actualice su rama antes de comenzar a trabajar.
+- No modifique directamente la rama principal.
+- Realice commits pequeños y frecuentes.
+- Use mensajes de commit claros y descriptivos.
+- Coordine los cambios importantes con el equipo.
+- Revise y resuelva los conflictos antes de subir cambios.
+
+--------------------------------------------------------------------
+9. FLUJO DE TRABAJO RESUMIDO
+--------------------------------------------------------------------
+1. git pull origin main          → Actualizar el proyecto
+2. git checkout rama-nombre      → Cambiar a su rama
+3. Realizar modificaciones
+4. git add .                     → Guardar los archivos modificados
+5. git commit -m "mensaje"       → Registrar los cambios
+6. git push origin rama-nombre   → Subir los cambios a su rama
+7. Crear un Pull Request en GitHub
+
+====================================================================
+FIN DEL MANUAL
+====================================================================
+"@ | Out-File -Encoding utf8 $archivo
+
+Write-Host "El archivo '$archivo' se creó correctamente en la carpeta actual." -ForegroundColor Green
+Pause

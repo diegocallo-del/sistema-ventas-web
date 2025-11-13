@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Compiled class file
 *.class
 
@@ -22,3 +23,35 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
+=======
+# Compilados
+*.class
+build/
+bin/
+out/
+target/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.settings/
+.classpath
+.project
+nbproject/
+
+# Bases de datos locales
+*.db
+*.sqlite
+
+# Logs
+*.log
+
+# Temporales
+*.tmp
+~*
+*.bak
+
+# Archivos de configuraciÛn local
+database.properties
+>>>>>>> 794394d (Versi√≥n inicial del proyecto final Java)

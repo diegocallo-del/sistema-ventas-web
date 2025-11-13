@@ -1,0 +1,123 @@
+﻿═══════════════════════════════════════════════════════════════════
+                    ASIGNACIÓN DE RESPONSABILIDADES
+                          PROYECTO VENTAS
+═══════════════════════════════════════════════════════════════════
+
+PERSONA 1 - DBA (Administrador de Base de Datos)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CARPETAS:
+  ✓ src/main/java/com/ventas/modelos/
+  ✓ src/main/java/com/ventas/enums/
+  ✓ database/
+
+TAREAS:
+  • Diseñar diagrama Entidad-Relación
+  • Crear scripts SQL de base de datos
+  • Crear clases de modelos (Producto, Cliente, Venta, etc.)
+  • Crear enumeraciones (TipoUsuario, EstadoVenta, etc.)
+  • Insertar datos de prueba
+
+
+PERSONA 2 - Backend
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CARPETAS:
+  ✓ src/main/java/com/ventas/abstractas/
+  ✓ src/main/java/com/ventas/util/
+  ✓ src/main/resources/config/
+
+TAREAS:
+  • Crear clases abstractas base
+  • Crear utilidades (Validador, FormatoUtil, etc.)
+  • Configurar archivos properties
+  • Crear herramientas auxiliares
+
+
+PERSONA 3 - DAOs (Data Access Objects)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CARPETAS:
+  ✓ src/main/java/com/ventas/interfaces/
+  ✓ src/main/java/com/ventas/dao/
+
+TAREAS:
+  • Crear interfaces DAO
+  • Implementar ConexionDB.java
+  • Crear todos los DAOs (ProductoDAO, ClienteDAO, etc.)
+  • Implementar métodos CRUD completos
+
+
+PERSONA 4 - Servicios
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CARPETAS:
+  ✓ src/main/java/com/ventas/servicios/
+
+TAREAS:
+  • Crear servicios de negocio
+  • Implementar validaciones de reglas
+  • Crear lógica de cálculos
+  • Coordinar operaciones entre DAOs
+
+
+PERSONA 5 - Controladores
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CARPETAS:
+  ✓ src/main/java/com/ventas/controladores/
+
+TAREAS:
+  • Crear controladores para cada módulo
+  • Manejar eventos de interfaz
+  • Validar formularios
+  • Conectar vista con servicios
+
+
+PERSONA 6 - Coordinador/Integrador
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+RESPONSABILIDADES:
+  • Coordinar al equipo
+  • Integrar componentes
+  • Resolver conflictos
+  • Documentar el proyecto
+  • Preparar entregas
+
+
+PERSONA 7 - Frontend
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CARPETAS:
+  ✓ src/main/resources/frontend/
+
+TAREAS:
+  • Crear páginas HTML
+  • Diseñar estilos CSS
+  • Programar JavaScript
+  • Crear interfaz responsive
+  • Conectar con backend
+
+
+═══════════════════════════════════════════════════════════════════
+                        ORDEN DE DESARROLLO
+═══════════════════════════════════════════════════════════════════
+
+FASE 1: CIMIENTOS (Semana 1-2)
+  1. DBA: Base de datos y modelos
+  2. Backend: Clases abstractas y utilidades
+  3. DAOs: Interfaces
+
+FASE 2: CAPA DE DATOS (Semana 3)
+  4. DAOs: Implementación completa
+  3. DBA: Datos de prueba
+
+FASE 3: LÓGICA (Semana 4)
+  5. Servicios: Implementación completa
+  6. Frontend: Estructura HTML/CSS
+
+FASE 4: INTEGRACIÓN (Semana 5-6)
+  7. Controladores: Conectar todo
+  8. Frontend: JavaScript y conexión
+  9. Coordinador: Integración general
+
+FASE 5: PRUEBAS Y ENTREGA (Semana 7-8)
+  10. Todo el equipo: Pruebas
+  11. Coordinador: Documentación
+  12. Entrega final
+
+
+═══════════════════════════════════════════════════════════════════

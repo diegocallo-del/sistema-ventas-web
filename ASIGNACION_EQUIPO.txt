@@ -18,7 +18,7 @@ TAREAS:
   • Insertar datos de prueba
 
 
-PERSONA 2 - Backend
+PERSONA 2 - Backen
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CARPETAS:
   ✓ src/main/java/com/ventas/abstractas/

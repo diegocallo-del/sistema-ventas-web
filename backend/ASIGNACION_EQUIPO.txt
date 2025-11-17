@@ -1,2346 +1,1141 @@
-﻿╔═══════════════════════════════════════════════════════════════════╗
-║                    MANUAL DETALLADO DEL EQUIPO                    ║
-║                     SISTEMA DE VENTAS - JAVA                      ║
-║                         7 PERSONAS                                ║
-╚═══════════════════════════════════════════════════════════════════╝
+﻿
+MANUAL DETALLADO DEL EQUIPO
+SISTEMA DE VENTAS - SPRING BOOT + JAVA
+7 PERSONAS
 
 PROYECTO: Sistema de Ventas
 UBICACIÓN: P:\Proyecto_Final
 PAQUETE BASE: com.ventas
 DURACIÓN: 8 semanas
+STACK TECNOLÓGICO: Spring Boot 3.2, MySQL 8.0, Java 17
 
+PERSONA 1: ADMINISTRADOR DE BASE DE DATOS (DBA)
+NOMBRE: _______________________________ CONTACTO: ___________________
+TU ROL EN EL PROYECTO
+Eres el ARQUITECTO DE DATOS del proyecto. Todo lo relacionado con la estructura de la base de datos, las tablas y sus relaciones, las entidades JPA en Java y los tipos de datos constantes mediante enumeraciones. Sin ti, el proyecto no puede guardar ni recuperar información de manera estructurada.
+CARPETAS DONDE TRABAJARÁS
 
-╔═══════════════════════════════════════════════════════════════════╗
-║                          PERSONA 1                                ║
-║             ADMINISTRADOR DE BASE DE DATOS (DBA)                  ║
-╚═══════════════════════════════════════════════════════════════════╝
+backend/src/main/java/com/ventas/entities/ → Entidades JPA
+backend/src/main/java/com/ventas/enums/ → Enumeraciones
+backend/database/scripts/ → Scripts SQL
+backend/database/backups/ → Respaldos
+backend/database/diagramas/ → Diagramas ER
 
-NOMBRE: _______________________________  CONTACTO: ___________________
-
-┌───────────────────────────────────────────────────────────────────┐
-│ TU ROL EN EL PROYECTO                                             │
-└───────────────────────────────────────────────────────────────────┘
-
-Eres el ARQUITECTO DE DATOS del proyecto. Todo lo relacionado con:
-  • La estructura de la base de datos
-  • Las tablas y sus relaciones
-  • Los modelos/entidades en Java
-  • Los tipos de datos constantes (enumeraciones)
-
-SIN TI, el proyecto NO puede guardar ni recuperar información.
-
-
-┌───────────────────────────────────────────────────────────────────┐
-│ CARPETAS DONDE TRABAJARÁS                                         │
-└───────────────────────────────────────────────────────────────────┘
-
-✓ src/main/java/com/ventas/modelos/       → Clases Java de entidades
-✓ src/main/java/com/ventas/enums/         → Enumeraciones
-✓ database/scripts/                       → Scripts SQL
-✓ database/backups/                       → Respaldos
-✓ database/diagramas/                     → Diagramas ER
-
-
-┌───────────────────────────────────────────────────────────────────┐
-│ SEMANA 1: DISEÑO DE BASE DE DATOS                                │
-└───────────────────────────────────────────────────────────────────┘
-
+SEMANA 1: DISEÑO DE BASE DE DATOS
 TAREA 1.1: Diseñar el Diagrama Entidad-Relación (ER)
-─────────────────────────────────────────────────────
-QUÉ HACER:
-  • Definir qué tablas necesita el sistema
-  • Establecer las relaciones entre tablas
-  • Definir campos de cada tabla
-  • Especificar tipos de datos
-  • Identificar claves primarias y foráneas
-
-TABLAS SUGERIDAS:
-  ☐ usuarios        → Quién usa el sistema
-  ☐ clientes        → Clientes que compran
-  ☐ categorias      → Categorías de productos
-  ☐ productos       → Productos a vender
-  ☐ ventas          → Registro de ventas
-  ☐ detalle_ventas  → Qué productos se vendieron
-
-HERRAMIENTAS:
-  • MySQL Workbench (recomendado)
-  • Draw.io (online gratis)
-  • Lucidchart
-  • Papel y lápiz
-
-ARCHIVO A ENTREGAR:
-  📁 database/diagramas/diagrama_er.png
-
-TIEMPO ESTIMADO: 2-3 días
-
-
+Debes definir qué tablas necesita el sistema, establecer las relaciones entre ellas, definir campos de cada tabla, especificar tipos de datos e identificar claves primarias y foráneas. Las tablas sugeridas son usuarios, clientes, categorias, productos, ventas y detalle_ventas. Puedes usar herramientas como MySQL Workbench, Draw.io o Lucidchart. El archivo a entregar es database/diagramas/diagrama_er.png. Tiempo estimado: 2-3 días.
 TAREA 1.2: Crear Diccionario de Datos
-──────────────────────────────────────
-QUÉ HACER:
-  • Documentar CADA tabla
-  • Explicar CADA campo
-  • Definir restricciones y validaciones
-
-EJEMPLO DE FORMATO:
-
-TABLA: productos
-  Campo: id
-    - Tipo: INT
-    - Restricción: PRIMARY KEY, AUTO_INCREMENT
-    - Descripción: Identificador único del producto
-  
-  Campo: nombre
-    - Tipo: VARCHAR(200)
-    - Restricción: NOT NULL
-    - Descripción: Nombre comercial del producto
-
-ARCHIVO A ENTREGAR:
-  📁 database/diagramas/diccionario_datos.txt
-
-TIEMPO ESTIMADO: 1 día
-
-
-┌───────────────────────────────────────────────────────────────────┐
-│ SEMANA 2: SCRIPTS SQL                                             │
-└───────────────────────────────────────────────────────────────────┘
-
+Documenta cada tabla explicando cada campo, definiendo restricciones y validaciones. Por ejemplo, para la tabla productos, el campo id sería de tipo INT con restricciones PRIMARY KEY y AUTO_INCREMENT, mientras que nombre sería VARCHAR de 200 caracteres con restricción NOT NULL. El archivo a entregar es database/diagramas/diccionario_datos.txt. Tiempo estimado: 1 día.
+SEMANA 2: SCRIPTS SQL
 TAREA 2.1: Script de Creación de Base de Datos
-───────────────────────────────────────────────
-QUÉ HACER:
-  • Crear archivo SQL para crear la base de datos
-  • Definir charset y collation
-  • Usar nombre: ventas_db
-
-ARCHIVO A CREAR:
-  📁 database/scripts/01_crear_base_datos.sql
-
-TIEMPO ESTIMADO: 30 minutos
-
-
+Crea el archivo SQL para crear la base de datos con nombre ventas_db, definiendo charset utf8mb4 y collation apropiado. Archivo: database/scripts/01_crear_base_datos.sql. Tiempo estimado: 30 minutos.
 TAREA 2.2: Script de Creación de Tablas
-────────────────────────────────────────
-QUÉ HACER:
-  • Escribir sentencias CREATE TABLE para todas las tablas
-  • Definir campos, tipos de datos y restricciones
-  • Establecer relaciones (FOREIGN KEY)
-  • Definir valores por defecto
-  • Agregar índices si es necesario
-
-IMPORTANTE:
-  • Orden de creación importa (tablas padre primero)
-  • Usar ENGINE=InnoDB
-  • Definir charset utf8mb4
-
-ARCHIVO A CREAR:
-  📁 database/scripts/02_crear_tablas.sql
-
-TIEMPO ESTIMADO: 1-2 días
-
-
+Escribe sentencias CREATE TABLE para todas las tablas, definiendo campos, tipos de datos y restricciones. Establece relaciones usando FOREIGN KEY, define valores por defecto y agrega índices si es necesario. Es importante el orden de creación, creando primero las tablas padre. Usa ENGINE igual a InnoDB y charset utf8mb4. Archivo: database/scripts/02_crear_tablas.sql. Tiempo estimado: 1-2 días.
 TAREA 2.3: Script de Datos de Prueba
-─────────────────────────────────────
-QUÉ HACER:
-  • Insertar al menos 1 usuario administrador
-  • Insertar 5-10 categorías
-  • Insertar 20-30 productos variados
-  • Insertar 5-10 clientes de prueba
-  • Insertar 3-5 ventas de ejemplo
-
-POR QUÉ ES IMPORTANTE:
-  • Permite probar el sistema inmediatamente
-  • Otros del equipo pueden trabajar con datos reales
-  • Facilita las pruebas de funcionalidad
-
-ARCHIVO A CREAR:
-  📁 database/scripts/03_insertar_datos.sql
-
-TIEMPO ESTIMADO: 1 día
-
-
-┌───────────────────────────────────────────────────────────────────┐
-│ SEMANA 3: CLASES DE MODELO EN JAVA                               │
-└───────────────────────────────────────────────────────────────────┘
-
-TAREA 3.1: Crear Clases de Entidad
-───────────────────────────────────
-QUÉ HACER:
-  • Por cada tabla, crear una clase Java
-  • Cada campo de la tabla → un atributo en la clase
-  • Crear constructores (vacío y con parámetros)
-  • Generar getters y setters
-  • Implementar método toString()
-
-CLASES A CREAR:
-  ☐ Usuario.java
-  ☐ Cliente.java
-  ☐ Categoria.java
-  ☐ Producto.java
-  ☐ Venta.java
-  ☐ DetalleVenta.java
-
-UBICACIÓN:
-  📁 src/main/java/com/ventas/modelos/
-
-ESTRUCTURA DE CADA CLASE:
-  1. Atributos privados
-  2. Constructor vacío
-  3. Constructor con todos los parámetros
-  4. Getters y Setters
-  5. toString()
-  6. equals() y hashCode() (opcional pero recomendado)
-
-EJEMPLO DE ATRIBUTOS:
-
-Clase Usuario:
-  - int id
-  - String usuario
-  - String password
-  - String nombre
-  - String apellido
-  - String email
-  - TipoUsuario rol (enum)
-  - boolean activo
-  - LocalDateTime fechaCreacion
-
-Clase Producto:
-  - int id
-  - String nombre
-  - String descripcion
-  - double precio
-  - int stock
-  - int categoriaId
-  - boolean activo
-  - LocalDateTime fechaCreacion
-
-TIEMPO ESTIMADO: 2-3 días
-
-
-TAREA 3.2: Crear Enumeraciones (Enums)
-───────────────────────────────────────
-QUÉ HACER:
-  • Crear enumeraciones para valores fijos del sistema
-  • Agregar descripción a cada valor
-  • Implementar métodos útiles
-
-ENUMS A CREAR:
-  ☐ TipoUsuario.java (ADMIN, VENDEDOR, CAJERO)
-  ☐ EstadoVenta.java (PENDIENTE, COMPLETADA, CANCELADA)
-  ☐ TipoPago.java (EFECTIVO, TARJETA, TRANSFERENCIA)
-  ☐ EstadoProducto.java (DISPONIBLE, AGOTADO, DESCONTINUADO)
-
-UBICACIÓN:
-  📁 src/main/java/com/ventas/enums/
-
-ESTRUCTURA DE CADA ENUM:
-  1. Declarar valores
-  2. Agregar atributo descripción
-  3. Constructor privado
-  4. Getter de descripción
-  5. Método estático para buscar por descripción (opcional)
-
-TIEMPO ESTIMADO: 1 día
-
-
-┌───────────────────────────────────────────────────────────────────┐
-│ ENTREGABLES FINALES                                               │
-└───────────────────────────────────────────────────────────────────┘
-
-☐ Diagrama Entidad-Relación (imagen PNG)
-☐ Diccionario de datos (documento TXT)
-☐ Script crear base de datos
-☐ Script crear tablas
-☐ Script insertar datos de prueba
-☐ 6 clases de modelo en Java
-☐ 4 enumeraciones en Java
-
-
-┌───────────────────────────────────────────────────────────────────┐
-│ COORDINACIÓN CON OTROS                                            │
-└───────────────────────────────────────────────────────────────────┘
-
-TRABAJAS DE CERCA CON:
-  • PERSONA 3 (DAOs): Tus modelos serán usados en los DAOs
-  • PERSONA 6 (Coordinador): Revisa tu diagrama ER
-  • TODO EL EQUIPO: Todos usarán tus clases de modelo
-
-
-╔═══════════════════════════════════════════════════════════════════╗
-║                          PERSONA 2                                ║
-║                   DESARROLLADOR BACKEND                           ║
-║                    (Utilidades y Config)                          ║
-╚═══════════════════════════════════════════════════════════════════╝
-
-NOMBRE: _______________________________  CONTACTO: ___________________
-
-┌───────────────────────────────────────────────────────────────────┐
-│ TU ROL EN EL PROYECTO                                             │
-└───────────────────────────────────────────────────────────────────┘
-
-Eres el INGENIERO DE INFRAESTRUCTURA. Te encargas de:
-  • Clases base que otros heredarán
-  • Herramientas y utilidades que todos usarán
-  • Configuraciones del sistema
-  • Funciones auxiliares comunes
-
-SIN TI, cada desarrollador tendría que crear sus propias herramientas,
-resultando en código duplicado y desorganizado.
-
-
-┌───────────────────────────────────────────────────────────────────┐
-│ CARPETAS DONDE TRABAJARÁS                                         │
-└───────────────────────────────────────────────────────────────────┘
-
-✓ src/main/java/com/ventas/abstractas/    → Clases abstractas
-✓ src/main/java/com/ventas/util/          → Utilidades
-✓ src/main/resources/config/              → Configuraciones
-
-
-┌───────────────────────────────────────────────────────────────────┐
-│ SEMANA 1-2: CLASES ABSTRACTAS                                     │
-└───────────────────────────────────────────────────────────────────┘
-
-TAREA 1: Crear Clase Abstracta Base para Entidades
-────────────────────────────────────────────────────
-QUÉ HACER:
-  • Crear clase abstracta que todos los modelos heredarán
-  • Incluir campos comunes (id, fechaCreacion, activo)
-  • Métodos abstractos para validación
-
-CLASE A CREAR:
-  ☐ Entidad.java
-
-QUÉ DEBE INCLUIR:
-  • Atributos comunes (id, fechaCreacion, activo)
-  • Getters y Setters
-  • Método abstracto: validar()
-  • Método abstracto: tieneId()
-
-UBICACIÓN:
-  📁 src/main/java/com/ventas/abstractas/
-
-BENEFICIO:
-  • Evita repetir código en cada modelo
-  • Garantiza que todas las entidades tengan campos básicos
-
-TIEMPO ESTIMADO: 1 día
-
-
-TAREA 2: Crear Clase Abstracta para DAOs
-─────────────────────────────────────────
-QUÉ HACER:
-  • Crear clase base para operaciones de base de datos
-  • Definir métodos abstractos CRUD
-  • Implementar métodos de utilidad comunes
-
-CLASE A CREAR:
-  ☐ DAOBase.java
-
-QUÉ DEBE INCLUIR:
-  • Métodos abstractos: insertar, actualizar, eliminar, buscarPorId, listarTodos
-  • Métodos de utilidad: cerrarRecursos, manejarExcepcion
-  • Atributo Connection (opcional)
-
-UBICACIÓN:
-  📁 src/main/java/com/ventas/abstractas/
-
-BENEFICIO:
-  • Los DAOs heredarán esta clase
-  • Código más organizado y reutilizable
-
-TIEMPO ESTIMADO: 1-2 días
-
-
-TAREA 3: Crear Clase Abstracta Persona
-───────────────────────────────────────
-QUÉ HACER:
-  • Clase base para Usuario y Cliente
-  • Incluir campos comunes de personas
-
-CLASE A CREAR:
-  ☐ Persona.java
-
-QUÉ DEBE INCLUIR:
-  • Atributos: nombre, apellido, email, telefono
-  • Getters y Setters
-  • Método: getNombreCompleto()
-  • Método abstracto: getTipo()
-
-UBICACIÓN:
-  📁 src/main/java/com/ventas/abstractas/
-
-TIEMPO ESTIMADO: 1 día
-
-
-┌───────────────────────────────────────────────────────────────────┐
-│ SEMANA 3-4: CLASES DE UTILIDADES                                 │
-└───────────────────────────────────────────────────────────────────┘
-
-TAREA 4: Crear Clase Validador
-───────────────────────────────
-QUÉ HACER:
-  • Métodos para validar datos de entrada
-  • Validaciones comunes que TODO el sistema usará
-
-CLASE A CREAR:
-  ☐ Validador.java
-
-MÉTODOS A IMPLEMENTAR:
-  • validarEmail(String email) → boolean
-  • validarTelefono(String telefono) → boolean
-  • validarDNI(String dni) → boolean
-  • validarNumeroPositivo(String texto) → boolean
-  • validarFecha(String fecha) → boolean
-  • validarTextoNoVacio(String texto) → boolean
-  • validarRangoNumero(double numero, double min, double max) → boolean
-  • validarLongitudTexto(String texto, int min, int max) → boolean
-
-UBICACIÓN:
-  📁 src/main/java/com/ventas/util/
-
-POR QUÉ ES IMPORTANTE:
-  • Evita datos incorrectos en la base de datos
-  • Mejora la experiencia del usuario
-  • Código de validación centralizado
-
-TIEMPO ESTIMADO: 2 días
-
-
-TAREA 5: Crear Clase FormatoUtil
-─────────────────────────────────
-QUÉ HACER:
-  • Métodos para formatear datos para mostrar
-
-CLASE A CREAR:
-  ☐ FormatoUtil.java
-
-MÉTODOS A IMPLEMENTAR:
-  • formatearMoneda(double monto) → String (Ej: "S/ 150.50")
-  • formatearFecha(LocalDateTime fecha) → String
-  • formatearHora(LocalDateTime fecha) → String
-  • formatearNumeroConDecimales(double numero, int decimales) → String
-  • formatearTelefono(String telefono) → String
-  • formatearDNI(String dni) → String
-
-UBICACIÓN:
-  📁 src/main/java/com/ventas/util/
-
-TIEMPO ESTIMADO: 1-2 días
-
-
-TAREA 6: Crear Clase FechaUtil
-───────────────────────────────
-QUÉ HACER:
-  • Métodos para trabajar con fechas
-
-CLASE A CREAR:
-  ☐ FechaUtil.java
-
-MÉTODOS A IMPLEMENTAR:
-  • obtenerFechaActual() → LocalDateTime
-  • convertirStringAFecha(String fecha) → LocalDateTime
-  • convertirFechaAString(LocalDateTime fecha) → String
-  • calcularDiferenciaDias(LocalDateTime inicio, LocalDateTime fin) → int
-  • esFechaValida(String fecha) → boolean
-  • obtenerPrimerDiaMes() → LocalDateTime
-  • obtenerUltimoDiaMes() → LocalDateTime
-
-UBICACIÓN:
-  📁 src/main/java/com/ventas/util/
-
-TIEMPO ESTIMADO: 1-2 días
-
-
-TAREA 7: Crear Clase NumeroUtil
-────────────────────────────────
-QUÉ HACER:
-  • Métodos para trabajar con números
-
-CLASE A CREAR:
-  ☐ NumeroUtil.java
-
-MÉTODOS A IMPLEMENTAR:
-  • redondear(double numero, int decimales) → double
-  • esNumero(String texto) → boolean
-  • convertirTextoADouble(String texto) → double
-  • calcularPorcentaje(double total, double porcentaje) → double
-  • calcularIGV(double monto) → double (IGV = 18%)
-  • generarNumeroAleatorio(int min, int max) → int
-
-UBICACIÓN:
-  📁 src/main/java/com/ventas/util/
-
-TIEMPO ESTIMADO: 1 día
-
-
-TAREA 8: Crear Clase StringUtil
-────────────────────────────────
-QUÉ HACER:
-  • Métodos para manipular textos
-
-CLASE A CREAR:
-  ☐ StringUtil.java
-
-MÉTODOS A IMPLEMENTAR:
-  • capitalizar(String texto) → String (primera letra mayúscula)
-  • quitarEspacios(String texto) → String
-  • estaVacio(String texto) → boolean
-  • truncar(String texto, int longitud) → String
-  • contieneSoloLetras(String texto) → boolean
-  • contieneSoloNumeros(String texto) → boolean
-  • limpiarTexto(String texto) → String
-
-UBICACIÓN:
-  📁 src/main/java/com/ventas/util/
-
-TIEMPO ESTIMADO: 1 día
-
-
-┌───────────────────────────────────────────────────────────────────┐
-│ SEMANA 2: ARCHIVOS DE CONFIGURACIÓN                              │
-└───────────────────────────────────────────────────────────────────┘
-
-TAREA 9: Crear database.properties
-───────────────────────────────────
-QUÉ HACER:
-  • Archivo con configuración de conexión a base de datos
-
-ARCHIVO A CREAR:
-  📁 src/main/resources/config/database.properties
-
-QUÉ DEBE CONTENER:
-  • URL de conexión
-  • Usuario de base de datos
-  • Contraseña
-  • Driver de MySQL
-  • Configuraciones de pool de conexiones
-
-TIEMPO ESTIMADO: 30 minutos
-
-
-TAREA 10: Crear application.properties
-───────────────────────────────────────
-QUÉ HACER:
-  • Configuraciones generales de la aplicación
-
-ARCHIVO A CREAR:
-  📁 src/main/resources/config/application.properties
-
-QUÉ DEBE CONTENER:
-  • Nombre de la aplicación
-  • Versión
-  • Nombre de la empresa
-  • Configuraciones de negocio (IGV, descuentos, etc.)
-  • Rutas de archivos
-
-TIEMPO ESTIMADO: 30 minutos
-
-
-TAREA 11: Crear Clase ConfigUtil
-─────────────────────────────────
-QUÉ HACER:
-  • Clase que lee los archivos properties
-
-CLASE A CREAR:
-  ☐ ConfigUtil.java
-
-MÉTODOS A IMPLEMENTAR:
-  • cargarConfiguracion(String archivo) → Properties
-  • obtenerPropiedad(String clave) → String
-  • obtenerPropiedadInt(String clave) → int
-  • obtenerPropiedadDouble(String clave) → double
-  • obtenerPropiedadBoolean(String clave) → boolean
-
-UBICACIÓN:
-  📁 src/main/java/com/ventas/util/
-
-TIEMPO ESTIMADO: 1-2 días
-
-
-┌───────────────────────────────────────────────────────────────────┐
-│ ENTREGABLES FINALES                                               │
-└───────────────────────────────────────────────────────────────────┘
-
-CLASES ABSTRACTAS:
-☐ Entidad.java
-☐ DAOBase.java
-☐ Persona.java
-
-CLASES DE UTILIDAD:
-☐ Validador.java
-☐ FormatoUtil.java
-☐ FechaUtil.java
-☐ NumeroUtil.java
-☐ StringUtil.java
-☐ ConfigUtil.java
-
-ARCHIVOS DE CONFIGURACIÓN:
-☐ database.properties
-☐ application.properties
-
-
-┌───────────────────────────────────────────────────────────────────┐
-│ COORDINACIÓN CON OTROS                                            │
-└───────────────────────────────────────────────────────────────────┘
-
-TRABAJAS DE CERCA CON:
-  • PERSONA 1 (DBA): Tus clases abstractas se relacionan con los modelos
-  • PERSONA 3 (DAOs): Tu DAOBase será heredada por todos los DAOs
-  • TODO EL EQUIPO: Todos usarán tus utilidades
-
-
-╔═══════════════════════════════════════════════════════════════════╗
-║                          PERSONA 3                                ║
-║                     DESARROLLADOR DAOs                            ║
-║                  (Data Access Objects)                            ║
-╚═══════════════════════════════════════════════════════════════════╝
-
-NOMBRE: _______________________________  CONTACTO: ___________________
-
-┌───────────────────────────────────────────────────────────────────┐
-│ TU ROL EN EL PROYECTO                                             │
-└───────────────────────────────────────────────────────────────────┘
-
-Eres el PUENTE entre Java y la Base de Datos. Te encargas de:
-  • Conectar la aplicación con MySQL
-  • Ejecutar consultas SQL (SELECT, INSERT, UPDATE, DELETE)
-  • Convertir datos de BD a objetos Java
-  • Implementar todas las operaciones CRUD
-
-SIN TI, ningún dato se guardará ni se recuperará de la base de datos.
-
-
-┌───────────────────────────────────────────────────────────────────┐
-│ CARPETAS DONDE TRABAJARÁS                                         │
-└───────────────────────────────────────────────────────────────────┘
-
-✓ src/main/java/com/ventas/interfaces/    → Interfaces DAO
-✓ src/main/java/com/ventas/dao/           → Implementaciones DAO
-
-
-┌───────────────────────────────────────────────────────────────────┐
-│ SEMANA 2: INTERFACES DAO                                          │
-└───────────────────────────────────────────────────────────────────┘
-
-TAREA 1: Crear Interfaz ICRUD Genérica
-───────────────────────────────────────
-QUÉ HACER:
-  • Crear interfaz genérica con operaciones CRUD básicas
-  • Será implementada por todos los DAOs
-
-INTERFAZ A CREAR:
-  ☐ ICRUD.java
-
-MÉTODOS A DEFINIR:
-  • void insertar(T objeto)
-  • void actualizar(T objeto)
-  • void eliminar(int id)
-  • T buscarPorId(int id)
-  • List<T> listarTodos()
-
-UBICACIÓN:
-  📁 src/main/java/com/ventas/interfaces/
-
-TIEMPO ESTIMADO: 1 hora
-
-
-TAREA 2: Crear Interfaces Específicas
-──────────────────────────────────────
-QUÉ HACER:
-  • Crear una interfaz por cada entidad
-  • Extender de ICRUD
-  • Agregar métodos específicos de cada entidad
-
-INTERFACES A CREAR:
-  ☐ IUsuarioDAO.java
-  ☐ IClienteDAO.java
-  ☐ ICategoriaDAO.java
-  ☐ IProductoDAO.java
-  ☐ IVentaDAO.java
-  ☐ IDetalleVentaDAO.java
-
-MÉTODOS ESPECÍFICOS SUGERIDOS:
-
-IUsuarioDAO:
-  • Usuario buscarPorUsuario(String usuario)
-  • Usuario validarCredenciales(String usuario, String password)
-  • List<Usuario> listarPorRol(TipoUsuario rol)
-
-IClienteDAO:
-  • Cliente buscarPorDNI(String dni)
-  • List<Cliente> buscarPorNombre(String nombre)
-
-IProductoDAO:
-  • List<Producto> listarPorCategoria(int categoriaId)
-  • List<Producto> buscarPorNombre(String nombre)
-  • void actualizarStock(int productoId, int cantidad)
-
-IVentaDAO:
-  • List<Venta> listarPorFecha(LocalDateTime inicio, LocalDateTime fin)
-  • List<Venta> listarPorCliente(int clienteId)
-  • double calcularTotalVentasDia(LocalDateTime fecha)
-
-UBICACIÓN:
-  📁 src/main/java/com/ventas/interfaces/
-
-TIEMPO ESTIMADO: 1-2 días
-
-
-┌───────────────────────────────────────────────────────────────────┐
-│ SEMANA 3: CLASE DE CONEXIÓN                                       │
-└───────────────────────────────────────────────────────────────────┘
-
-TAREA 3: Crear ConexionDB
-──────────────────────────
-QUÉ HACER:
-  • Clase para manejar conexiones a MySQL
-  • Implementar patrón Singleton
-  • Leer configuración de database.properties
-
-CLASE A CREAR:
-  ☐ ConexionDB.java
-
-MÉTODOS A IMPLEMENTAR:
-  • Connection obtenerConexion()
-  • void cerrarConexion(Connection conn)
-  • void cerrarStatement(Statement stmt)
-  • void cerrarResultSet(ResultSet rs)
-
-IMPORTANTE:
-  • Solo debe existir UNA instancia de esta clase
-  • Manejar excepciones de conexión
-  • Cerrar recursos adecuadamente
-
-UBICACIÓN:
-  📁 src/main/java/com/ventas/dao/
-
-TIEMPO ESTIMADO: 1-2 días
-
-
-┌───────────────────────────────────────────────────────────────────┐
-│ SEMANA 4-6: IMPLEMENTAR TODOS LOS DAOs                           │
-└───────────────────────────────────────────────────────────────────┘
-
-PARA CADA DAO DEBES:
-
-1. Crear la clase
-2. Implementar su interfaz correspondiente
-3. Implementar TODOS los métodos de la interfaz
-4. Manejar excepciones apropiadamente
-5. Cerrar recursos (Connection, Statement, ResultSet)
-6. Probar que funcione
-
-
-TAREA 4: Crear UsuarioDAO
-──────────────────────────
-CLASE A CREAR:
-  ☐ UsuarioDAO.java
-
-MÉTODOS A IMPLEMENTAR:
-  • insertar(Usuario usuario)
-  • actualizar(Usuario usuario)
-  • eliminar(int id)
-  • buscarPorId(int id)
-  • listarTodos()
-  • buscarPorUsuario(String usuario)
-  • validarCredenciales(String usuario, String password)
-  • listarPorRol(TipoUsuario rol)
-
-RESPONSABILIDADES:
-  • Ejecutar consultas SQL de usuarios
-  • Mapear ResultSet a objeto Usuario
-  • Validar que usuario no exista antes de insertar
-
-UBICACIÓN:
-  📁 src/main/java/com/ventas/dao/
-
-TIEMPO ESTIMADO: 2-3 días
-
-
-TAREA 5: Crear ClienteDAO
-──────────────────────────
-CLASE A CREAR:
-  ☐ ClienteDAO.java
-
-MÉTODOS A IMPLEMENTAR:
-  • insertar(Cliente cliente)
-  • actualizar(Cliente cliente)
-  • eliminar(int id)
-  • buscarPorId(int id)
-  • listarTodos()
-  • buscarPorDNI(String dni)
-  • buscarPorNombre(String nombre)
-
-RESPONSABILIDADES:
-  • Ejecutar consultas SQL de clientes
-  • Mapear ResultSet a objeto Cliente
-  • Validar que DNI no esté duplicado
-
-UBICACIÓN:
-  📁 src/main/java/com/ventas/dao/
-
-TIEMPO ESTIMADO: 2 días
-
-
-TAREA 6: Crear CategoriaDAO
-────────────────────────────
-CLASE A CREAR:
-  ☐ CategoriaDAO.java
-
-MÉTODOS A IMPLEMENTAR:
-  • insertar(Categoria categoria)
-  • actualizar(Categoria categoria)
-  • eliminar(int id)
-  • buscarPorId(int id)
-  • listarTodos()
-
-RESPONSABILIDADES:
-  • Ejecutar consultas SQL de categorías
-  • Mapear ResultSet a objeto Categoria
-
-UBICACIÓN:
-  📁 src/main/java/com/ventas/dao/
-
-TIEMPO ESTIMADO: 1-2 días
-
-
-TAREA 7: Crear ProductoDAO
-───────────────────────────
-CLASE A CREAR:
-  ☐ ProductoDAO.java
-
-MÉTODOS A IMPLEMENTAR:
-  • insertar(Producto producto)
-  • actualizar(Producto producto)
-  • eliminar(int id)
-  • buscarPorId(int id)
-  • listarTodos()
-  • listarPorCategoria(int categoriaId)
-  • buscarPorNombre(String nombre)
-  • actualizarStock(int productoId, int cantidad)
-
-RESPONSABILIDADES:
-  • Ejecutar consultas SQL de productos
-  • Mapear ResultSet a objeto Producto
-  • Manejar actualización de stock
-
-UBICACIÓN:
-  📁 src/main/java/com/ventas/dao/
-
-TIEMPO ESTIMADO: 2-3 días
-
-
-TAREA 8: Crear VentaDAO
-───────────────────────
-CLASE A CREAR:
-  ☐ VentaDAO.java
-
-MÉTODOS A IMPLEMENTAR:
-  • insertar(Venta venta)
-  • actualizar(Venta venta)
-  • eliminar(int id)
-  • buscarPorId(int id)
-  • listarTodos()
-  • listarPorFecha(LocalDateTime inicio, LocalDateTime fin)
-  • listarPorCliente(int clienteId)
-  • calcularTotalVentasDia(LocalDateTime fecha)
-
-RESPONSABILIDADES:
-  • Ejecutar consultas SQL de ventas
-  • Mapear ResultSet a objeto Venta
-  • Manejar transacciones (insertar venta + detalles)
-
-UBICACIÓN:
-  📁 src/main/java/com/ventas/dao/
-
-TIEMPO ESTIMADO: 3 días
-
-
-TAREA 9: Crear DetalleVentaDAO
-───────────────────────────────
-CLASE A CREAR:
-  ☐ DetalleVentaDAO.java
-
-MÉTODOS A IMPLEMENTAR:
-  • insertar(DetalleVenta detalle)
-  • actualizar(DetalleVenta detalle)
-  • eliminar(int id)
-  • buscarPorId(int id)
-  • listarTodos()
-  • listarPorVenta(int ventaId)
-
-RESPONSABILIDADES:
-  • Ejecutar consultas SQL de detalle_ventas
-  • Mapear ResultSet a objeto DetalleVenta
-  • Trabajar en conjunto con VentaDAO
-
-UBICACIÓN:
-  📁 src/main/java/com/ventas/dao/
-
-TIEMPO ESTIMADO: 2 días
-
-
-┌───────────────────────────────────────────────────────────────────┐
-│ CONSIDERACIONES IMPORTANTES                                       │
-└───────────────────────────────────────────────────────────────────┘
-
-MANEJO DE EXCEPCIONES:
-  • Siempre usar try-catch-finally
-  • Cerrar recursos en finally o usar try-with-resources
-  • Loggear errores para debugging
-  • Lanzar excepciones personalizadas si es necesario
-
-TRANSACCIONES:
-  • Usar setAutoCommit(false) para transacciones
-  • Hacer commit() si todo sale bien
-  • Hacer rollback() si hay error
-  • Ejemplo: Al insertar una venta con detalles
-
-POOL DE CONEXIONES (OPCIONAL):
-  • Considerar implementar pool de conexiones
-  • Mejora el rendimiento
-  • Librerías: HikariCP, Apache DBCP
-
-PRUEBAS:
-  • Probar CADA método después de implementarlo
-  • Crear una clase Main temporal para pruebas
-  • Verificar que los datos se guarden correctamente
-
-
-┌───────────────────────────────────────────────────────────────────┐
-│ ENTREGABLES FINALES                                               │
-└───────────────────────────────────────────────────────────────────┘
-
-INTERFACES:
-☐ ICRUD.java
-☐ IUsuarioDAO.java
-☐ IClienteDAO.java
-☐ ICategoriaDAO.java
-☐ IProductoDAO.java
-☐ IVentaDAO.java
-☐ IDetalleVentaDAO.java
-
-CLASES DAO:
-☐ ConexionDB.java
-☐ UsuarioDAO.java
-☐ ClienteDAO.java
-☐ CategoriaDAO.java
-☐ ProductoDAO.java
-☐ VentaDAO.java
-☐ DetalleVentaDAO.java
-
-
-┌───────────────────────────────────────────────────────────────────┐
-│ COORDINACIÓN CON OTROS                                            │
-└───────────────────────────────────────────────────────────────────┘
-
-DEPENDES DE:
-  • PERSONA 1 (DBA): Necesitas las clases de modelo y la BD lista
-  • PERSONA 2 (Backend): Usarás sus clases abstractas y utilidades
-
-TE NECESITAN:
-  • PERSONA 4 (Servicios): Usará tus DAOs
-  • PERSONA 5 (Controladores): Indirectamente a través de servicios
-
-
-╔═══════════════════════════════════════════════════════════════════╗
-║                          PERSONA 4                                ║
-║                   DESARROLLADOR DE SERVICIOS                      ║
-║                     (Lógica de Negocio)                           ║
-╚═══════════════════════════════════════════════════════════════════╝
-
-NOMBRE: _______________________________  CONTACTO: ___________________
-
-┌───────────────────────────────────────────────────────────────────┐
-│ TU ROL EN EL PROYECTO                                             │
-└───────────────────────────────────────────────────────────────────┘
-
-Eres el CEREBRO DEL SISTEMA. Te encargas de:
-  • Implementar reglas de negocio
-  • Validar operaciones complejas
-  • Coordinar múltiples DAOs
-  • Realizar cálculos y procesos
-  • Aplicar lógica específica del negocio
-
-SIN TI, el sistema solo guardaría y recuperaría datos sin inteligencia
-ni validaciones de negocio.
-
-
-┌───────────────────────────────────────────────────────────────────┐
-│ CARPETAS DONDE TRABAJARÁS                                         │
-└───────────────────────────────────────────────────────────────────┘
-
-✓ src/main/java/com/ventas/servicios/
-
-
-┌───────────────────────────────────────────────────────────────────┐
-│ SEMANA 4-5: CREAR SERVICIOS                                       │
-└───────────────────────────────────────────────────────────────────┘
-
-TAREA 1: Crear UsuarioService
-──────────────────────────────
-CLASE A CREAR:
-  ☐ UsuarioService.java
-
-MÉTODOS A IMPLEMENTAR:
-  • registrarUsuario(Usuario usuario)
-  • actualizarUsuario(Usuario usuario)
-  • eliminarUsuario(int id)
-  • buscarUsuario(int id)
-  • listarUsuarios()
-  • validarLogin(String usuario, String password)
-  • cambiarPassword(int id, String passwordAnterior, String passwordNuevo)
-  • verificarUsuarioExiste(String usuario)
-
-LÓGICA DE NEGOCIO:
-  • Validar que el usuario no exista antes de registrar
-  • Encriptar password antes de guardar (opcional)
-  • Validar formato de email
-  • Validar campos obligatorios
-  • No permitir eliminar usuario si tiene ventas registradas
-
-UBICACIÓN:
-  📁 src/main/java/com/ventas/servicios/
-
-TIEMPO ESTIMADO: 2-3 días
-
-
-TAREA 2: Crear ClienteService
-──────────────────────────────
-CLASE A CREAR:
-  ☐ ClienteService.java
-
-MÉTODOS A IMPLEMENTAR:
-  • registrarCliente(Cliente cliente)
-  • actualizarCliente(Cliente cliente)
-  • eliminarCliente(int id)
-  • buscarCliente(int id)
-  • listarClientes()
-  • buscarPorDNI(String dni)
-  • buscarPorNombre(String nombre)
-  • verificarDNIDuplicado(String dni)
-
-LÓGICA DE NEGOCIO:
-  • Validar que DNI no esté duplicado
-  • Validar formato de DNI (8 dígitos)
-  • Validar formato de email
-  • Validar formato de teléfono
-  • No permitir eliminar si tiene ventas
-
-UBICACIÓN:
-  📁 src/main/java/com/ventas/servicios/
-
-TIEMPO ESTIMADO: 2 días
-
-
-TAREA 3: Crear ProductoService
-───────────────────────────────
-CLASE A CREAR:
-  ☐ ProductoService.java
-
-MÉTODOS A IMPLEMENTAR:
-  • registrarProducto(Producto producto)
-  • actualizarProducto(Producto producto)
-  • eliminarProducto(int id)
-  • buscarProducto(int id)
-  • listarProductos()
-  • listarPorCategoria(int categoriaId)
-  • buscarPorNombre(String nombre)
-  • actualizarStock(int productoId, int cantidad)
-  • verificarStockDisponible(int productoId, int cantidadRequerida)
-  • reducirStock(int productoId, int cantidad)
-  • aumentarStock(int productoId, int cantidad)
-
-LÓGICA DE NEGOCIO:
-  • Validar que precio sea mayor a 0
-  • Validar que stock no sea negativo
-  • No permitir vender si no hay stock suficiente
-  • Actualizar stock automáticamente al vender
-  • Validar que categoría exista
-  • No permitir eliminar si tiene ventas asociadas
-
-UBICACIÓN:
-  📁 src/main/java/com/ventas/servicios/
-
-TIEMPO ESTIMADO: 2-3 días
-
-
-TAREA 4: Crear VentaService
-────────────────────────────
-CLASE A CREAR:
-  ☐ VentaService.java
-
-MÉTODOS A IMPLEMENTAR:
-  • procesarVenta(Venta venta, List<DetalleVenta> detalles)
-  • calcularTotalVenta(List<DetalleVenta> detalles)
-  • calcularIGV(double subtotal)
-  • validarStockProductos(List<DetalleVenta> detalles)
-  • buscarVenta(int id)
-  • listarVentas()
-  • listarVentasPorFecha(LocalDateTime inicio, LocalDateTime fin)
-  • listarVentasPorCliente(int clienteId)
-  • obtenerDetallesVenta(int ventaId)
-  • calcularTotalVentasDia(LocalDateTime fecha)
-  • anularVenta(int ventaId)
-  • generarReporteVentas(LocalDateTime inicio, LocalDateTime fin)
-
-LÓGICA DE NEGOCIO CRÍTICA:
-  • Verificar stock ANTES de procesar venta
-  • Calcular subtotal = suma de (cantidad × precio_unitario)
-  • Calcular IGV = subtotal × 0.18
-  • Calcular total = subtotal + IGV
-  • Actualizar stock de productos después de venta
-  • Usar transacciones (si falla algo, hacer rollback)
-  • Validar que cliente existe
-  • Validar que productos existen
-  • Al anular venta, devolver stock
-
-UBICACIÓN:
-  📁 src/main/java/com/ventas/servicios/
-
-TIEMPO ESTIMADO: 4-5 días
-
-
-TAREA 5: Crear CategoriaService
-────────────────────────────────
-CLASE A CREAR:
-  ☐ CategoriaService.java
-
-MÉTODOS A IMPLEMENTAR:
-  • registrarCategoria(Categoria categoria)
-  • actualizarCategoria(Categoria categoria)
-  • eliminarCategoria(int id)
-  • buscarCategoria(int id)
-  • listarCategorias()
-  • verificarCategoriaEnUso(int id)
-
-LÓGICA DE NEGOCIO:
-  • Validar que nombre no esté vacío
-  • No permitir eliminar si tiene productos asociados
-  • Validar que nombre de categoría sea único
-
-UBICACIÓN:
-  📁 src/main/java/com/ventas/servicios/
-
-TIEMPO ESTIMADO: 1-2 días
-
-
-TAREA 6: Crear ReporteService
-──────────────────────────────
-CLASE A CREAR:
-  ☐ ReporteService.java
-
-MÉTODOS A IMPLEMENTAR:
-  • generarReporteVentasDiarias(LocalDateTime fecha)
-  • generarReporteVentasMensuales(int mes, int anio)
-  • obtenerProductosMasVendidos(int limite)
-  • obtenerClientesFrecuentes(int limite)
-  • calcularGananciasDelDia(LocalDateTime fecha)
-  • calcularGananciasMensuales(int mes, int anio)
-  • obtenerEstadisticasGenerales()
-  • generarReporteInventario()
-
-LÓGICA DE NEGOCIO:
-  • Consultar ventas por rangos de fecha
-  • Realizar cálculos estadísticos
-  • Agrupar y ordenar datos
-  • Generar resúmenes
-
-UBICACIÓN:
-  📁 src/main/java/com/ventas/servicios/
-
-TIEMPO ESTIMADO: 2-3 días
-
-
-┌───────────────────────────────────────────────────────────────────┐
-│ CONSIDERACIONES IMPORTANTES                                       │
-└───────────────────────────────────────────────────────────────────┘
-
-VALIDACIONES:
-  • SIEMPRE validar datos antes de llamar al DAO
-  • Lanzar excepciones con mensajes claros
-  • No confiar en que la interfaz valida todo
-
-TRANSACCIONES:
-  • Para operaciones complejas (venta con detalles)
-  • Coordinar múltiples DAOs
-  • Si algo falla, revertir TODO
-
-EXCEPCIONES PERSONALIZADAS:
-  • Crear excepciones específicas de negocio
-  • Ejemplo: StockInsuficienteException
-  • Ejemplo: ClienteNoEncontradoException
-
-SEPARACIÓN DE RESPONSABILIDADES:
-  • Servicio = Lógica de negocio
-  • DAO = Acceso a datos
-  • NO mezclar responsabilidades
-
-
-┌───────────────────────────────────────────────────────────────────┐
-│ ENTREGABLES FINALES                                               │
-└───────────────────────────────────────────────────────────────────┘
-
-☐ UsuarioService.java
-☐ ClienteService.java
-☐ ProductoService.java
-☐ VentaService.java
-☐ CategoriaService.java
-☐ ReporteService.java
-
-
-┌───────────────────────────────────────────────────────────────────┐
-│ COORDINACIÓN CON OTROS                                            │
-└───────────────────────────────────────────────────────────────────┘
-
-DEPENDES DE:
-  • PERSONA 3 (DAOs): Usarás todos los DAOs
-  • PERSONA 2 (Backend): Usarás utilidades de validación
-
-TE NECESITAN:
-  • PERSONA 5 (Controladores): Llamará a tus servicios
-
-
-╔═══════════════════════════════════════════════════════════════════╗
-║                          PERSONA 5                                ║
-║                  DESARROLLADOR DE CONTROLADORES                   ║
-║                        (Eventos UI)                               ║
-╚═══════════════════════════════════════════════════════════════════╝
-
-NOMBRE: _______________________________  CONTACTO: ___________________
-
-┌───────────────────────────────────────────────────────────────────┐
-│ TU ROL EN EL PROYECTO                                             │
-└───────────────────────────────────────────────────────────────────┘
-
-Eres el INTERMEDIARIO entre la Interfaz y el Backend. Te encargas de:
-  • Capturar eventos de botones, clicks, etc.
-  • Validar datos de formularios
-  • Llamar a los servicios correspondientes
-  • Mostrar resultados en la interfaz
-  • Manejar mensajes de error/éxito
-
-SIN TI, los botones no harían nada y la interfaz estaría desconectada
-del backend.
-
-
-┌───────────────────────────────────────────────────────────────────┐
-│ CARPETAS DONDE TRABAJARÁS                                         │
-└───────────────────────────────────────────────────────────────────┘
-
-✓ src/main/java/com/ventas/controladores/
-
-
-┌───────────────────────────────────────────────────────────────────┐
-│ SEMANA 5-6: CREAR CONTROLADORES                                   │
-└───────────────────────────────────────────────────────────────────┘
-
-TAREA 1: Crear LoginController
-───────────────────────────────
-CLASE A CREAR:
-  ☐ LoginController.java
-
-MÉTODOS A IMPLEMENTAR:
-  • iniciarSesion(String usuario, String password)
-  • cerrarSesion()
-  • validarCamposLogin()
-  • mostrarMensajeError(String mensaje)
-  • redirigirAlDashboard()
-
-RESPONSABILIDADES:
-  • Capturar evento del botón "Iniciar Sesión"
-  • Validar que campos no estén vacíos
-  • Llamar a UsuarioService.validarLogin()
-  • Si es válido, abrir ventana principal
-  • Si no, mostrar mensaje de error
-  • Guardar sesión del usuario (opcional)
-
-UBICACIÓN:
-  📁 src/main/java/com/ventas/controladores/
-
-TIEMPO ESTIMADO: 2 días
-
-
-TAREA 2: Crear ProductoController
-──────────────────────────────────
-CLASE A CREAR:
-  ☐ ProductoController.java
-
-MÉTODOS A IMPLEMENTAR:
-  • cargarProductos()
-  • guardarProducto()
-  • actualizarProducto()
-  • eliminarProducto()
-  • buscarProducto()
-  • filtrarPorCategoria()
-  • validarFormularioProducto()
-  • limpiarFormulario()
-  • mostrarProductoEnFormulario(Producto p)
-
-RESPONSABILIDADES:
-  • Cargar lista de productos en tabla
-  • Capturar evento "Guardar Producto"
-  • Validar campos del formulario
-  • Llamar a ProductoService
-  • Actualizar tabla después de operaciones
-  • Mostrar mensajes de confirmación/error
-
-EVENTOS A MANEJAR:
-  • btnGuardar_Click
-  • btnActualizar_Click
-  • btnEliminar_Click
-  • btnBuscar_Click
-  • btnNuevo_Click
-  • cmbCategoria_Change
-  • tablaProductos_SelectionChanged
-
-UBICACIÓN:
-  📁 src/main/java/com/ventas/controladores/
-
-TIEMPO ESTIMADO: 3-4 días
-
-
+Inserta al menos 1 usuario administrador, 5 a 10 categorías, 20 a 30 productos variados, 5 a 10 clientes de prueba y 3 a 5 ventas de ejemplo. Esto permite probar el sistema inmediatamente y facilita las pruebas de funcionalidad. Archivo: database/scripts/03_insertar_datos.sql. Tiempo estimado: 1 día.
+SEMANA 3: ENTIDADES JPA CON SPRING BOOT
+TAREA 3.1: Crear Entidades JPA
+Por cada tabla, crea una clase Java anotada con JPA. Cada campo de la tabla se convierte en un atributo en la clase. A diferencia del enfoque tradicional, aquí usarás anotaciones de JPA como @Entity, @Table, @Id, @GeneratedValue, @Column, @ManyToOne, @OneToMany y @JoinColumn. También usarás Lombok con anotaciones @Data, @NoArgsConstructor, @AllArgsConstructor y @Builder para evitar escribir getters, setters y constructores manualmente.
+Las entidades a crear son Usuario.java, Cliente.java, Categoria.java, Producto.java, Venta.java y DetalleVenta.java. Ubicación: backend/src/main/java/com/ventas/entities/.
+Ejemplo de entidad Producto:
+javapackage com.ventas.entities;
+
+import jakarta.persistence.*;
+import lombok.*;
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "productos")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Producto {
+    
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    
+    @Column(nullable = false, length = 200)
+    private String nombre;
+    
+    @Column(columnDefinition = "TEXT")
+    private String descripcion;
+    
+    @Column(nullable = false)
+    private Double precio;
+    
+    @Column(nullable = false)
+    private Integer stock;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "categoria_id", nullable = false)
+    private Categoria categoria;
+    
+    @Column(nullable = false)
+    private Boolean activo = true;
+    
+    @Column(name = "fecha_creacion", updatable = false)
+    private LocalDateTime fechaCreacion;
+    
+    @PrePersist
+    protected void onCreate() {
+        fechaCreacion = LocalDateTime.now();
+    }
+}
+Ejemplo de entidad Venta con relaciones:
+java@Entity
+@Table(name = "ventas")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class Venta {
+    
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    
+    @ManyToOne
+    @JoinColumn(name = "cliente_id", nullable = false)
+    private Cliente cliente;
+    
+    @ManyToOne
+    @JoinColumn(name = "usuario_id", nullable = false)
+    private Usuario usuario;
+    
+    @OneToMany(mappedBy = "venta", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<DetalleVenta> detalles = new ArrayList<>();
+    
+    @Column(nullable = false)
+    private Double subtotal;
+    
+    @Column(nullable = false)
+    private Double igv;
+    
+    @Column(nullable = false)
+    private Double total;
+    
+    @Enumerated(EnumType.STRING)
+    private TipoPago tipoPago;
+    
+    @Enumerated(EnumType.STRING)
+    private EstadoVenta estado;
+    
+    private LocalDateTime fechaVenta;
+    
+    @PrePersist
+    protected void onCreate() {
+        fechaVenta = LocalDateTime.now();
+        estado = EstadoVenta.COMPLETADA;
+    }
+}
+Nota importante: Usa Long en lugar de int para los IDs, Double en lugar de double para precios, Integer en lugar de int para stock y Boolean en lugar de boolean. Esto permite valores null y es el estándar con JPA.
+Tiempo estimado: 2-3 días.
+TAREA 3.2: Crear Enumeraciones
+Crea enumeraciones para valores fijos del sistema. Usa la anotación @Getter de Lombok para generar automáticamente los getters. Los enums a crear son TipoUsuario (ADMIN, VENDEDOR, CAJERO), EstadoVenta (PENDIENTE, COMPLETADA, CANCELADA), TipoPago (EFECTIVO, TARJETA, TRANSFERENCIA) y EstadoProducto (DISPONIBLE, AGOTADO, DESCONTINUADO). Ubicación: backend/src/main/java/com/ventas/enums/.
+Ejemplo:
+javapackage com.ventas.enums;
+
+import lombok.Getter;
+
+@Getter
+public enum TipoUsuario {
+    ADMIN("Administrador"),
+    VENDEDOR("Vendedor"),
+    CAJERO("Cajero");
+    
+    private final String descripcion;
+    
+    TipoUsuario(String descripcion) {
+        this.descripcion = descripcion;
+    }
+}
+Tiempo estimado: 1 día.
+ENTREGABLES FINALES
+
+Diagrama Entidad-Relación (imagen PNG)
+Diccionario de datos (documento TXT)
+Script crear base de datos
+Script crear tablas
+Script insertar datos de prueba
+6 entidades JPA en Java con anotaciones
+4 enumeraciones en Java
+
+COORDINACIÓN CON OTROS
+Trabajas de cerca con Persona 3 (Repositories) quien usará tus entidades, con Persona 6 (Coordinador) quien revisará tu diagrama ER, y con todo el equipo que usará tus entidades y enums.
+
+PERSONA 2: DESARROLLADOR BACKEND (INFRAESTRUCTURA)
+NOMBRE: _______________________________ CONTACTO: ___________________
+TU ROL EN EL PROYECTO
+Eres el INGENIERO DE INFRAESTRUCTURA. Te encargas de crear las clases DTO para transferencia de datos, excepciones personalizadas, configuraciones de Spring Boot, clases de utilidades y manejo de errores globales. Sin ti, cada desarrollador tendría que crear sus propias herramientas, resultando en código duplicado y desorganizado.
+CARPETAS DONDE TRABAJARÁS
+
+backend/src/main/java/com/ventas/dto/ → Data Transfer Objects
+backend/src/main/java/com/ventas/exception/ → Excepciones personalizadas
+backend/src/main/java/com/ventas/config/ → Configuraciones Spring
+backend/src/main/java/com/ventas/util/ → Utilidades
+backend/src/main/resources/ → application.properties
+
+SEMANA 1-2: CLASES DTO (DATA TRANSFER OBJECTS)
+Los DTOs son objetos que se usan para transferir datos entre el frontend y el backend, sin exponer las entidades directamente. Esto protege la estructura interna de la base de datos y permite controlar qué información se envía al cliente.
+TAREA 1: Crear DTOs para todas las entidades
+Crea clases DTO con Lombok usando las anotaciones @Data, @Builder, @NoArgsConstructor y @AllArgsConstructor. Las clases a crear son ProductoDTO.java, ClienteDTO.java, VentaDTO.java, DetalleVentaDTO.java, CategoriaDTO.java, UsuarioDTO.java, LoginRequest.java, LoginResponse.java y ErrorResponse.java. Ubicación: backend/src/main/java/com/ventas/dto/.
+Ejemplo de ProductoDTO:
+javapackage com.ventas.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class ProductoDTO {
+    private Long id;
+    private String nombre;
+    private String descripcion;
+    private Double precio;
+    private Integer stock;
+    private Long categoriaId;
+    private String categoriaNombre;
+    private Boolean activo;
+    private String fechaCreacion;
+}
+Ejemplo de LoginRequest y LoginResponse:
+java@Data
+public class LoginRequest {
+    private String usuario;
+    private String password;
+}
+
+@Data
+@Builder
+public class LoginResponse {
+    private String token;
+    private String tipo;
+    private Long id;
+    private String usuario;
+    private String nombreCompleto;
+    private String rol;
+}
+Tiempo estimado: 2-3 días.
+SEMANA 2-3: EXCEPCIONES PERSONALIZADAS
+TAREA 2: Crear excepciones de negocio
+Crea excepciones personalizadas para manejar errores específicos del negocio. Las clases a crear son ResourceNotFoundException.java, StockInsuficienteException.java, DuplicateResourceException.java y BusinessException.java. Ubicación: backend/src/main/java/com/ventas/exception/.
+Ejemplo:
+javapackage com.ventas.exception;
+
+public class ResourceNotFoundException extends RuntimeException {
+    public ResourceNotFoundException(String message) {
+        super(message);
+    }
+    
+    public ResourceNotFoundException(String resource, String field, Object value) {
+        super(String.format("%s no encontrado con %s: '%s'", resource, field, value));
+    }
+}
+TAREA 3: Crear GlobalExceptionHandler
+Crea una clase anotada con @RestControllerAdvice que capture todas las excepciones del sistema y devuelva respuestas JSON con formato consistente.
+javapackage com.ventas.exception;
+
+import com.ventas.dto.ErrorResponse;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import java.time.LocalDateTime;
+
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+    
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleResourceNotFound(ResourceNotFoundException ex) {
+        ErrorResponse error = ErrorResponse.builder()
+            .timestamp(LocalDateTime.now())
+            .status(HttpStatus.NOT_FOUND.value())
+            .error("Not Found")
+            .message(ex.getMessage())
+            .build();
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+    
+    @ExceptionHandler(StockInsuficienteException.class)
+    public ResponseEntity<ErrorResponse> handleStockInsuficiente(StockInsuficienteException ex) {
+        ErrorResponse error = ErrorResponse.builder()
+            .timestamp(LocalDateTime.now())
+            .status(HttpStatus.BAD_REQUEST.value())
+            .error("Bad Request")
+            .message(ex.getMessage())
+            .build();
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+}
+Tiempo estimado: 2 días.
+SEMANA 3: CONFIGURACIONES DE SPRING BOOT
+TAREA 4: Crear CorsConfig
+Configura CORS para permitir que el frontend (que corre en puerto diferente) pueda comunicarse con el backend.
+javapackage com.ventas.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+@Configuration
+public class CorsConfig {
+    
+    @Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/api/**")
+                    .allowedOrigins("http://localhost:3000", "http://localhost:5173")
+                    .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                    .allowedHeaders("*")
+                    .allowCredentials(true);
+            }
+        };
+    }
+}
+TAREA 5: Crear ModelMapperConfig
+Configura ModelMapper para convertir automáticamente entre Entidades y DTOs.
+javapackage com.ventas.config;
+
+import org.modelmapper.ModelMapper;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class ModelMapperConfig {
+    
+    @Bean
+    public ModelMapper modelMapper() {
+        ModelMapper modelMapper = new ModelMapper();
+        modelMapper.getConfiguration()
+            .setSkipNullEnabled(true)
+            .setAmbiguityIgnored(true);
+        return modelMapper;
+    }
+}
+TAREA 6: Crear application.properties
+Crea el archivo de configuración principal de Spring Boot en backend/src/main/resources/application.properties:
+properties# Configuración de la aplicación
+spring.application.name=Sistema de Ventas
+server.port=8080
+
+# Configuración de base de datos
+spring.datasource.url=jdbc:mysql://localhost:3306/ventas_db?useSSL=false&serverTimezone=UTC
+spring.datasource.username=root
+spring.datasource.password=
+
+# Configuración de JPA/Hibernate
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
+
+# Configuración de JWT
+jwt.secret=mi_clave_secreta_super_larga_y_segura_cambiar_en_produccion
+jwt.expiration=86400000
+
+# Configuración de Jackson (JSON)
+spring.jackson.serialization.write-dates-as-timestamps=false
+spring.jackson.time-zone=America/Lima
+Tiempo estimado: 1-2 días.
+SEMANA 4: CLASES DE UTILIDADES
+TAREA 7: Crear clase Validador
+javapackage com.ventas.util;
+
+import org.apache.commons.lang3.StringUtils;
+import java.util.regex.Pattern;
+
+public class Validador {
+    
+    private static final Pattern EMAIL_PATTERN = 
+        Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
+    private static final Pattern DNI_PATTERN = Pattern.compile("^\\d{8}$");
+    
+    public static boolean validarEmail(String email) {
+        return StringUtils.isNotBlank(email) && EMAIL_PATTERN.matcher(email).matches();
+    }
+    
+    public static boolean validarDNI(String dni) {
+        return StringUtils.isNotBlank(dni) && DNI_PATTERN.matcher(dni).matches();
+    }
+    
+    public static boolean validarNumeroPositivo(Double numero) {
+        return numero != null && numero > 0;
+    }
+}
+TAREA 8: Crear clase FormatoUtil
+javapackage com.ventas.util;
+
+import java.text.DecimalFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
+public class FormatoUtil {
+    
+    private static final DecimalFormat FORMATO_MONEDA = new DecimalFormat("S/ #,##0.00");
+    private static final DateTimeFormatter FORMATO_FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    
+    public static String formatearMoneda(Double monto) {
+        return monto != null ? FORMATO_MONEDA.format(monto) : "S/ 0.00";
+    }
+    
+    public static String formatearFecha(LocalDateTime fecha) {
+        return fecha != null ? fecha.format(FORMATO_FECHA) : "";
+    }
+}
+Tiempo estimado: 2-3 días.
+ENTREGABLES FINALES
+
+9 clases DTO
+4 excepciones personalizadas
+1 GlobalExceptionHandler
+2 clases de configuración (CORS, ModelMapper)
+1 archivo application.properties
+2 clases de utilidades (Validador, FormatoUtil)
+
+COORDINACIÓN CON OTROS
+Trabajas de cerca con Persona 1 (DBA) cuyos modelos mapearás a DTOs, Persona 3 (Repositories) y Persona 4 (Servicios) quienes usarán tus DTOs y utilidades, y todo el equipo que usará tus configuraciones.
+
+PERSONA 3: DESARROLLADOR DE REPOSITORIOS
+NOMBRE: _______________________________ CONTACTO: ___________________
+TU ROL EN EL PROYECTO
+Eres el especialista en SPRING DATA JPA. Te encargas de crear interfaces Repository que Spring Boot implementará automáticamente. Ya no necesitas escribir SQL manualmente ni crear clases DAO complejas. Spring Data JPA genera todo el código de acceso a datos por ti. Sin ti, no habría forma de consultar ni persistir información en la base de datos.
+CARPETAS DONDE TRABAJARÁS
+
+backend/src/main/java/com/ventas/repositories/ → Interfaces Repository
+
+CONCEPTO CLAVE: SPRING DATA JPA
+A diferencia del enfoque tradicional con DAOs manuales, Spring Data JPA te permite crear solo interfaces que extiendan JpaRepository. Spring Boot genera automáticamente la implementación completa con métodos como save(), findById(), findAll(), delete(), entre otros. Además, puedes crear métodos de consulta siguiendo convenciones de nombres y Spring generará el SQL automáticamente.
+SEMANA 2-3: CREAR REPOSITORIES
+TAREA 1: Crear ProductoRepository
+javapackage com.ventas.repositories;
+
+import com.ventas.entities.Producto;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+import java.util.List;
+import java.util.Optional;
+
+@Repository
+public interface ProductoRepository extends JpaRepository<Producto, Long> {
+    
+    // Spring genera automáticamente: save(), findById(), findAll(), deleteById()
+    
+    // Métodos de consulta por convención de nombres
+    List<Producto> findByNombreContaining(String nombre);
+    List<Producto> findByCategoriaId(Long categoriaId);
+    List<Producto> findByActivoTrue();
+    List<Producto> findByStockLessThan(Integer stock);
+    Optional<Producto> findByNombreIgnoreCase(String nombre);
+    boolean existsByNombre(String nombre);
+    
+    // Consulta personalizada con JPQL
+    @Query("SELECT p FROM Producto p WHERE p.categoria.id = :categoriaId AND p.activo = true")
+    List<Producto> findProductosActivosPorCategoria(Long categoriaId);
+}
+Nota importante: No necesitas implementar estos métodos. Spring Data JPA los implementa automáticamente basándose en los nombres de los métodos.
+TAREA 2: Crear UsuarioRepository
+java@Repository
+public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
+    Optional<Usuario> findByUsuario(String usuario);
+    Optional<Usuario> findByEmail(String email);
+    List<Usuario> findByRol(TipoUsuario rol);
+    List<Usuario> findByActivoTrue();
+    boolean existsByUsuario(String usuario);
+    boolean existsByEmail(String email);
+}
+TAREA 3: Crear ClienteRepository
+java@Repository
+public interface ClienteRepository extends JpaRepository<Cliente, Long> {
+    Optional<Cliente> findByDni(String dni);
+    List<Cliente> findByNombreContainingIgnoreCaseOrApellidoContainingIgnoreCase(String nombre, String apellido);
+    boolean existsByDni(String dni);
+    
+    @Query("SELECT c FROM Cliente c WHERE CONCAT(c.nombre, ' ', c.apellido) LIKE %:nombreCompleto%")
+    List<Cliente> buscarPorNombreCompleto(String nombreCompleto);
+}
+TAREA 4: Crear CategoriaRepository
+java@Repository
+public interface CategoriaRepository extends JpaRepository<Categoria, Long> {
+    Optional<Categoria> findByNombre(String nombre);
+    boolean existsByNombre(String nombre);
+}
+TAREA 5: Crear VentaRepository
+java@Repository
+public interface VentaRepository extends JpaRepository<Venta, Long> {
+    List<Venta> findByFechaVentaBetween(LocalDateTime inicio, LocalDateTime fin);
+    List<Venta> findByClienteId(Long clienteId);
+    List<Venta> findByUsuarioId(Long usuarioId);
+    List<Venta> findByEstado(EstadoVenta estado);
+    
+    @Query("SELECT SUM(v.total) FROM Venta v WHERE DATE(v.fechaVenta) = DATE(:fecha)")
+    Double calcularTotalVentasDia(LocalDateTime fecha);
+    
+    @Query("SELECT v FROM Venta v WHERE v.fechaVenta >= :fecha ORDER BY v.fechaVenta DESC")
+    List<Venta> findVentasRecientes(LocalDateTime fecha);
+}
+TAREA 6: Crear DetalleVentaRepository
+java@Repository
+public interface DetalleVentaRepository extends JpaRepository<DetalleVenta, Long> {
+    List<DetalleVenta> findByVentaId(Long ventaId);
+    List<DetalleVenta> findByProductoId(Long productoId);
+    
+    @Query("SELECT d.producto, SUM(d.cantidad) as total FROM DetalleVenta d " +
+           "GROUP BY d.producto ORDER BY total DESC")
+    List<Object[]> findProductosMasVendidos();
+}
+Tiempo estimado por repository: 1 día. Total: 4-5 días.
+CONVENCIONES DE NOMBRES EN SPRING DATA JPA
+Spring Data JPA entiende ciertas palabras clave en los nombres de métodos y genera el SQL correspondiente:
+
+findBy → SELECT
+countBy → COUNT
+deleteBy → DELETE
+existsBy → EXISTS
+Containing → LIKE '%valor%'
+IgnoreCase → Case insensitive
+OrderBy → ORDER BY
+And / Or → Operadores lógicos
+LessThan / GreaterThan → Comparaciones
+Between → BETWEEN
+
+ENTREGABLES FINALES
+
+ProductoRepository.java
+UsuarioRepository.java
+ClienteRepository.java
+CategoriaRepository.java
+VentaRepository.java
+DetalleVentaRepository.java
+
+COORDINACIÓN CON OTROS
+Dependes de Persona 1 (DBA) quien crea las entidades que usarás. Te necesitan Persona 4 (Servicios) quien inyectará tus repositories en sus servicios.
+
+PERSONA 4: DESARROLLADOR DE SERVICIOS
+NOMBRE: _______________________________ CONTACTO: ___________________
+TU ROL EN EL PROYECTO
+Eres el CEREBRO DEL SISTEMA. Te encargas de implementar reglas de negocio, validar operaciones complejas, coordinar múltiples repositories, realizar cálculos y procesos, y aplicar lógica específica del negocio. Sin ti, el sistema solo guardaría y recuperaría datos sin inteligencia ni validaciones de negocio.
+CARPETAS DONDE TRABAJARÁS
+
+backend/src/main/java/com/ventas/services/ → Servicios de negocio
+
+CONCEPTO CLAVE: ARQUITECTURA DE SERVICIOS EN SPRING BOOT
+Los servicios en Spring Boot se anotan con @Service y utilizan inyección de dependencias con @RequiredArgsConstructor de Lombok. Ya no instancias objetos manualmente, Spring los inyecta automáticamente. Los servicios coordinan repositories, aplican validaciones, ejecutan cálculos y manejan transacciones con @Transactional.
+SEMANA 4-5: CREAR SERVICIOS
+TAREA 1: Crear ProductoService
+javapackage com.ventas.services;
+
+import com.ventas.dto.ProductoDTO;
+import com.ventas.entities.Producto;
+import com.ventas.exception.ResourceNotFoundException;
+import com.ventas.exception.StockInsuficienteException;
+import com.ventas.repositories.ProductoRepository;
+import com.ventas.repositories.CategoriaRepository;
+import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+public class ProductoService {
+    
+    private final ProductoRepository productoRepository;
+    private final CategoriaRepository categoriaRepository;
+    private final ModelMapper modelMapper;
+    
+    @Transactional(readOnly = true)
+    public List<ProductoDTO> listarTodos() {
+        return productoRepository.findAll().stream()
+            .map(p -> modelMapper.map(p, ProductoDTO.class))
+            .collect(Collectors.toList());
+    }
+    
+    @Transactional(readOnly = true)
+    public ProductoDTO buscarPorId(Long id) {
+        Producto producto = productoRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Producto", "id", id));
+        return modelMapper.map(producto, ProductoDTO.class);
+    }
+    
+    @Transactional
+    public ProductoDTO guardar(ProductoDTO dto) {
+        // Validaciones de negocio
+        if (dto.getPrecio() == null || dto.getPrecio() <= 0) {
+            throw new IllegalArgumentException("El precio debe ser mayor a 0");
+        }
+        
+        if (dto.getStock() == null || dto.getStock() < 0) {
+            throw new IllegalArgumentException("El stock no puede ser negativo");
+        }
+        
+        // Verificar que la categoría existe
+        if (!categoriaRepository.existsById(dto.getCategoriaId())) {
+            throw new ResourceNotFoundException("Categoria", "id", dto.getCategoriaId());
+        }
+        
+        Producto producto = modelMapper.map(dto, Producto.class);
+        Producto guardado = productoRepository.save(producto);
+        return modelMapper.map(guardado, ProductoDTO.class);
+    }
+    
+    @Transactional
+    public void reducirStock(Long productoId, Integer cantidad) {
+        Producto producto = productoRepository.findById(productoId)
+            .orElseThrow(() -> new ResourceNotFoundException("Producto", "id", productoId));
+        
+        if (producto.getStock() < cantidad) {
+            throw new StockInsuficienteException(
+                producto.getNombre(), 
+                producto.getStock(), 
+                cantidad
+            );
+        }
+        
+        producto.setStock(producto.getStock() - cantidad);
+        productoRepository.save(producto);
+    }
+    
+    @Transactional(readOnly = true)
+    public List<ProductoDTO> buscarPorCategoria(Long categoriaId) {
+        return productoRepository.findByCategoriaId(categoriaId).stream()
+            .map(p -> modelMapper.map(p, ProductoDTO.class))
+            .collect(Collectors.toList());
+    }
+}
+TAREA 2: Crear VentaService
+java@Service
+@RequiredArgsConstructor
+public class VentaService {
+    
+    private final VentaRepository ventaRepository;
+    private final ProductoRepository productoRepository;
+    private final DetalleVentaRepository detalleVentaRepository;
+    private final ClienteRepository clienteRepository;
+    private final ProductoService productoService;
+    private final ModelMapper modelMapper;
+    
+    @Transactional
+    public VentaDTO procesarVenta(VentaDTO ventaDTO, List<DetalleVentaDTO> detallesDTO) {
+        // Validar que el cliente existe
+        if (!clienteRepository.existsById(ventaDTO.getClienteId())) {
+            throw new ResourceNotFoundException("Cliente", "id", ventaDTO.getClienteId());
+        }
+        
+        // Validar stock de todos los productos ANTES de procesar
+        for (DetalleVentaDTO detalle : detallesDTO) {
+            Producto producto = productoRepository.findById(detalle.getProductoId())
+                .orElseThrow(() -> new ResourceNotFoundException("Producto", "id", detalle.getProductoId()));
+            
+            if (producto.getStock() < detalle.getCantidad()) {
+                throw new StockInsuficienteException(
+                    producto.getNombre(), 
+                    producto.getStock(), 
+                    detalle.getCantidad()
+                );
+            }
+        }
+        
+        // Calcular totales
+        double subtotal = 0;
+        for (DetalleVentaDTO detalle : detallesDTO) {
+            Producto producto = productoRepository.findById(detalle.getProductoId()).get();
+            double subtotalDetalle = detalle.getCantidad() * producto.getPrecio();
+            detalle.setSubtotal(subtotalDetalle);
+            subtotal += subtotalDetalle;
+        }
+        
+        double igv = subtotal * 0.18;
+        double total = subtotal + igv;
+        
+        // Crear la venta
+        Venta venta = new Venta();
+        venta.setCliente(clienteRepository.findById(ventaDTO.getClienteId()).get());
+        venta.setSubtotal(subtotal);
+        venta.setIgv(igv);
+        venta.setTotal(total);
+        venta.setEstado(EstadoVenta.COMPLETADA);
+        venta.setTipoPago(ventaDTO.getTipoPago());
+        
+        // Guardar la venta
+        Venta ventaGuardada = ventaRepository.save(venta);
+        
+        // Crear los detalles y reducir stock
+        for (DetalleVentaDTO detalleDTO : detallesDTO) {
+            DetalleVenta detalle = new DetalleVenta();
+            detalle.setVenta(ventaGuardada);
+            detalle.setProducto(productoRepository.findById(detalleDTO.getProductoId()).get());
+            detalle.setCantidad(detalleDTO.getCantidad());
+            detalle.setPrecioUnitario(detalle.getProducto().getPrecio());
+            detalle.setSubtotal(detalleDTO.getSubtotal());
+            
+            detalleVentaRepository.save(detalle);
+            
+            // Reducir stock del producto
+            productoService.reducirStock(detalleDTO.getProductoId(), detalleDTO.getCantidad());
+        }
+        
+        return modelMapper.map(ventaGuardada, VentaDTO.class);
+    }
+    
+    @Transactional(readOnly = true)
+    public List<VentaDTO> listarVentasPorFecha(LocalDateTime inicio, LocalDateTime fin) {
+        return ventaRepository.findByFechaVentaBetween(inicio, fin).stream()
+            .map(v -> modelMapper.map(v, VentaDTO.class))
+            .collect(Collectors.toList());
+    }
+    
+    @Transactional(readOnly = true)
+    public Double calcularTotalVentasDia(LocalDateTime fecha) {
+        Double total = ventaRepository.calcularTotalVentasDia(fecha);
+        return total != null ? total : 0.0;
+    }
+}
+TAREA 3: Crear ClienteService
+java@Service
+@RequiredArgsConstructor
+public class ClienteService {
+    
+    private final ClienteRepository clienteRepository;
+    private final ModelMapper modelMapper;
+    
+    @Transactional(readOnly = true)
+    public List<ClienteDTO> listarTodos() {
+        return clienteRepository.findAll().stream()
+            .map(c -> modelMapper.map(c, ClienteDTO.class))
+            .collect(Collectors.toList());
+    }
+    
+    @Transactional
+    public ClienteDTO guardar(ClienteDTO dto) {
+        // Validar DNI
+        if (dto.getDni() == null || !dto.getDni().matches("\\d{8}")) {
+            throw new IllegalArgumentException("DNI debe tener 8 dígitos");
+        }
+        
+        // Verificar que el DNI no esté duplicado
+        if (clienteRepository.existsByDni(dto.getDni())) {
+            throw new DuplicateResourceException("Cliente", "DNI", dto.getDni());
+        }
+        
+        Cliente cliente = modelMapper.map(dto, Cliente.class);
+        Cliente guardado = clienteRepository.save(cliente);
+        return modelMapper.map(guardado, ClienteDTO.class);
+    }
+    
+    @Transactional(readOnly = true)
+    public ClienteDTO buscarPorDni(String dni) {
+        Cliente cliente = clienteRepository.findByDni(dni)
+            .orElseThrow(() -> new ResourceNotFoundException("Cliente", "DNI", dni));
+        return modelMapper.map(cliente, ClienteDTO.class);
+    }
+}
+TAREA 4: Crear UsuarioService
+java@Service
+@RequiredArgsConstructor
+public class UsuarioService {
+    
+    private final UsuarioRepository usuarioRepository;
+    private final ModelMapper modelMapper;
+    // private final PasswordEncoder passwordEncoder; // Para Spring Security
+    
+    @Transactional
+    public UsuarioDTO registrar(UsuarioDTO dto) {
+        // Validar que el usuario no exista
+        if (usuarioRepository.existsByUsuario(dto.getUsuario())) {
+            throw new DuplicateResourceException("Usuario", "usuario", dto.getUsuario());
+        }
+        
+        // Validar email
+        if (usuarioRepository.existsByEmail(dto.getEmail())) {
+            throw new DuplicateResourceException("Usuario", "email", dto.getEmail());
+        }
+        
+        Usuario usuario = modelMapper.map(dto, Usuario.class);
+        // usuario.setPassword(passwordEncoder.encode(dto.getPassword())); // Encriptar
+        
+        Usuario guardado = usuarioRepository.save(usuario);
+        return modelMapper.map(guardado, UsuarioDTO.class);
+    }
+    
+    @Transactional(readOnly = true)
+    public UsuarioDTO validarLogin(String usuario, String password) {
+        Usuario user = usuarioRepository.findByUsuario(usuario)
+            .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+        
+        // Aquí iría la validación del password con passwordEncoder
+        if (!user.getActivo()) {
+            throw new IllegalStateException("Usuario inactivo");
+        }
+        
+        return modelMapper.map(user, UsuarioDTO.class);
+    }
+}
+TAREA 5: Crear ReporteService
+java@Service
+@RequiredArgsConstructor
+public class ReporteService {
+    
+    private final VentaRepository ventaRepository;
+    private final DetalleVentaRepository detalleVentaRepository;
+    
+    @Transactional(readOnly = true)
+    public List<VentaDiariaDTO> obtenerVentasDiarias(int dias) {
+        LocalDateTime fechaInicio = LocalDateTime.now().minusDays(dias);
+        List<Venta> ventas = ventaRepository.findVentasRecientes(fechaInicio);
+        
+        // Agrupar por fecha y sumar totales
+        Map<LocalDate, Double> ventasPorDia = ventas.stream()
+            .collect(Collectors.groupingBy(
+                v -> v.getFechaVenta().toLocalDate(),
+                Collectors.summingDouble(Venta::getTotal)
+            ));
+        
+        return ventasPorDia.entrySet().stream()
+            .map(entry -> VentaDiariaDTO.builder()
+                .fecha(entry.getKey().format(DateTimeFormatter.ofPattern("dd/MM")))
+                .total(entry.getValue())
+                .build())
+            .collect(Collectors.toList());
+    }
+    
+    @Transactional(readOnly = true)
+    public List<ProductoVendidoDTO> obtenerProductosMasVendidos(int limite) {
+        List<Object[]> resultados = detalleVentaRepository.findProductosMasVendidos();
+        
+        return resultados.stream()
+            .limit(limite)
+            .map(r -> ProductoVendidoDTO.builder()
+                .nombre(((Producto) r[0]).getNombre())
+                .cantidad(((Number) r[1]).intValue())
+                .build())
+            .collect(Collectors.toList());
+    }
+}
+Tiempo estimado: 5-6 días.
+ENTREGABLES FINALES
+
+ProductoService.java
+VentaService.java
+ClienteService.java
+UsuarioService.java
+CategoriaService.java
+ReporteService.java
+
+COORDINACIÓN CON OTROS
+Dependes de Persona 3 (Repositories) cuyos repositories inyectarás, y Persona 2 (Backend) cuyas utilidades y DTOs usarás. Te necesita Persona 5 (Controladores) quien llamará a tus servicios.
+
+PERSONA 5: DESARROLLADOR DE CONTROLADORES REST
+NOMBRE: _______________________________ CONTACTO: ___________________
+TU ROL EN EL PROYECTO
+Eres el ARQUITECTO DE LA API REST. Te encargas de crear endpoints HTTP que el frontend consumirá mediante peticiones JSON. Ya no manejas eventos de botones ni interfaz gráfica directamente, sino que expones servicios REST que devuelven datos en formato JSON. Sin ti, el frontend no tendría forma de comunicarse con el backend.
+CARPETAS DONDE TRABAJARÁS
+
+backend/src/main/java/com/ventas/controllers/ → Controladores REST
+backend/src/main/java/com/ventas/security/ → Configuración de seguridad
+
+CONCEPTO CLAVE: ARQUITECTURA REST
+Los controladores REST se anotan con @RestController y @RequestMapping. Cada método representa un endpoint HTTP (GET, POST, PUT, DELETE) que devuelve objetos que Spring Boot convierte automáticamente a JSON. No hay JSP, no hay vistas HTML en el backend, solo JSON.
+SEMANA 5-6: CREAR CONTROLADORES REST
+TAREA 1: Crear ProductoController
+javapackage com.ventas.controllers;
+
+import com.ventas.dto.ProductoDTO;
+import com.ventas.services.ProductoService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/productos")
+@RequiredArgsConstructor
+public class ProductoController {
+    
+    private final ProductoService productoService;
+    
+    @GetMapping
+    public ResponseEntity<List<ProductoDTO>> listarTodos() {
+        return ResponseEntity.ok(productoService.listarTodos());
+    }
+    
+    @GetMapping("/{id}")
+    public ResponseEntity<ProductoDTO> buscarPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(productoService.buscarPorId(id));
+    }
+    
+    @PostMapping
+    public ResponseEntity<ProductoDTO> crear(@RequestBody ProductoDTO dto) {
+        ProductoDTO creado = productoService.guardar(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(creado);
+    }
+    
+    @PutMapping("/{id}")
+    public ResponseEntity<ProductoDTO> actualizar(
+            @PathVariable Long id, 
+            @RequestBody ProductoDTO dto) {
+        dto.setId(id);
+        return ResponseEntity.ok(productoService.guardar(dto));
+    }
+    
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+        productoService.eliminar(id);
+        return ResponseEntity.noContent().build();
+    }
+    
+    @GetMapping("/categoria/{categoriaId}")
+    public ResponseEntity<List<ProductoDTO>> listarPorCategoria(@PathVariable Long categoriaId) {
+        return ResponseEntity.ok(productoService.buscarPorCategoria(categoriaId));
+    }
+    
+    @GetMapping("/buscar")
+    public ResponseEntity<List<ProductoDTO>> buscarPorNombre(@RequestParam String nombre) {
+        return ResponseEntity.ok(productoService.buscarPorNombre(nombre));
+    }
+}
+TAREA 2: Crear VentaController
+java@RestController
+@RequestMapping("/api/ventas")
+@RequiredArgsConstructor
+public class VentaController {
+    
+    private final VentaService ventaService;
+    
+    @PostMapping
+    public ResponseEntity<VentaDTO> procesarVenta(@RequestBody VentaRequestDTO request) {
+        VentaDTO venta = ventaService.procesarVenta(
+            request.getVenta(), 
+            request.getDetalles()
+        );
+        return ResponseEntity.status(HttpStatus.CREATED).body(venta);
+    }
+    
+    @GetMapping
+    public ResponseEntity<List<VentaDTO>> listarTodas() {
+        return ResponseEntity.ok(ventaService.listarTodas());
+    }
+    
+    @GetMapping("/{id}")
+    public ResponseEntity<VentaDTO> buscarPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(ventaService.buscarPorId(id));
+    }
+    
+    @GetMapping("/fecha")
+    public ResponseEntity<List<VentaDTO>> listarPorFecha(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime inicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fin) {
+        return ResponseEntity.ok(ventaService.listarVentasPorFecha(inicio, fin));
+    }
+    
+    @GetMapping("/total-dia")
+    public ResponseEntity<Double> obtenerTotalDia(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fecha) {
+        return ResponseEntity.ok(ventaService.calcularTotalVentasDia(fecha));
+    }
+}
 TAREA 3: Crear ClienteController
-─────────────────────────────────
-CLASE A CREAR:
-  ☐ ClienteController.java
-
-MÉTODOS A IMPLEMENTAR:
-  • cargarClientes()
-  • guardarCliente()
-  • actualizarCliente()
-  • eliminarCliente()
-  • buscarCliente()
-  • buscarPorDNI()
-  • validarFormularioCliente()
-  • limpiarFormulario()
-  • mostrarClienteEnFormulario(Cliente c)
-
-RESPONSABILIDADES:
-  • Cargar lista de clientes en tabla
-  • Capturar eventos de botones
-  • Validar DNI, email, teléfono
-  • Llamar a ClienteService
-  • Actualizar tabla
-  • Mostrar mensajes
-
-EVENTOS A MANEJAR:
-  • btnGuardar_Click
-  • btnActualizar_Click
-  • btnEliminar_Click
-  • btnBuscar_Click
-  • txtDNI_FocusLost (validar formato)
-  • txtEmail_FocusLost (validar formato)
-
-UBICACIÓN:
-  📁 src/main/java/com/ventas/controladores/
-
-TIEMPO ESTIMADO: 2-3 días
-
-
-TAREA 4: Crear VentaController
-───────────────────────────────
-CLASE A CREAR:
-  ☐ VentaController.java
-
-MÉTODOS A IMPLEMENTAR:
-  • cargarVentas()
-  • iniciarNuevaVenta()
-  • agregarProductoAVenta(int productoId, int cantidad)
-  • quitarProductoDeVenta(int index)
-  • calcularTotales()
-  • procesarVenta()
-  • validarVenta()
-  • limpiarFormularioVenta()
-  • seleccionarCliente()
-  • buscarProducto()
-  • generarComprobante()
-  • anularVenta(int ventaId)
-
-RESPONSABILIDADES:
-  • Manejar el proceso COMPLETO de una venta
-  • Agregar/quitar productos a la venta
-  • Calcular subtotal, IGV, total en tiempo real
-  • Validar stock antes de agregar producto
-  • Procesar venta completa
-  • Generar comprobante (PDF opcional)
-  • Actualizar lista de ventas
-
-EVENTOS A MANEJAR:
-  • btnNuevaVenta_Click
-  • btnAgregarProducto_Click
-  • btnQuitarProducto_Click
-  • btnProcesarVenta_Click
-  • btnBuscarCliente_Click
-  • btnBuscarProducto_Click
-  • txtCantidad_Change (recalcular totales)
-  • cmbTipoPago_Change
-
-LÓGICA IMPORTANTE:
-  • Mantener lista temporal de detalles de venta
-  • Recalcular totales cada vez que se agrega/quita producto
-  • Validar que hay al menos un producto
-  • Validar que hay stock suficiente
-  • Confirmar antes de procesar
-
-UBICACIÓN:
-  📁 src/main/java/com/ventas/controladores/
-
-TIEMPO ESTIMADO: 5-6 días
-
-
+java@RestController
+@RequestMapping("/api/clientes")
+@RequiredArgsConstructor
+public class ClienteController {
+    
+    private final ClienteService clienteService;
+    
+    @GetMapping
+    public ResponseEntity<List<ClienteDTO>> listarTodos() {
+        return ResponseEntity.ok(clienteService.listarTodos());
+    }
+    
+    @GetMapping("/{id}")
+    public ResponseEntity<ClienteDTO> buscarPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(clienteService.buscarPorId(id));
+    }
+    
+    @PostMapping
+    public ResponseEntity<ClienteDTO> crear(@RequestBody ClienteDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+            .body(clienteService.guardar(dto));
+    }
+    
+    @PutMapping("/{id}")
+    public ResponseEntity<ClienteDTO> actualizar(
+            @PathVariable Long id, 
+            @RequestBody ClienteDTO dto) {
+        dto.setId(id);
+        return ResponseEntity.ok(clienteService.actualizar(dto));
+    }
+    
+    @GetMapping("/dni/{dni}")
+    public ResponseEntity<ClienteDTO> buscarPorDni(@PathVariable String dni) {
+        return ResponseEntity.ok(clienteService.buscarPorDni(dni));
+    }
+}
+TAREA 4: Crear AuthController
+java@RestController
+@RequestMapping("/api/auth")
+@RequiredArgsConstructor
+public class AuthController {
+    
+    private final UsuarioService usuarioService;
+    private final JwtTokenProvider jwtTokenProvider; // Componente para generar JWT
+    
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
+        UsuarioDTO usuario = usuarioService.validarLogin(
+            request.getUsuario(), 
+            request.getPassword()
+        );
+        
+        String token = jwtTokenProvider.generateToken(usuario.getUsuario());
+        
+        LoginResponse response = LoginResponse.builder()
+            .token(token)
+            .tipo("Bearer")
+            .id(usuario.getId())
+            .usuario(usuario.getUsuario())
+            .nombreCompleto(usuario.getNombre() + " " + usuario.getApellido())
+            .rol(usuario.getRol().name())
+            .build();
+        
+        return ResponseEntity.ok(response);
+    }
+    
+    @PostMapping("/register")
+    public ResponseEntity<UsuarioDTO> register(@RequestBody UsuarioDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+            .body(usuarioService.registrar(dto));
+    }
+}
 TAREA 5: Crear ReporteController
-─────────────────────────────────
-CLASE A CREAR:
-  ☐ ReporteController.java
-
-MÉTODOS A IMPLEMENTAR:
-  • generarReporteDiario()
-  • generarReporteMensual()
-  • mostrarProductosMasVendidos()
-  • mostrarClientesFrecuentes()
-  • exportarReporteAPDF()
-  • exportarReporteAExcel()
-  • filtrarPorFecha()
-  • calcularEstadisticas()
-
-RESPONSABILIDADES:
-  • Generar diferentes tipos de reportes
-  • Mostrar estadísticas en gráficos (opcional)
-  • Exportar reportes a PDF/Excel
-  • Filtrar por rangos de fecha
-
-EVENTOS A MANEJAR:
-  • btnGenerarReporte_Click
-  • btnExportarPDF_Click
-  • btnExportarExcel_Click
-  • dateInicio_Change
-  • dateFin_Change
-  • cmbTipoReporte_Change
-
-UBICACIÓN:
-  📁 src/main/java/com/ventas/controladores/
-
-TIEMPO ESTIMADO: 3-4 días
-
-
-┌───────────────────────────────────────────────────────────────────┐
-│ CONSIDERACIONES IMPORTANTES                                       │
-└───────────────────────────────────────────────────────────────────┘
-
-VALIDACIÓN EN DOS NIVELES:
-  • Validación básica en controlador (campos vacíos)
-  • Validación de negocio en servicio
-
-MANEJO DE EXCEPCIONES:
-  • Capturar excepciones de servicios
-  • Mostrar mensajes amigables al usuario
-  • NO mostrar stack traces al usuario
-
-MENSAJES AL USUARIO:
-  • Usar JOptionPane para mensajes
-  • Mensajes claros y concisos
-  • Confirmar acciones importantes (eliminar, anular)
-
-ACTUALIZACIÓN DE INTERFAZ:
-  • Después de cada operación, actualizar tablas
-  • Limpiar formularios después de guardar
-  • Mostrar mensajes de confirmación
-
-SEPARACIÓN DE RESPONSABILIDADES:
-  • Controlador NO debe tener lógica de negocio
-  • Controlador NO debe acceder directamente a DAOs
-  • Siempre usar servicios
-
-
-┌───────────────────────────────────────────────────────────────────┐
-│ ENTREGABLES FINALES                                               │
-└───────────────────────────────────────────────────────────────────┘
-
-☐ LoginController.java
-☐ ProductoController.java
-☐ ClienteController.java
-☐ VentaController.java
-☐ ReporteController.java
-
-
-┌───────────────────────────────────────────────────────────────────┐
-│ COORDINACIÓN CON OTROS                                            │
-└───────────────────────────────────────────────────────────────────┘
-
-DEPENDES DE:
-  • PERSONA 4 (Servicios): Llamarás a todos los servicios
-  • PERSONA 7 (Frontend): Trabajarás con la interfaz
-
-TRABAJAS DE CERCA CON:
-  • PERSONA 7 (Frontend): Coordinación constante
-
-
-╔═══════════════════════════════════════════════════════════════════╗
-║                          PERSONA 6                                ║
-║                   COORDINADOR E INTEGRADOR                        ║
-╚═══════════════════════════════════════════════════════════════════╝
-
-NOMBRE: _______________________________  CONTACTO: ___________________
-
-┌───────────────────────────────────────────────────────────────────┐
-│ TU ROL EN EL PROYECTO                                             │
-└───────────────────────────────────────────────────────────────────┘
-
-Eres el LÍDER Y ORGANIZADOR del equipo. Te encargas de:
-  • Coordinar a todo el equipo
-  • Integrar todos los componentes
-  • Resolver conflictos técnicos
-  • Revisar y aprobar código
-  • Documentar el proyecto completo
-  • Preparar las entregas
-  • Asegurar calidad del proyecto
-
-SIN TI, el proyecto sería un caos desorganizado donde cada quien
-trabaja por separado sin coordinación.
-
-
-┌───────────────────────────────────────────────────────────────────┐
-│ RESPONSABILIDADES SEMANALES                                       │
-└───────────────────────────────────────────────────────────────────┘
-
-SEMANA 1-2: PLANIFICACIÓN Y SEGUIMIENTO INICIAL
-────────────────────────────────────────────────
-TAREAS:
-  ☐ Crear cronograma detallado del proyecto
-  ☐ Asignar tareas específicas a cada persona
-  ☐ Revisar el diagrama ER con Persona 1
-  ☐ Organizar reunión inicial del equipo
-  ☐ Establecer canales de comunicación
-  ☐ Crear repositorio Git (si se usa)
-  ☐ Definir estándares de codificación
-
-
-SEMANA 3-4: SEGUIMIENTO Y APOYO
-────────────────────────────────
-TAREAS:
-  ☐ Reuniones semanales de seguimiento
-  ☐ Revisar avance de cada persona
-  ☐ Ayudar a resolver problemas técnicos
-  ☐ Asegurar que todos tienen lo que necesitan
-  ☐ Revisar código de clases importantes
-  ☐ Probar integración inicial (DAO + Servicio)
-
-
-SEMANA 5-6: INTEGRACIÓN
-───────────────────────
-TAREAS:
-  ☐ Integrar Frontend con Backend
-  ☐ Probar flujos completos
-  ☐ Coordinar entre Persona 5 y 7
-  ☐ Resolver errores de integración
-  ☐ Asegurar que todo funcione junto
-  ☐ Realizar pruebas de sistema
-
-
-SEMANA 7: PRUEBAS Y DOCUMENTACIÓN
-──────────────────────────────────
-TAREAS:
-  ☐ Organizar sesiones de pruebas con todo el equipo
-  ☐ Crear plan de pruebas
-  ☐ Documentar bugs encontrados
-  ☐ Coordinar corrección de bugs
-  ☐ Escribir manual de usuario
-  ☐ Escribir manual técnico
-  ☐ Preparar presentación del proyecto
-
-
-SEMANA 8: ENTREGA FINAL
-───────────────────────
-TAREAS:
-  ☐ Revisión final de código
-  ☐ Pruebas finales
-  ☐ Empaquetar proyecto completo
-  ☐ Preparar documentación final
-  ☐ Ensayar presentación
-  ☐ Entregar proyecto
-
-
-┌───────────────────────────────────────────────────────────────────┐
-│ DOCUMENTACIÓN A CREAR                                             │
-└───────────────────────────────────────────────────────────────────┘
-
-DOCUMENTO 1: Manual de Usuario
-───────────────────────────────
-CONTENIDO:
-  • Introducción al sistema
-  • Requisitos del sistema
-  • Instalación paso a paso
-  • Cómo usar cada módulo
-  • Capturas de pantalla
-  • Preguntas frecuentes
-  • Solución de problemas comunes
-
-FORMATO: PDF
-UBICACIÓN: docs/manuales/manual_usuario.pdf
-
-
-DOCUMENTO 2: Manual Técnico
-────────────────────────────
-CONTENIDO:
-  • Arquitectura del sistema
-  • Tecnologías utilizadas
-  • Estructura de la base de datos
-  • Diagrama de clases
-  • Explicación de cada paquete
-  • Cómo modificar/extender el sistema
-  • Configuración del entorno
-  • Guía de despliegue
-
-FORMATO: PDF
-UBICACIÓN: docs/manuales/manual_tecnico.pdf
-
-
-DOCUMENTO 3: Guía de Instalación
-─────────────────────────────────
-CONTENIDO:
-  • Requisitos previos
-  • Instalación de MySQL
-  • Creación de base de datos
-  • Configuración del proyecto
-  • Ejecución del sistema
-  • Solución de problemas
-
-FORMATO: PDF o TXT
-UBICACIÓN: docs/manuales/guia_instalacion.pdf
-
-
-DOCUMENTO 4: Presentación del Proyecto
-───────────────────────────────────────
-CONTENIDO:
-  • Introducción y objetivos
-  • Funcionalidades principales
-  • Arquitectura del sistema
-  • Demostración (capturas/video)
-  • Conclusiones
-  • Recomendaciones futuras
-
-FORMATO: PowerPoint o PDF
-UBICACIÓN: docs/presentacion.pptx
-
-
-┌───────────────────────────────────────────────────────────────────┐
-│ TAREAS DE INTEGRACIÓN                                             │
-└───────────────────────────────────────────────────────────────────┘
-
-INTEGRACIÓN 1: Base de Datos + DAOs
-────────────────────────────────────
-  • Verificar que todos los scripts SQL funcionen
-  • Probar que ConexionDB se conecte correctamente
-  • Probar cada DAO individualmente
-  • Verificar que los datos se guarden bien
-
-
-INTEGRACIÓN 2: DAOs + Servicios
-────────────────────────────────
-  • Verificar que servicios llamen correctamente a DAOs
-  • Probar reglas de negocio
-  • Verificar transacciones
-  • Probar validaciones
-
-
-INTEGRACIÓN 3: Servicios + Controladores
-─────────────────────────────────────────
-  • Verificar que controladores llamen a servicios
-  • Probar manejo de excepciones
-  • Verificar mensajes al usuario
-
-
-INTEGRACIÓN 4: Frontend + Backend Completo
-───────────────────────────────────────────
-  • Probar flujos completos desde la UI
-  • Verificar que todos los botones funcionen
-  • Probar el proceso completo de venta
-  • Verificar reportes
-  • Probar en diferentes escenarios
-
-
-┌───────────────────────────────────────────────────────────────────┐
-│ REUNIONES A ORGANIZAR                                             │
-└───────────────────────────────────────────────────────────────────┘
-
-REUNIÓN INICIAL (Semana 1)
-──────────────────────────
-AGENDA:
-  • Presentación del proyecto
-  • Explicar la estructura
-  • Asignar responsabilidades
-  • Establecer reglas de trabajo
-  • Definir canales de comunicación
-  • Establecer fechas de entrega
-
-DURACIÓN: 2 horas
-
-
-REUNIONES SEMANALES (Semana 2-7)
-─────────────────────────────────
-AGENDA:
-  • Cada persona reporta su avance
-  • Identificar problemas
-  • Resolver dudas técnicas
-  • Coordinar trabajo de la siguiente semana
-  • Revisar dependencias entre personas
-
-DURACIÓN: 1 hora
-
-
-REUNIÓN DE INTEGRACIÓN (Semana 5)
-──────────────────────────────────
-AGENDA:
-  • Probar integración completa
-  • Identificar errores de conexión
-  • Coordinar correcciones
-  • Asignar tareas de ajuste
-
-DURACIÓN: 2-3 horas
-
-
-REUNIÓN DE PRUEBAS (Semana 7)
-──────────────────────────────
-AGENDA:
-  • Sesión de pruebas con todo el equipo
-  • Documentar bugs
-  • Priorizar correcciones
-  • Asignar responsables
-
-DURACIÓN: 2 horas
-
-
-┌───────────────────────────────────────────────────────────────────┐
-│ CONTROL DE CALIDAD                                                │
-└───────────────────────────────────────────────────────────────────┘
-
-REVISIÓN DE CÓDIGO:
-  ☐ Verificar que sigan los estándares
-  ☐ Revisar nombres de variables y métodos
-  ☐ Verificar comentarios en código
-  ☐ Revisar manejo de excepciones
-  ☐ Verificar que no haya código duplicado
-
-PRUEBAS FUNCIONALES:
-  ☐ Probar cada funcionalidad del sistema
-  ☐ Probar casos límite
-  ☐ Probar validaciones
-  ☐ Probar manejo de errores
-
-PRUEBAS DE INTEGRACIÓN:
-  ☐ Probar flujos completos
-  ☐ Verificar consistencia de datos
-  ☐ Probar transacciones
-
-PRUEBAS DE USUARIO:
-  ☐ Interfaz intuitiva
-  ☐ Mensajes claros
-  ☐ Rendimiento aceptable
-
-
-┌───────────────────────────────────────────────────────────────────┐
-│ ENTREGABLES FINALES                                               │
-└───────────────────────────────────────────────────────────────────┘
-
-☐ Cronograma del proyecto
-☐ Actas de reuniones
-☐ Manual de usuario
-☐ Manual técnico
-☐ Guía de instalación
-☐ Presentación del proyecto
-☐ Plan de pruebas
-☐ Reporte de bugs resueltos
-☐ Proyecto empaquetado
-
-
-┌───────────────────────────────────────────────────────────────────┐
-│ COORDINACIÓN CON OTROS                                            │
-└───────────────────────────────────────────────────────────────────┘
-
-TRABAJAS CON TODOS:
-  • Coordinas y ayudas a todas las personas del equipo
-  • Resuelves conflictos técnicos
-  • Aseguras que todo se integre correctamente
-
-
-╔═══════════════════════════════════════════════════════════════════╗
-║                          PERSONA 7                                ║
-║                   DESARROLLADOR FRONTEND                          ║
-║                     (Interfaz Web)                                ║
-╚═══════════════════════════════════════════════════════════════════╝
-
-NOMBRE: _______________________________  CONTACTO: ___________________
-
-┌───────────────────────────────────────────────────────────────────┐
-│ TU ROL EN EL PROYECTO                                             │
-└───────────────────────────────────────────────────────────────────┘
-
-Eres el DISEÑADOR Y DESARROLLADOR de la interfaz. Te encargas de:
-  • Diseñar la interfaz visual del sistema
-  • Crear páginas HTML
-  • Escribir estilos CSS
-  • Programar interactividad con JavaScript
-  • Conectar frontend con backend
-  • Asegurar que la interfaz sea intuitiva y atractiva
-
-SIN TI, el sistema no tendría interfaz visual y nadie podría usarlo.
-
-
-┌───────────────────────────────────────────────────────────────────┐
-│ CARPETAS DONDE TRABAJARÁS                                         │
-└───────────────────────────────────────────────────────────────────┘
-
-✓ src/main/resources/frontend/html/
-✓ src/main/resources/frontend/css/
-✓ src/main/resources/frontend/js/
-✓ src/main/resources/frontend/imagenes/
-
-
-┌───────────────────────────────────────────────────────────────────┐
-│ SEMANA 1-2: DISEÑO Y ESTRUCTURA HTML                              │
-└───────────────────────────────────────────────────────────────────┘
-
-TAREA 1: Crear Wireframes y Mockups
-────────────────────────────────────
-QUÉ HACER:
-  • Diseñar bocetos de todas las pantallas
-  • Definir paleta de colores
-  • Seleccionar tipografías
-  • Crear diseño responsive
-
-HERRAMIENTAS:
-  • Figma (recomendado - gratis)
-  • Adobe XD
-  • Canva
-  • Papel y lápiz
-
-PANTALLAS A DISEÑAR:
-  ☐ Login
-  ☐ Dashboard principal
-  ☐ Gestión de productos
-  ☐ Gestión de clientes
-  ☐ Módulo de ventas
-  ☐ Reportes
-
-TIEMPO ESTIMADO: 2-3 días
-
-
-TAREA 2: Crear Páginas HTML
-────────────────────────────
-PÁGINAS A CREAR:
-  ☐ login.html           → Página de inicio de sesión
-  ☐ index.html           → Dashboard principal
-  ☐ productos.html       → Gestión de productos
-  ☐ clientes.html        → Gestión de clientes
-  ☐ ventas.html          → Módulo de ventas
-  ☐ reportes.html        → Módulo de reportes
-  ☐ perfil.html          → Perfil de usuario
-
-ESTRUCTURA BÁSICA DE CADA PÁGINA:
-  • Header con logo y navegación
-  • Menú lateral (sidebar)
-  • Área de contenido principal
-  • Footer con información
-
-COMPONENTES COMUNES:
-  • Formularios
-  • Tablas de datos
-  • Botones de acción
-  • Modales/Diálogos
-  • Alertas/Notificaciones
-
-UBICACIÓN:
-  📁 src/main/resources/frontend/html/
-
-TIEMPO ESTIMADO: 4-5 días
-
-
-TAREA 3: Crear Estructura del Login
-────────────────────────────────────
-COMPONENTES:
-  • Formulario de login
-  • Campo usuario
-  • Campo contraseña
-  • Botón "Iniciar Sesión"
-  • Mensaje de error
-  • Logo del sistema
-
-VALIDACIONES EN HTML:
-  • Campos requeridos (required)
-  • Tipos de input correctos
-
-TIEMPO ESTIMADO: 1 día
-
-
-TAREA 4: Crear Dashboard Principal
-───────────────────────────────────
-COMPONENTES:
-  • Tarjetas con estadísticas (ventas del día, productos, clientes)
-  • Gráfico de ventas (opcional)
-  • Últimas ventas
-  • Productos con bajo stock
-  • Accesos rápidos a módulos
-
-TIEMPO ESTIMADO: 2 días
-
-
-TAREA 5: Crear Módulo de Productos
-───────────────────────────────────
-COMPONENTES:
-  • Tabla de productos
-  • Formulario para agregar/editar
-  • Botones: Nuevo, Guardar, Editar, Eliminar, Buscar
-  • Filtro por categoría
-  • Buscador
-
-CAMPOS DEL FORMULARIO:
-  • Nombre
-  • Descripción
-  • Precio
-  • Stock
-  • Categoría
-  • Estado
-
-TIEMPO ESTIMADO: 2-3 días
-
-
-TAREA 6: Crear Módulo de Clientes
-──────────────────────────────────
-COMPONENTES:
-  • Tabla de clientes
-  • Formulario para agregar/editar
-  • Botones: Nuevo, Guardar, Editar, Eliminar, Buscar
-
-CAMPOS DEL FORMULARIO:
-  • Nombre
-  • Apellido
-  • DNI
-  • Teléfono
-  • Email
-  • Dirección
-
-TIEMPO ESTIMADO: 2 días
-
-
-TAREA 7: Crear Módulo de Ventas
-────────────────────────────────
-COMPONENTES:
-  • Sección para seleccionar cliente
-  • Buscador de productos
-  • Tabla con productos agregados
-  • Campos: Subtotal, IGV, Total
-  • Selector de tipo de pago
-  • Botón "Procesar Venta"
-  • Tabla de historial de ventas
-
-ESTE ES EL MÓDULO MÁS COMPLEJO
-
-TIEMPO ESTIMADO: 4-5 días
-
-
-TAREA 8: Crear Módulo de Reportes
-──────────────────────────────────
-COMPONENTES:
-  • Selector de tipo de reporte
-  • Filtro por fechas
-  • Botones: Generar, Exportar PDF, Exportar Excel
-  • Área para mostrar resultados
-  • Gráficos (opcional)
-
-TIEMPO ESTIMADO: 2-3 días
-
-
-┌───────────────────────────────────────────────────────────────────┐
-│ SEMANA 3-4: ESTILOS CSS                                           │
-└───────────────────────────────────────────────────────────────────┘
-
-TAREA 9: Crear Estilos Generales
-─────────────────────────────────
-ARCHIVO A CREAR:
-  📁 css/style.css
-
-QUÉ DEBE INCLUIR:
-  • Reset CSS básico
-  • Variables CSS (colores, fuentes)
-  • Estilos del body, html
-  • Estilos de tipografía
-  • Estilos de botones
-  • Estilos de formularios
-  • Estilos de tablas
-  • Estilos de tarjetas
-  • Utilidades (margins, paddings, etc.)
-
-PALETA DE COLORES SUGERIDA:
-  • Color primario: #2196F3 (azul)
-  • Color secundario: #4CAF50 (verde)
-  • Color peligro: #F44336 (rojo)
-  • Color advertencia: #FF9800 (naranja)
-  • Fondo: #F5F5F5 (gris claro)
-  • Texto: #333333
-
-TIEMPO ESTIMADO: 3-4 días
-
-
-TAREA 10: Crear Estilos del Layout
-───────────────────────────────────
-QUÉ HACER:
-  • Diseñar header/navbar
-  • Diseñar sidebar/menú lateral
-  • Diseñar estructura de contenido
-  • Diseñar footer
-
-TÉCNICAS:
-  • Flexbox o CSS Grid
-  • Posicionamiento
-  • z-index para capas
-
-TIEMPO ESTIMADO: 2 días
-
-
-TAREA 11: Crear Estilos Responsive
-───────────────────────────────────
-ARCHIVO A CREAR:
-  📁 css/responsive.css
-
-QUÉ HACER:
-  • Media queries para tablet (768px)
-  • Media queries para móvil (480px)
-  • Adaptar tablas para móvil
-  • Menú hamburguesa para móvil
-  • Ocultar/mostrar elementos según pantalla
-
-TIEMPO ESTIMADO: 2-3 días
-
-
-┌───────────────────────────────────────────────────────────────────┐
-│ SEMANA 5-6: JAVASCRIPT                                            │
-└───────────────────────────────────────────────────────────────────┘
-
-TAREA 12: Crear main.js (Funciones Generales)
-──────────────────────────────────────────────
-ARCHIVO A CREAR:
-  📁 js/main.js
-
-FUNCIONES A IMPLEMENTAR:
-  • Mostrar/ocultar menú lateral
-  • Mostrar/ocultar modales
-  • Mostrar mensajes de alerta
-  • Confirmar acciones
-  • Limpiar formularios
-  • Validar campos vacíos
-  • Formatear fechas
-  • Formatear moneda
-  • Manejar eventos comunes
-
-TIEMPO ESTIMADO: 2-3 días
-
-
-TAREA 13: Crear validaciones.js
-────────────────────────────────
-ARCHIVO A CREAR:
-  📁 js/validaciones.js
-
-FUNCIONES A IMPLEMENTAR:
-  • validarEmail(email)
-  • validarTelefono(telefono)
-  • validarDNI(dni)
-  • validarNumero(valor)
-  • validarCampoVacio(valor)
-  • validarLongitud(texto, min, max)
-  • validarFormulario(formId)
-
-TIEMPO ESTIMADO: 1-2 días
-
-
-TAREA 14: Crear api.js (Conexión con Backend)
-──────────────────────────────────────────────
-ARCHIVO A CREAR:
-  📁 js/api.js
-
-FUNCIONES A IMPLEMENTAR:
-  • Función genérica para hacer peticiones HTTP
-  • login(usuario, password)
-  • obtenerProductos()
-  • guardarProducto(producto)
-  • obtenerClientes()
-  • guardarCliente(cliente)
-  • procesarVenta(venta)
-  • generarReporte(tipo, fechas)
-
-USAR:
-  • Fetch API
-  • Async/Await
-  • Manejo de errores con try-catch
-
-IMPORTANTE:
-  • Coordinar con Persona 5 para saber las URLs del backend
-  • Manejar respuestas JSON
-  • Manejar errores de red
-
-TIEMPO ESTIMADO: 3-4 días
-
-
-TAREA 15: Crear Interactividad de Productos
-────────────────────────────────────────────
-QUÉ HACER:
-  • Al hacer click en "Nuevo", limpiar formulario
-  • Al hacer click en "Guardar", validar y enviar datos
-  • Al hacer click en tabla, cargar datos en formulario
-  • Al hacer click en "Eliminar", confirmar y eliminar
-  • Actualizar tabla después de cada operación
-
-TIEMPO ESTIMADO: 2 días
-
-
-TAREA 16: Crear Interactividad de Ventas
-─────────────────────────────────────────
-QUÉ HACER:
-  • Buscar y agregar productos a la venta
-  • Calcular subtotal por cada producto
-  • Calcular total general
-  • Calcular IGV (18%)
-  • Permitir quitar productos
-  • Validar stock antes de agregar
-  • Procesar venta completa
-
-ESTE ES EL MÁS COMPLEJO
-
-TIEMPO ESTIMADO: 4-5 días
-
-
-┌───────────────────────────────────────────────────────────────────┐
-│ CONSIDERACIONES IMPORTANTES                                       │
-└───────────────────────────────────────────────────────────────────┘
-
-DISEÑO:
-  • Interfaz limpia y profesional
-  • Colores consistentes
-  • Espaciado adecuado
-  • Iconos (usar Font Awesome o similar)
-  • Responsive en todos los dispositivos
-
-USABILIDAD:
-  • Interfaz intuitiva
-  • Mensajes claros
-  • Confirmaciones para acciones importantes
-  • Feedback visual (loading, success, error)
-  • Atajos de teclado (opcional)
-
-RENDIMIENTO:
-  • Optimizar imágenes
-  • Minificar CSS/JS (opcional)
-  • Evitar código bloqueante
-  • Carga rápida
-
-ACCESIBILIDAD:
-  • Etiquetas semánticas HTML
-  • Alt text en imágenes
-  • Contraste adecuado
-  • Navegación con teclado
-
-COMPATIBILIDAD:
-  • Probar en Chrome, Firefox, Edge
-  • Probar en diferentes resoluciones
-  • Probar en móvil y tablet
-
-
-┌───────────────────────────────────────────────────────────────────┐
-│ ENTREGABLES FINALES                                               │
-└───────────────────────────────────────────────────────────────────┘
-
-ARCHIVOS HTML:
-☐ login.html
-☐ index.html (dashboard)
-☐ productos.html
-☐ clientes.html
-☐ ventas.html
-☐ reportes.html
-☐ perfil.html
-
-ARCHIVOS CSS:
-☐ style.css
-☐ responsive.css
-
-ARCHIVOS JS:
-☐ main.js
-☐ validaciones.js
-☐ api.js
-
-RECURSOS:
-☐ Imágenes optimizadas
-☐ Iconos
-☐ Logo
-
-
-┌───────────────────────────────────────────────────────────────────┐
-│ COORDINACIÓN CON OTROS                                            │
-└───────────────────────────────────────────────────────────────────┘
-
-TRABAJAS DE CERCA CON:
-  • PERSONA 5 (Controladores): Coordinación constante para conectar
-  • PERSONA 6 (Coordinador): Revisión de diseño
-
-
-╔═══════════════════════════════════════════════════════════════════╗
-║                     CRONOGRAMA GENERAL                            ║
-╚═══════════════════════════════════════════════════════════════════╝
-
-SEMANA 1: FUNDAMENTOS
-─────────────────────
-PERSONA 1: Diagrama ER, Diccionario de datos
-PERSONA 2: Clases abstractas
-PERSONA 3: Interfaces DAO
-PERSONA 6: Planificación, Organización
-PERSONA 7: Wireframes, Mockups
-
-SEMANA 2: BASE DE DATOS Y MODELOS
-──────────────────────────────────
-PERSONA 1: Scripts SQL, Clases de modelo, Enums
-PERSONA 2: Utilidades, Configuración
-PERSONA 3: ConexionDB, Primeros DAOs
-PERSONA 6: Seguimiento, Reuniones
-PERSONA 7: HTML de páginas principales
-
-SEMANA 3: CAPA DE DATOS
-───────────────────────
-PERSONA 1: Datos de prueba, Ajustes
-PERSONA 2: Completar utilidades
-PERSONA 3: Completar todos los DAOs
-PERSONA 6: Integración BD + DAOs
-PERSONA 7: CSS y estilos
-
-SEMANA 4: SERVICIOS
-───────────────────
-PERSONA 3: Terminar y probar DAOs
-PERSONA 4: Servicios básicos
-PERSONA 6: Integración DAOs + Servicios
-PERSONA 7: JavaScript básico
-
-SEMANA 5: CONTROLADORES E INTEGRACIÓN
-──────────────────────────────────────
-PERSONA 4: Completar servicios
-PERSONA 5: Controladores
-PERSONA 6: Integración general
-PERSONA 7: JavaScript avanzado, API
-
-SEMANA 6: INTEGRACIÓN COMPLETA
-──────────────────────────────
-PERSONA 5: Completar controladores
-PERSONA 6: Integración Frontend-Backend
-PERSONA 7: Conectar todo con backend
-
-SEMANA 7: PRUEBAS Y CORRECCIONES
-─────────────────────────────────
-TODO EL EQUIPO: Pruebas exhaustivas
-PERSONA 6: Documentación, Manual usuario
-
-SEMANA 8: ENTREGA FINAL
-───────────────────────
-TODO EL EQUIPO: Ajustes finales
-PERSONA 6: Preparar entrega, Presentación
-
-
-╔═══════════════════════════════════════════════════════════════════╗
-║                    REGLAS DE TRABAJO EN EQUIPO                    ║
-╚═══════════════════════════════════════════════════════════════════╝
-
-COMUNICACIÓN:
-✓ Reportar avances semanalmente
-✓ Comunicar problemas inmediatamente
-✓ Pedir ayuda cuando se necesite
-✓ Responder mensajes del equipo
-✓ Asistir a todas las reuniones
-
-CÓDIGO:
-✓ Seguir los estándares de codificación
-✓ Comentar código complejo
-✓ Usar nombres descriptivos
-✓ Probar antes de integrar
-✓ No subir código que no compila
-
-ORGANIZACIÓN:
-✓ Respetar fechas de entrega
-✓ Mantener carpetas organizadas
-✓ No modificar código de otros sin avisar
-✓ Hacer respaldos frecuentes
-✓ Documentar cambios importantes
-
-COLABORACIÓN:
-✓ Ayudar a compañeros cuando se pueda
-✓ Compartir conocimientos
-✓ Resolver conflictos con respeto
-✓ Trabajar en equipo, no individual
-✓ Celebrar logros juntos
-
-
-╔═══════════════════════════════════════════════════════════════════╗
-║                    DATOS DEL EQUIPO                               ║
-╚═══════════════════════════════════════════════════════════════════╝
-
-PERSONA 1 - DBA
-Nombre: Sebastian 
-Email:  _____________________________
-Teléfono: ___________________________
-
-PERSONA 2 - Backend
-Nombre: _____________________________
-Email:  _____________________________
-Teléfono: ___________________________
-
-PERSONA 3 - DAOs
-Nombre: _____________________________
-Email:  _____________________________
-Teléfono: ___________________________
-
-PERSONA 4 - Servicios
-Nombre: _____________________________
-Email:  _____________________________
-Teléfono: ___________________________
-
-PERSONA 5 - Controladores
-Nombre: _____________________________
-Email:  _____________________________
-Teléfono: ___________________________
-
-PERSONA 6 - Coordinador
-Nombre: _____________________________
-Email:  _____________________________
-Teléfono: ___________________________
-
-PERSONA 7 - Frontend
-Nombre: _____________________________
-Email:  _____________________________
-Teléfono: ___________________________
-
-
-╔═══════════════════════════════════════════════════════════════════╗
-║                    CANALES DE COMUNICACIÓN                        ║
-╚═══════════════════════════════════════════════════════════════════╝
-
-GRUPO DE WHATSAPP: ________________________________
-
-CORREO DEL EQUIPO: ________________________________
-
-REPOSITORIO GIT: __________________________________
-
-DRIVE/CARPETA COMPARTIDA: _________________________
-
-
-╔═══════════════════════════════════════════════════════════════════╗
-║                    FECHAS IMPORTANTES                             ║
-╚═══════════════════════════════════════════════════════════════════╝
-
-INICIO DEL PROYECTO: _____________________
-
-ENTREGA PARCIAL 1: _______________________
-
-ENTREGA PARCIAL 2: _______________________
-
-ENTREGA FINAL: ___________________________
-
-PRESENTACIÓN: ____________________________
-
-
-═══════════════════════════════════════════════════════════════════
-                    ¡ÉXITO EN EL PROYECTO!
-═══════════════════════════════════════════════════════════════════
+java@RestController
+@RequestMapping("/api/reportes")
+@RequiredArgsConstructor
+public class ReporteController {
+    
+    private final ReporteService reporteService;
+    
+    @GetMapping("/ventas-diarias")
+    public ResponseEntity<List<VentaDiariaDTO>> obtenerVentasDiarias(
+            @RequestParam(required = false, defaultValue = "30") int dias) {
+        return ResponseEntity.ok(reporteService.obtenerVentasDiarias(dias));
+    }
+    
+    @GetMapping("/productos-mas-vendidos")
+    public ResponseEntity<List<ProductoVendidoDTO>> obtenerProductosMasVendidos(
+            @RequestParam(required = false, defaultValue = "10") int limite) {
+        return ResponseEntity.ok(reporteService.obtenerProductosMasVendidos(limite));
+    }
+    
+    @GetMapping("/ventas-por-categoria")
+    public ResponseEntity<List<VentaCategoriaDTO>> obtenerVentasPorCategoria() {
+        return ResponseEntity.ok(reporteService.obtenerVentasPorCategoria());
+    }
+}
+SEMANA 6: CONFIGURAR SPRING SECURITY CON JWT
+TAREA 6: Crear JwtTokenProvider
+javapackage com.ventas.security;
+
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import java.security.Key;
+import java.util.Date;
+
+@Component
+public class JwtTokenProvider {
+    
+    @Value("${jwt.secret}")
+    private String jwtSecret;
+    
+    @Value("${jwt.expiration}")
+    private long jwtExpiration;
+    
+    public String generateToken(String usuario) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + jwtExpiration);
+        
+        Key key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
+        
+        return Jwts.builder()
+            .setSubject(usuario)
+            .setIssuedAt(now)
+            .setExpiration(expiryDate)
+            .signWith(key, SignatureAlgorithm.HS512)
+            .compact();
+    }
+    
+    public String getUsernameFromToken(String token) {
+        Key key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
+        Claims claims = Jwts.parserBuilder()
+            .setSigningKey(key)
+            .build()
+            .parseClaimsJws(token)
+            .getBody();
+        return claims.getSubject();
+    }
+    
+    public boolean validateToken(String token) {
+        try {
+            Key key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
+            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
+    }
+}
+TAREA 7: Crear SecurityConfig
+javapackage com.ventas.security;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.SecurityFilterChain;
+
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+    
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+            .csrf().disable()
+            .authorizeHttpRequests()
+                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/**").authenticated()
+            .and()
+            .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        
+        return http.build();
+    }
+}
+Tiempo estimado: 6-7 días.
+ENTREGABLES FINALES
+
+ProductoController.java
+VentaController.java
+ClienteController.java
+AuthController.java
+ReporteController.java
+CategoriaController.java
+JwtTokenProvider.java
+SecurityConfig.java
+
+COORDINACIÓN CON OTROS
+Dependes de Persona 4 (Servicios) cuyos servicios inyectarás en tus controladores. Trabajas de cerca con Persona 7 (Frontend) quien consumirá tus endpoints REST.

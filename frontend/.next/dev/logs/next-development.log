@@ -1,0 +1,200 @@
+[00:00:01.234] Server  LOG      ✓ Ready in 891ms
+[00:00:14.526] Server  LOG      ○ Compiling /login ...
+[00:00:16.923] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:17.039] Browser LOG     🎯 useAuth inicializando...
+[00:00:17.039] Browser LOG     🔄 Store: Inicializando desde localStorage...
+[00:00:17.039] Browser LOG     📦 Store.initialize(): Datos encontrados: {"refreshToken":"❌","token":"❌","userData":"❌"}
+[00:00:17.039] Browser LOG     ❌ Store: No hay usuario autenticado en localStorage
+[00:00:17.039] Browser LOG     👥 USUARIOS DISPONIBLES:
+[00:00:17.039] Browser LOG        admin / admin (admin)
+[00:00:17.039] Browser LOG        supervisor / supervisor (supervisor)
+[00:00:17.039] Browser LOG        vendedor / vendedor (vendedor)
+[00:00:17.039] Browser LOG        cajero / cajero (cajero)
+[00:00:17.039] Browser LOG        cliente / cliente (cliente)
+[00:00:18.021] Browser LOG     🔍 Debug automático de usuarios:
+[00:00:18.021] Browser LOG     👥 USUARIOS DISPONIBLES:
+[00:00:18.021] Browser LOG        admin / admin (admin)
+[00:00:18.021] Browser LOG        supervisor / supervisor (supervisor)
+[00:00:18.021] Browser LOG        vendedor / vendedor (vendedor)
+[00:00:18.021] Browser LOG        cajero / cajero (cajero)
+[00:00:18.021] Browser LOG        cliente / cliente (cliente)
+[00:00:20.614] Browser LOG     🎯 useAuth inicializando...
+[00:00:20.614] Browser LOG     🔄 Store: Inicializando desde localStorage...
+[00:00:20.614] Browser LOG     📦 Store.initialize(): Datos encontrados: {"refreshToken":"❌","token":"❌","userData":"❌"}
+[00:00:20.614] Browser LOG     ❌ Store: No hay usuario autenticado en localStorage
+[00:00:20.614] Browser LOG     👥 USUARIOS DISPONIBLES:
+[00:00:20.614] Browser LOG        admin / admin (admin)
+[00:00:20.614] Browser LOG        supervisor / supervisor (supervisor)
+[00:00:20.614] Browser LOG        vendedor / vendedor (vendedor)
+[00:00:20.614] Browser LOG        cajero / cajero (cajero)
+[00:00:20.614] Browser LOG        cliente / cliente (cliente)
+[00:00:20.614] Browser LOG     🎯 useAuth inicializando...
+[00:00:20.614] Browser LOG     🔄 Store: Inicializando desde localStorage...
+[00:00:20.614] Browser LOG     📦 Store.initialize(): Datos encontrados: {"refreshToken":"❌","token":"❌","userData":"❌"}
+[00:00:20.614] Browser LOG     ❌ Store: No hay usuario autenticado en localStorage
+[00:00:20.614] Browser LOG     👥 USUARIOS DISPONIBLES:
+[00:00:20.614] Browser LOG        admin / admin (admin)
+[00:00:20.614] Browser LOG        supervisor / supervisor (supervisor)
+[00:00:20.614] Browser LOG        vendedor / vendedor (vendedor)
+[00:00:20.614] Browser LOG        cajero / cajero (cajero)
+[00:00:20.614] Browser LOG        cliente / cliente (cliente)
+[00:00:23.496] Browser LOG     🎯 useAuth inicializando...
+[00:00:23.497] Browser LOG     🔄 Store: Inicializando desde localStorage...
+[00:00:23.497] Browser LOG     📦 Store.initialize(): Datos encontrados: {"refreshToken":"❌","token":"❌","userData":"❌"}
+[00:00:23.497] Browser LOG     ❌ Store: No hay usuario autenticado en localStorage
+[00:00:23.497] Browser LOG     👥 USUARIOS DISPONIBLES:
+[00:00:23.497] Browser LOG        admin / admin (admin)
+[00:00:23.497] Browser LOG        supervisor / supervisor (supervisor)
+[00:00:23.497] Browser LOG        vendedor / vendedor (vendedor)
+[00:00:23.497] Browser LOG        cajero / cajero (cajero)
+[00:00:23.497] Browser LOG        cliente / cliente (cliente)
+[00:00:23.497] Browser LOG     🎯 useAuth inicializando...
+[00:00:23.497] Browser LOG     🔄 Store: Inicializando desde localStorage...
+[00:00:23.497] Browser LOG     📦 Store.initialize(): Datos encontrados: {"refreshToken":"❌","token":"❌","userData":"❌"}
+[00:00:23.497] Browser LOG     ❌ Store: No hay usuario autenticado en localStorage
+[00:00:23.497] Browser LOG     👥 USUARIOS DISPONIBLES:
+[00:00:23.497] Browser LOG        admin / admin (admin)
+[00:00:23.497] Browser LOG        supervisor / supervisor (supervisor)
+[00:00:23.497] Browser LOG        vendedor / vendedor (vendedor)
+[00:00:23.497] Browser LOG        cajero / cajero (cajero)
+[00:00:23.497] Browser LOG        cliente / cliente (cliente)
+[00:00:39.060] Browser LOG     🔐 Intentando login... {"password":"cliente","username":"cliente"}
+[00:00:39.060] Browser LOG     🔐 loginTestUser(): Credenciales recibidas: {"password":"cliente","username":"cliente"}
+[00:00:39.060] Browser LOG     👤 Resultado búsqueda: ✅ cliente
+[00:00:39.060] Browser LOG     ✅ Usuario autenticado: cliente
+[00:00:39.060] Browser LOG     🔄 Store.login(): {"refreshToken":"fake-refre...","token":"fake-token...","user":"cliente"}
+[00:00:39.060] Browser LOG     💾 Store: Datos guardados en localStorage y cookie
+[00:00:39.060] Browser LOG     ✅ Store: Login completado - Estado actualizado
+[00:00:40.092] Browser LOG     🎯 useAuth inicializando...
+[00:00:40.092] Browser LOG     🔄 Store: Inicializando desde localStorage...
+[00:00:40.092] Browser LOG     📦 Store.initialize(): Datos encontrados: {"refreshToken":"✅","token":"✅","userData":"✅"}
+[00:00:40.092] Browser LOG     ✅ Store: Usuario autenticado cargado: cliente
+[00:00:40.092] Browser LOG     👥 USUARIOS DISPONIBLES:
+[00:00:40.092] Browser LOG        admin / admin (admin)
+[00:00:40.092] Browser LOG        supervisor / supervisor (supervisor)
+[00:00:40.093] Browser LOG        vendedor / vendedor (vendedor)
+[00:00:40.093] Browser LOG        cajero / cajero (cajero)
+[00:00:40.093] Browser LOG        cliente / cliente (cliente)
+[00:00:40.093] Browser LOG     🎯 useAuth inicializando...
+[00:00:40.093] Browser LOG     🔄 Store: Inicializando desde localStorage...
+[00:00:40.093] Browser LOG     📦 Store.initialize(): Datos encontrados: {"refreshToken":"✅","token":"✅","userData":"✅"}
+[00:00:40.093] Browser LOG     ✅ Store: Usuario autenticado cargado: cliente
+[00:00:40.093] Browser LOG     👥 USUARIOS DISPONIBLES:
+[00:00:40.093] Browser LOG        admin / admin (admin)
+[00:00:40.093] Browser LOG        supervisor / supervisor (supervisor)
+[00:00:40.093] Browser LOG        vendedor / vendedor (vendedor)
+[00:00:40.093] Browser LOG        cajero / cajero (cajero)
+[00:00:40.093] Browser LOG        cliente / cliente (cliente)
+[00:00:40.093] Browser LOG     🎯 useAuth inicializando...
+[00:00:40.093] Browser LOG     🔄 Store: Inicializando desde localStorage...
+[00:00:40.093] Browser LOG     📦 Store.initialize(): Datos encontrados: {"refreshToken":"✅","token":"✅","userData":"✅"}
+[00:00:40.093] Browser LOG     ✅ Store: Usuario autenticado cargado: cliente
+[00:00:40.093] Browser LOG     👥 USUARIOS DISPONIBLES:
+[00:00:40.093] Browser LOG        admin / admin (admin)
+[00:00:40.093] Browser LOG        supervisor / supervisor (supervisor)
+[00:00:40.093] Browser LOG        vendedor / vendedor (vendedor)
+[00:00:40.093] Browser LOG        cajero / cajero (cajero)
+[00:00:40.093] Browser LOG        cliente / cliente (cliente)
+[00:00:40.093] Browser LOG     🎯 useAuth inicializando...
+[00:00:40.093] Browser LOG     🔄 Store: Inicializando desde localStorage...
+[00:00:40.093] Browser LOG     📦 Store.initialize(): Datos encontrados: {"refreshToken":"✅","token":"✅","userData":"✅"}
+[00:00:40.093] Browser LOG     ✅ Store: Usuario autenticado cargado: cliente
+[00:00:40.093] Browser LOG     👥 USUARIOS DISPONIBLES:
+[00:00:40.093] Browser LOG        admin / admin (admin)
+[00:00:40.093] Browser LOG        supervisor / supervisor (supervisor)
+[00:00:40.093] Browser LOG        vendedor / vendedor (vendedor)
+[00:00:40.093] Browser LOG        cajero / cajero (cajero)
+[00:00:40.093] Browser LOG        cliente / cliente (cliente)
+[00:00:40.093] Browser LOG     🎯 useAuth inicializando...
+[00:00:40.093] Browser LOG     🔄 Store: Inicializando desde localStorage...
+[00:00:40.093] Browser LOG     📦 Store.initialize(): Datos encontrados: {"refreshToken":"✅","token":"✅","userData":"✅"}
+[00:00:40.093] Browser LOG     ✅ Store: Usuario autenticado cargado: cliente
+[00:00:40.093] Browser LOG     👥 USUARIOS DISPONIBLES:
+[00:00:40.093] Browser LOG        admin / admin (admin)
+[00:00:40.093] Browser LOG        supervisor / supervisor (supervisor)
+[00:00:40.093] Browser LOG        vendedor / vendedor (vendedor)
+[00:00:40.093] Browser LOG        cajero / cajero (cajero)
+[00:00:40.093] Browser LOG        cliente / cliente (cliente)
+[00:00:40.093] Browser LOG     🎯 useAuth inicializando...
+[00:00:40.093] Browser LOG     🔄 Store: Inicializando desde localStorage...
+[00:00:40.093] Browser LOG     📦 Store.initialize(): Datos encontrados: {"refreshToken":"✅","token":"✅","userData":"✅"}
+[00:00:40.093] Browser LOG     ✅ Store: Usuario autenticado cargado: cliente
+[00:00:40.093] Browser LOG     👥 USUARIOS DISPONIBLES:
+[00:00:40.093] Browser LOG        admin / admin (admin)
+[00:00:40.093] Browser LOG        supervisor / supervisor (supervisor)
+[00:00:40.093] Browser LOG        vendedor / vendedor (vendedor)
+[00:00:40.093] Browser LOG        cajero / cajero (cajero)
+[00:00:40.093] Browser LOG        cliente / cliente (cliente)
+[00:00:45.010] Browser WARN    Error cargando datos de ventas (clientes): {"code":"ERR_NETWORK","config":{"adapter":["xhr","http","fetch"],"allowAbsoluteUrls":true,"env":{},"headers":{"Accept":"application/json, text/plain, */*","Authorization":"Bearer fake-token-5-1763401344732"},"maxBodyLength":-1,"maxContentLength":-1,"method":"get","params":{"page":1,"page_size":10},"timeout":0,"transformRequest":[null],"transformResponse":[null],"transitional":{"clarifyTimeoutError":false,"forcedJSONParsing":true,"silentJSONParsing":true},"url":"http://localhost:8000/api/v1/clientes","xsrfCookieName":"XSRF-TOKEN","xsrfHeaderName":"X-XSRF-TOKEN"},"message":"Network Error","name":"AxiosError","stack":"AxiosError: Network Error\n    at XMLHttpRequest.handleError (http://localhost:3000/_next/static/chunks/node_modules_24f66e74._.js:5230:25)\n    at Axios.request (http://localhost:3000/_next/static/chunks/node_modules_24f66e74._.js:5988:49)\n    at async getClients (http://localhost:3000/_next/static/chunks/_99bee46d._.js:2208:22)\n    at async inicializar (http://localhost:3000/_next/static/chunks/_99bee46d._.js:2324:47)"}
+[00:00:45.010] Browser WARN    Error cargando datos de ventas (clientes): {"code":"ERR_NETWORK","config":{"adapter":["xhr","http","fetch"],"allowAbsoluteUrls":true,"env":{},"headers":{"Accept":"application/json, text/plain, */*","Authorization":"Bearer fake-token-5-1763401344732"},"maxBodyLength":-1,"maxContentLength":-1,"method":"get","params":{"page":1,"page_size":10},"timeout":0,"transformRequest":[null],"transformResponse":[null],"transitional":{"clarifyTimeoutError":false,"forcedJSONParsing":true,"silentJSONParsing":true},"url":"http://localhost:8000/api/v1/clientes","xsrfCookieName":"XSRF-TOKEN","xsrfHeaderName":"X-XSRF-TOKEN"},"message":"Network Error","name":"AxiosError","stack":"AxiosError: Network Error\n    at XMLHttpRequest.handleError (http://localhost:3000/_next/static/chunks/node_modules_24f66e74._.js:5230:25)\n    at Axios.request (http://localhost:3000/_next/static/chunks/node_modules_24f66e74._.js:5988:49)\n    at async getClients (http://localhost:3000/_next/static/chunks/_99bee46d._.js:2208:22)\n    at async inicializar (http://localhost:3000/_next/static/chunks/_99bee46d._.js:2324:47)"}
+[00:00:50.274] Browser WARN    Error cargando datos de ventas (clientes): {"code":"ERR_NETWORK","config":{"adapter":["xhr","http","fetch"],"allowAbsoluteUrls":true,"env":{},"headers":{"Accept":"application/json, text/plain, */*","Authorization":"Bearer fake-token-5-1763401344732"},"maxBodyLength":-1,"maxContentLength":-1,"method":"get","params":{"page":1,"page_size":10},"timeout":0,"transformRequest":[null],"transformResponse":[null],"transitional":{"clarifyTimeoutError":false,"forcedJSONParsing":true,"silentJSONParsing":true},"url":"http://localhost:8000/api/v1/clientes","xsrfCookieName":"XSRF-TOKEN","xsrfHeaderName":"X-XSRF-TOKEN"},"message":"Network Error","name":"AxiosError","stack":"AxiosError: Network Error\n    at XMLHttpRequest.handleError (http://localhost:3000/_next/static/chunks/node_modules_24f66e74._.js:5230:25)\n    at Axios.request (http://localhost:3000/_next/static/chunks/node_modules_24f66e74._.js:5988:49)\n    at async getClients (http://localhost:3000/_next/static/chunks/_99bee46d._.js:2208:22)\n    at async inicializar (http://localhost:3000/_next/static/chunks/_99bee46d._.js:2324:47)"}
+[00:00:50.274] Browser WARN    Error cargando datos de ventas (clientes): {"code":"ERR_NETWORK","config":{"adapter":["xhr","http","fetch"],"allowAbsoluteUrls":true,"env":{},"headers":{"Accept":"application/json, text/plain, */*","Authorization":"Bearer fake-token-5-1763401344732"},"maxBodyLength":-1,"maxContentLength":-1,"method":"get","params":{"page":1,"page_size":10},"timeout":0,"transformRequest":[null],"transformResponse":[null],"transitional":{"clarifyTimeoutError":false,"forcedJSONParsing":true,"silentJSONParsing":true},"url":"http://localhost:8000/api/v1/clientes","xsrfCookieName":"XSRF-TOKEN","xsrfHeaderName":"X-XSRF-TOKEN"},"message":"Network Error","name":"AxiosError","stack":"AxiosError: Network Error\n    at XMLHttpRequest.handleError (http://localhost:3000/_next/static/chunks/node_modules_24f66e74._.js:5230:25)\n    at Axios.request (http://localhost:3000/_next/static/chunks/node_modules_24f66e74._.js:5988:49)\n    at async getClients (http://localhost:3000/_next/static/chunks/_99bee46d._.js:2208:22)\n    at async inicializar (http://localhost:3000/_next/static/chunks/_99bee46d._.js:2324:47)"}
+[00:00:53.639] Browser WARN    Error cargando datos de ventas (clientes): {"code":"ERR_NETWORK","config":{"adapter":["xhr","http","fetch"],"allowAbsoluteUrls":true,"env":{},"headers":{"Accept":"application/json, text/plain, */*","Authorization":"Bearer fake-token-5-1763401344732"},"maxBodyLength":-1,"maxContentLength":-1,"method":"get","params":{"page":1,"page_size":10},"timeout":0,"transformRequest":[null],"transformResponse":[null],"transitional":{"clarifyTimeoutError":false,"forcedJSONParsing":true,"silentJSONParsing":true},"url":"http://localhost:8000/api/v1/clientes","xsrfCookieName":"XSRF-TOKEN","xsrfHeaderName":"X-XSRF-TOKEN"},"message":"Network Error","name":"AxiosError","stack":"AxiosError: Network Error\n    at XMLHttpRequest.handleError (http://localhost:3000/_next/static/chunks/node_modules_24f66e74._.js:5230:25)\n    at Axios.request (http://localhost:3000/_next/static/chunks/node_modules_24f66e74._.js:5988:49)\n    at async getClients (http://localhost:3000/_next/static/chunks/_99bee46d._.js:2208:22)\n    at async inicializar (http://localhost:3000/_next/static/chunks/_99bee46d._.js:2324:47)"}
+[00:00:53.640] Browser WARN    Error cargando datos de ventas (clientes): {"code":"ERR_NETWORK","config":{"adapter":["xhr","http","fetch"],"allowAbsoluteUrls":true,"env":{},"headers":{"Accept":"application/json, text/plain, */*","Authorization":"Bearer fake-token-5-1763401344732"},"maxBodyLength":-1,"maxContentLength":-1,"method":"get","params":{"page":1,"page_size":10},"timeout":0,"transformRequest":[null],"transformResponse":[null],"transitional":{"clarifyTimeoutError":false,"forcedJSONParsing":true,"silentJSONParsing":true},"url":"http://localhost:8000/api/v1/clientes","xsrfCookieName":"XSRF-TOKEN","xsrfHeaderName":"X-XSRF-TOKEN"},"message":"Network Error","name":"AxiosError","stack":"AxiosError: Network Error\n    at XMLHttpRequest.handleError (http://localhost:3000/_next/static/chunks/node_modules_24f66e74._.js:5230:25)\n    at Axios.request (http://localhost:3000/_next/static/chunks/node_modules_24f66e74._.js:5988:49)\n    at async getClients (http://localhost:3000/_next/static/chunks/_99bee46d._.js:2208:22)\n    at async inicializar (http://localhost:3000/_next/static/chunks/_99bee46d._.js:2324:47)"}
+[00:00:55.741] Browser LOG     Crear cliente desde ventas aún no implementado
+[00:00:56.155] Browser LOG     Crear cliente desde ventas aún no implementado
+[00:00:56.575] Browser LOG     Crear cliente desde ventas aún no implementado
+[00:00:56.757] Browser LOG     Crear cliente desde ventas aún no implementado
+[00:00:56.921] Browser LOG     Crear cliente desde ventas aún no implementado
+[00:04:07.739] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:04:07.866] Browser LOG     🎯 useAuth inicializando...
+[00:04:07.866] Browser LOG     🔄 Store: Inicializando desde localStorage...
+[00:04:07.866] Browser LOG     📦 Store.initialize(): Datos encontrados: {"refreshToken":"✅","token":"✅","userData":"✅"}
+[00:04:07.866] Browser LOG     ✅ Store: Usuario autenticado cargado: cliente
+[00:04:07.866] Browser LOG     👥 USUARIOS DISPONIBLES:
+[00:04:07.866] Browser LOG        admin / admin (admin)
+[00:04:07.866] Browser LOG        supervisor / supervisor (supervisor)
+[00:04:07.866] Browser LOG        vendedor / vendedor (vendedor)
+[00:04:07.866] Browser LOG        cajero / cajero (cajero)
+[00:04:07.866] Browser LOG        cliente / cliente (cliente)
+[00:04:07.866] Browser LOG     🎯 useAuth inicializando...
+[00:04:07.866] Browser LOG     🔄 Store: Inicializando desde localStorage...
+[00:04:07.866] Browser LOG     📦 Store.initialize(): Datos encontrados: {"refreshToken":"✅","token":"✅","userData":"✅"}
+[00:04:07.866] Browser LOG     ✅ Store: Usuario autenticado cargado: cliente
+[00:04:07.866] Browser LOG     👥 USUARIOS DISPONIBLES:
+[00:04:07.866] Browser LOG        admin / admin (admin)
+[00:04:07.866] Browser LOG        supervisor / supervisor (supervisor)
+[00:04:07.866] Browser LOG        vendedor / vendedor (vendedor)
+[00:04:07.866] Browser LOG        cajero / cajero (cajero)
+[00:04:07.866] Browser LOG        cliente / cliente (cliente)
+[00:04:07.866] Browser LOG     🎯 useAuth inicializando...
+[00:04:07.866] Browser LOG     🔄 Store: Inicializando desde localStorage...
+[00:04:07.866] Browser LOG     📦 Store.initialize(): Datos encontrados: {"refreshToken":"✅","token":"✅","userData":"✅"}
+[00:04:07.866] Browser LOG     ✅ Store: Usuario autenticado cargado: cliente
+[00:04:07.866] Browser LOG     👥 USUARIOS DISPONIBLES:
+[00:04:07.866] Browser LOG        admin / admin (admin)
+[00:04:07.866] Browser LOG        supervisor / supervisor (supervisor)
+[00:04:07.866] Browser LOG        vendedor / vendedor (vendedor)
+[00:04:07.866] Browser LOG        cajero / cajero (cajero)
+[00:04:07.866] Browser LOG        cliente / cliente (cliente)
+[00:04:07.866] Browser LOG     🎯 useAuth inicializando...
+[00:04:07.866] Browser LOG     🔄 Store: Inicializando desde localStorage...
+[00:04:07.866] Browser LOG     📦 Store.initialize(): Datos encontrados: {"refreshToken":"✅","token":"✅","userData":"✅"}
+[00:04:07.866] Browser LOG     ✅ Store: Usuario autenticado cargado: cliente
+[00:04:07.866] Browser LOG     👥 USUARIOS DISPONIBLES:
+[00:04:07.866] Browser LOG        admin / admin (admin)
+[00:04:07.866] Browser LOG        supervisor / supervisor (supervisor)
+[00:04:07.866] Browser LOG        vendedor / vendedor (vendedor)
+[00:04:07.866] Browser LOG        cajero / cajero (cajero)
+[00:04:07.866] Browser LOG        cliente / cliente (cliente)
+[00:04:07.866] Browser LOG     🎯 useAuth inicializando...
+[00:04:07.866] Browser LOG     🔄 Store: Inicializando desde localStorage...
+[00:04:07.866] Browser LOG     📦 Store.initialize(): Datos encontrados: {"refreshToken":"✅","token":"✅","userData":"✅"}
+[00:04:07.866] Browser LOG     ✅ Store: Usuario autenticado cargado: cliente
+[00:04:07.866] Browser LOG     👥 USUARIOS DISPONIBLES:
+[00:04:07.866] Browser LOG        admin / admin (admin)
+[00:04:07.866] Browser LOG        supervisor / supervisor (supervisor)
+[00:04:07.866] Browser LOG        vendedor / vendedor (vendedor)
+[00:04:07.866] Browser LOG        cajero / cajero (cajero)
+[00:04:07.866] Browser LOG        cliente / cliente (cliente)
+[00:04:08.848] Browser LOG     🔍 Debug automático de usuarios:
+[00:04:08.848] Browser LOG     👥 USUARIOS DISPONIBLES:
+[00:04:08.848] Browser LOG        admin / admin (admin)
+[00:04:08.848] Browser LOG        supervisor / supervisor (supervisor)
+[00:04:08.848] Browser LOG        vendedor / vendedor (vendedor)
+[00:04:08.848] Browser LOG        cajero / cajero (cajero)
+[00:04:08.848] Browser LOG        cliente / cliente (cliente)
+[00:04:11.053] Browser WARN    Error cargando datos de ventas (clientes): {"code":"ERR_NETWORK","config":{"adapter":["xhr","http","fetch"],"allowAbsoluteUrls":true,"env":{},"headers":{"Accept":"application/json, text/plain, */*","Authorization":"Bearer fake-token-5-1763401344732"},"maxBodyLength":-1,"maxContentLength":-1,"method":"get","params":{"page":1,"page_size":10},"timeout":0,"transformRequest":[null],"transformResponse":[null],"transitional":{"clarifyTimeoutError":false,"forcedJSONParsing":true,"silentJSONParsing":true},"url":"http://localhost:8000/api/v1/clientes","xsrfCookieName":"XSRF-TOKEN","xsrfHeaderName":"X-XSRF-TOKEN"},"message":"Network Error","name":"AxiosError","stack":"AxiosError: Network Error\n    at XMLHttpRequest.handleError (http://localhost:3000/_next/static/chunks/node_modules_b242072a._.js:4267:25)\n    at Axios.request (http://localhost:3000/_next/static/chunks/node_modules_b242072a._.js:5025:49)\n    at async getClients (http://localhost:3000/_next/static/chunks/_99bee46d._.js:2208:22)\n    at async inicializar (http://localhost:3000/_next/static/chunks/_99bee46d._.js:2324:47)"}
+[00:04:11.053] Browser WARN    Error cargando datos de ventas (clientes): {"code":"ERR_NETWORK","config":{"adapter":["xhr","http","fetch"],"allowAbsoluteUrls":true,"env":{},"headers":{"Accept":"application/json, text/plain, */*","Authorization":"Bearer fake-token-5-1763401344732"},"maxBodyLength":-1,"maxContentLength":-1,"method":"get","params":{"page":1,"page_size":10},"timeout":0,"transformRequest":[null],"transformResponse":[null],"transitional":{"clarifyTimeoutError":false,"forcedJSONParsing":true,"silentJSONParsing":true},"url":"http://localhost:8000/api/v1/clientes","xsrfCookieName":"XSRF-TOKEN","xsrfHeaderName":"X-XSRF-TOKEN"},"message":"Network Error","name":"AxiosError","stack":"AxiosError: Network Error\n    at XMLHttpRequest.handleError (http://localhost:3000/_next/static/chunks/node_modules_b242072a._.js:4267:25)\n    at Axios.request (http://localhost:3000/_next/static/chunks/node_modules_b242072a._.js:5025:49)\n    at async getClients (http://localhost:3000/_next/static/chunks/_99bee46d._.js:2208:22)\n    at async inicializar (http://localhost:3000/_next/static/chunks/_99bee46d._.js:2324:47)"}
+[00:04:11.053] Browser WARN    Error cargando datos de ventas (clientes): {"code":"ERR_NETWORK","config":{"adapter":["xhr","http","fetch"],"allowAbsoluteUrls":true,"env":{},"headers":{"Accept":"application/json, text/plain, */*","Authorization":"Bearer fake-token-5-1763401344732"},"maxBodyLength":-1,"maxContentLength":-1,"method":"get","params":{"page":1,"page_size":10},"timeout":0,"transformRequest":[null],"transformResponse":[null],"transitional":{"clarifyTimeoutError":false,"forcedJSONParsing":true,"silentJSONParsing":true},"url":"http://localhost:8000/api/v1/clientes","xsrfCookieName":"XSRF-TOKEN","xsrfHeaderName":"X-XSRF-TOKEN"},"message":"Network Error","name":"AxiosError","stack":"AxiosError: Network Error\n    at XMLHttpRequest.handleError (http://localhost:3000/_next/static/chunks/node_modules_b242072a._.js:4267:25)\n    at Axios.request (http://localhost:3000/_next/static/chunks/node_modules_b242072a._.js:5025:49)\n    at async getClients (http://localhost:3000/_next/static/chunks/_99bee46d._.js:2208:22)\n    at async inicializar (http://localhost:3000/_next/static/chunks/_99bee46d._.js:2324:47)"}
+[00:04:12.055] Browser WARN    Error cargando datos de ventas (clientes): {"code":"ERR_NETWORK","config":{"adapter":["xhr","http","fetch"],"allowAbsoluteUrls":true,"env":{},"headers":{"Accept":"application/json, text/plain, */*","Authorization":"Bearer fake-token-5-1763401344732"},"maxBodyLength":-1,"maxContentLength":-1,"method":"get","params":{"page":1,"page_size":10},"timeout":0,"transformRequest":[null],"transformResponse":[null],"transitional":{"clarifyTimeoutError":false,"forcedJSONParsing":true,"silentJSONParsing":true},"url":"http://localhost:8000/api/v1/clientes","xsrfCookieName":"XSRF-TOKEN","xsrfHeaderName":"X-XSRF-TOKEN"},"message":"Network Error","name":"AxiosError","stack":"AxiosError: Network Error\n    at XMLHttpRequest.handleError (http://localhost:3000/_next/static/chunks/node_modules_b242072a._.js:4267:25)\n    at Axios.request (http://localhost:3000/_next/static/chunks/node_modules_b242072a._.js:5025:49)\n    at async getClients (http://localhost:3000/_next/static/chunks/_99bee46d._.js:2208:22)\n    at async inicializar (http://localhost:3000/_next/static/chunks/_99bee46d._.js:2324:47)"}

@@ -1,0 +1,30 @@
+# Compilados
+*.class
+build/
+bin/
+out/
+target/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.settings/
+.classpath
+.project
+nbproject/
+
+# Bases de datos locales
+*.db
+*.sqlite
+
+# Logs
+*.log
+
+# Temporales
+*.tmp
+~*
+*.bak
+
+# Archivos de configuración local
+database.properties

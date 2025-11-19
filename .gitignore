@@ -26,5 +26,28 @@ nbproject/
 ~*
 *.bak
 
-# Archivos de configuración local
+# Archivos de configuracion local
 database.properties
+
+# Node / Next
+node_modules/
+.next/
+.turbo/
+.vercel/
+coverage/
+dist/
+
+# Logs de Node / gestores de paquetes
+yarn-error.log*
+npm-debug.log*
+pnpm-debug.log*
+
+# Archivos de entorno locales
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db

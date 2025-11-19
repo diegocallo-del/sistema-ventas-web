@@ -1,4 +1,4 @@
-﻿# PROYECTO FINAL - Sistema de Gestión de Ventas
+﻿﻿﻿# PROYECTO FINAL - Sistema de Gestión de Ventas
 
 ## Estructura del Proyecto
 
@@ -32,4 +32,18 @@ npm run build    # Producción
 2. Frontend: Ejecutar \
 pm run dev\ (puerto 3000)
 3. Acceder: http://localhost:3000
+
+## Roles y Permisos (vista general)
+
+- **Administrador**: acceso completo; gestiona usuarios y configuracion del sistema.
+- **Supervisor**: gestiona productos, clientes y ventas, y ve reportes globales de vendedores y clientes.
+- **Vendedor**: orientado a proveedores; atiende a sus clientes y ve reportes de su propia gestion.
+- **Cliente**: tipo marketplace; puede ver productos, comprar/vender y consultar solo sus propias operaciones.
+
+## Roles y Permisos (vista general)
+
+- **Administrador**: acceso completo; gestiona usuarios y configuracion del sistema.
+- **Supervisor**: gestiona productos, clientes y ventas, y ve reportes globales de vendedores y clientes.
+- **Vendedor**: orientado a proveedores; atiende a sus clientes y ve reportes de su propia gestion.
+- **Cliente**: tipo marketplace; puede ver productos, comprar/vender y consultar solo sus propias operaciones.
 

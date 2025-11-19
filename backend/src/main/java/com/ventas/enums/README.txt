@@ -1,26 +1,26 @@
 ﻿═══════════════════════════════════════════════════════════
-CARPETA: ENUMS
-RESPONSABLE: PERSONA 1 - DBA
+CARPETA: ENUMS (Enumeraciones)
+RESPONSABLE: PERSONA 1 - DBA (Administrador de Base de Datos)
 ═══════════════════════════════════════════════════════════
 
 DESCRIPCIÓN:
-Enumeraciones para valores constantes del sistema.
+Enumeraciones para valores constantes del sistema que se almacenan en la base de datos.
 
-ENUMS A CREAR:
-  • TipoUsuario.java (ADMIN, VENDEDOR, CAJERO)
+ENUMS QUE DEBES CREAR:
+  • RolUsuario.java (ADMIN, SUPERVISOR, VENDEDOR, CLIENTE)
   • EstadoVenta.java (PENDIENTE, COMPLETADA, CANCELADA)
   • TipoPago.java (EFECTIVO, TARJETA, TRANSFERENCIA)
-  • EstadoProducto.java (DISPONIBLE, AGOTADO, DESCONTINUADO)
 
-EJEMPLO:
-public enum TipoUsuario {
+EJEMPLO DE ESTRUCTURA:
+public enum RolUsuario {
     ADMIN("Administrador"),
+    SUPERVISOR("Supervisor"),
     VENDEDOR("Vendedor"),
-    CAJERO("Cajero");
+    CLIENTE("Cliente");
     
-    private String descripcion;
+    private final String descripcion;
     
-    TipoUsuario(String descripcion) {
+    RolUsuario(String descripcion) {
         this.descripcion = descripcion;
     }
     
@@ -28,3 +28,8 @@ public enum TipoUsuario {
         return descripcion;
     }
 }
+
+NOTAS IMPORTANTES:
+- Los valores del enum deben coincidir con los valores en la base de datos
+- Usa @Enumerated(EnumType.STRING) en las entidades para guardar como texto
+- Los enums se usarán en las entidades creadas en modelos/

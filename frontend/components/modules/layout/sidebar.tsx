@@ -1,7 +1,3 @@
-/**
- * Barra lateral de navegacion
- */
-
 'use client';
 
 import React from 'react';
@@ -27,87 +23,64 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  {
-    label: 'Dashboard',
-    href: '/dashboard',
-    icon: <LayoutDashboard className="w-5 h-5" />,
-    section: 'dashboard',
-  },
-  {
-    label: 'Productos',
-    href: '/dashboard/productos',
-    icon: <Package className="w-5 h-5" />,
-    section: 'productos',
-  },
-  {
-    label: 'Clientes',
-    href: '/dashboard/clientes',
-    icon: <Users className="w-5 h-5" />,
-    section: 'clientes',
-  },
-  {
-    label: 'Ventas',
-    href: '/dashboard/ventas',
-    icon: <ShoppingCart className="w-5 h-5" />,
-    section: 'ventas',
-  },
-  {
-    label: 'Reportes',
-    href: '/dashboard/reportes',
-    icon: <BarChart3 className="w-5 h-5" />,
-    section: 'reportes',
-  },
+  { label: 'Dashboard', href: '/dashboard', icon: <LayoutDashboard className="w-5 h-5" />, section: 'dashboard' },
+  { label: 'Productos', href: '/dashboard/productos', icon: <Package className="w-5 h-5" />, section: 'productos' },
+  { label: 'Clientes', href: '/dashboard/clientes', icon: <Users className="w-5 h-5" />, section: 'clientes' },
+  { label: 'Ventas', href: '/dashboard/ventas', icon: <ShoppingCart className="w-5 h-5" />, section: 'ventas' },
+  { label: 'Reportes', href: '/dashboard/reportes', icon: <BarChart3 className="w-5 h-5" />, section: 'reportes' },
 ];
 
 export function Sidebar() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
-  
+
   return (
-    <aside className="w-64 bg-white border-r border-secondary-200 flex flex-col">
-      {/* Logo */}
-      <div className="h-16 flex items-center justify-center border-b border-secondary-200">
-        <h1 className="text-xl font-bold text-primary-600">POS System</h1>
+    <aside className="w-64 bg-slate-950/95 backdrop-blur-2xl border-r border-blue-400/30 flex flex-col shadow-[0_0_20px_rgba(59,130,246,0.15)]">
+      {/* Logo / POS System */}
+      <div className="h-16 flex items-center justify-center border-b border-blue-400/30 bg-gradient-to-r from-blue-900/50 via-indigo-900/50 to-purple-900/50 rounded-b-2xl shadow-[0_0_15px_rgba(59,130,246,0.12)]">
+        <h1 className="text-xl font-bold text-white tracking-wide px-4 py-2 rounded-xl border border-blue-400/30 bg-blue-500/10 backdrop-blur-sm shadow-[0_0_10px_rgba(59,130,246,0.2)]">
+          POS System
+        </h1>
       </div>
-      
+
       {/* Navegacion */}
-      <nav className="flex-1 px-4 py-6 space-y-1">
+      <nav className="flex-1 px-4 py-6 space-y-2">
         {navItems.map((item) => {
-          // Verificar si el usuario tiene acceso a esta seccion
-          if (!canAccessSection(user, item.section)) {
-            return null;
-          }
-          
+          if (!canAccessSection(user, item.section)) return null;
+
           const isActive = pathname === item.href;
-          
+
           return (
             <Link
               key={item.href}
               href={item.href}
               className={clsx(
-                'flex items-center gap-3 px-4 py-3 rounded-lg transition-colors',
+                'flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group',
                 isActive
-                  ? 'bg-primary-50 text-primary-700 font-medium'
-                  : 'text-secondary-700 hover:bg-secondary-50'
+                  ? 'bg-gradient-to-r from-blue-600/40 to-indigo-600/40 text-white border border-blue-400/30 shadow-[0_0_15px_rgba(59,130,246,0.2)] scale-105'
+                  : 'text-slate-300 hover:bg-slate-800/50 hover:text-white hover:border hover:border-blue-400/20 hover:scale-102'
               )}
             >
-              {item.icon}
-              <span>{item.label}</span>
+              <span className={clsx('transition-transform duration-300', isActive && 'scale-110')}>
+                {item.icon}
+              </span>
+              <span className="truncate font-medium">{item.label}</span>
             </Link>
           );
         })}
       </nav>
-      
+
       {/* Footer con boton de logout */}
-      <div className="px-4 py-4 border-t border-secondary-200">
+      <div className="px-4 py-4 border-t border-blue-400/30">
         <button
           onClick={logout}
-          className="flex items-center gap-3 px-4 py-3 w-full rounded-lg text-secondary-700 hover:bg-secondary-50 transition-colors"
+          className="flex items-center gap-3 px-4 py-3 w-full rounded-xl text-slate-300 hover:bg-red-500/15 hover:text-red-400 hover:border hover:border-red-400/30 transition-all duration-300 hover:scale-102"
         >
           <LogOut className="w-5 h-5" />
-          <span>Cerrar Sesion</span>
+          <span className="font-medium">Cerrar Sesión</span>
         </button>
       </div>
     </aside>
   );
 }
+Sidebar.displayName = 'Sidebar';

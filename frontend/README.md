@@ -50,14 +50,19 @@ frontend/
 - Configuracion del sistema
 
 ### Supervisor
-- Gestion de productos y clientes
-- Visualizacion de todas las ventas
-- Acceso a reportes completos
+- Gestion de productos, clientes y ventas
+- Visualizacion de ventas y clientes a nivel global
+- Acceso a reportes completos sobre vendedores y sus clientes
 
 ### Vendedor
-- Realizar ventas
-- Consultar productos y clientes
-- Visualizar sus propias ventas
+- Gestionar productos con proveedores
+- Atender a sus propios clientes (consultar y registrar ventas)
+- Visualizar reportes de su propia gestion
+
+### Cliente
+- Ver productos disponibles
+- Comprar y vender dentro del sistema
+- Visualizar solo sus propias operaciones (compras/ventas)
 
 ## Instalacion y Configuracion
 

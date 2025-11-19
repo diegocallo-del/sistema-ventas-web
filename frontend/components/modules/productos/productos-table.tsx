@@ -38,7 +38,7 @@ export function ProductosTable({
       </div>
     );
   }
-  
+
   if (productos.length === 0) {
     return (
       <div className="text-center py-12">
@@ -47,11 +47,11 @@ export function ProductosTable({
       </div>
     );
   }
-  
+
   return (
-    <Table>
+    <Table className="rounded-xl border border-white/10 bg-white/5 shadow-md">
       <TableHeader>
-        <TableRow>
+        <TableRow className="bg-gray-100/70">
           <TableHead>Codigo</TableHead>
           <TableHead>Nombre</TableHead>
           <TableHead>Categoria</TableHead>
@@ -61,9 +61,10 @@ export function ProductosTable({
           <TableHead className="text-right">Acciones</TableHead>
         </TableRow>
       </TableHeader>
+
       <TableBody>
         {productos.map((producto) => (
-          <TableRow key={producto.id}>
+          <TableRow key={producto.id} className="hover:bg-purple-50/20 transition-colors">
             <TableCell className="font-medium">{producto.codigo}</TableCell>
             <TableCell>
               <div>
@@ -137,3 +138,5 @@ export function ProductosTable({
     </Table>
   );
 }
+
+ProductosTable.displayName = 'ProductosTable';

@@ -21,6 +21,7 @@ export function LayoutWrapper({
 
   return (
     <div className={`min-h-screen flex flex-col ${className}`}>
+      {/* Header */}
       {showHeader && (
         <header className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 px-6 shadow-md">
           <div className="max-w-7xl mx-auto flex justify-between items-center">
@@ -28,13 +29,17 @@ export function LayoutWrapper({
             <nav className="space-x-4">
               <Link
                 href="/dashboard"
-                className={`hover:underline ${pathname === '/dashboard' ? 'font-semibold underline' : ''}`}
+                className={`hover:underline ${
+                  pathname === '/dashboard' ? 'font-semibold underline' : ''
+                }`}
               >
                 Dashboard
               </Link>
               <Link
                 href="/login"
-                className={`hover:underline ${pathname === '/login' ? 'font-semibold underline' : ''}`}
+                className={`hover:underline ${
+                  pathname === '/login' ? 'font-semibold underline' : ''
+                }`}
               >
                 Login
               </Link>
@@ -43,8 +48,10 @@ export function LayoutWrapper({
         </header>
       )}
 
+      {/* Main */}
       <main className="flex-1 w-full max-w-7xl mx-auto px-4 py-6">{children}</main>
 
+      {/* Footer */}
       {showFooter && (
         <footer className="bg-gray-100 text-gray-600 py-4 text-center mt-auto border-t">
           &copy; {new Date().getFullYear()} Mi App. Todos los derechos reservados.

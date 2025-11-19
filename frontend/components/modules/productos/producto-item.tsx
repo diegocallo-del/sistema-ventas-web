@@ -1,7 +1,3 @@
-/**
- * Componente de item de producto para el selector de ventas
- */
-
 'use client';
 
 import React from 'react';
@@ -53,6 +49,7 @@ export function ProductoItem({ producto, onSelect }: ProductoItemProps) {
       
       <Button
         size="sm"
+        variant="primary"
         onClick={() => onSelect(producto)}
         disabled={producto.stock === 0 || !producto.activo}
       >
@@ -62,3 +59,4 @@ export function ProductoItem({ producto, onSelect }: ProductoItemProps) {
     </div>
   );
 }
+ProductoItem.displayName = 'ProductoItem';

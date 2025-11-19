@@ -1,64 +1,48 @@
-/**
- * Componente de tarjeta reutilizable
- */
+'use client';
 
-import React from 'react';
-import { clsx } from 'clsx';
+import * as React from 'react';
+import { cn } from '@/lib/utils';
+
+type CardVariant = 'default' | 'outline';
 
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: 'default' | 'bordered' | 'elevated';
+  variant?: CardVariant | (string & {});
 }
 
-export function Card({ children, variant = 'default', className, ...props }: CardProps) {
-  const variantStyles = {
-    default: 'bg-white rounded-lg shadow',
-    bordered: 'bg-white rounded-lg border border-secondary-200',
-    elevated: 'bg-white rounded-lg shadow-lg',
-  };
-  
-  return (
-    <div className={clsx(variantStyles[variant], className)} {...props}>
-      {children}
-    </div>
-  );
-}
+export const Card = React.forwardRef<HTMLDivElement, CardProps>(
+  ({ className, children, variant = 'default', ...props }, ref) => {
+    const baseClasses =
+      "rounded-3xl border backdrop-blur-xl transition-all duration-300";
+    const variantClasses =
+      variant === 'outline'
+        ? "border-blue-400/30 bg-slate-900/60 shadow-[0_0_15px_rgba(59,130,246,0.1)]"
+        : "border-blue-400/30 bg-slate-900/60 shadow-[0_0_15px_rgba(59,130,246,0.1)]";
 
-interface CardHeaderProps extends React.HTMLAttributes<HTMLDivElement> {}
+    return (
+      <div
+        ref={ref}
+        className={cn(baseClasses, variantClasses, className)}
+        {...props}
+      >
+        {children}
+      </div>
+    );
+  }
+);
 
-export function CardHeader({ children, className, ...props }: CardHeaderProps) {
-  return (
-    <div className={clsx('px-6 py-4 border-b border-secondary-200', className)} {...props}>
-      {children}
-    </div>
-  );
-}
+export const CardHeader = ({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn("py-4 px-6", className)} {...props}>{children}</div>
+);
 
-interface CardTitleProps extends React.HTMLAttributes<HTMLHeadingElement> {}
+export const CardContent = ({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn("p-6", className)} {...props}>{children}</div>
+);
 
-export function CardTitle({ children, className, ...props }: CardTitleProps) {
-  return (
-    <h3 className={clsx('text-lg font-semibold text-secondary-900', className)} {...props}>
-      {children}
-    </h3>
-  );
-}
+export const CardTitle = ({ className, children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
+  <h2 className={cn("text-2xl font-bold text-white", className)} {...props}>{children}</h2>
+);
 
-interface CardContentProps extends React.HTMLAttributes<HTMLDivElement> {}
-
-export function CardContent({ children, className, ...props }: CardContentProps) {
-  return (
-    <div className={clsx('px-6 py-4', className)} {...props}>
-      {children}
-    </div>
-  );
-}
-
-interface CardFooterProps extends React.HTMLAttributes<HTMLDivElement> {}
-
-export function CardFooter({ children, className, ...props }: CardFooterProps) {
-  return (
-    <div className={clsx('px-6 py-4 border-t border-secondary-200 bg-secondary-50', className)} {...props}>
-      {children}
-    </div>
-  );
-}
+Card.displayName = 'Card';
+CardHeader.displayName = 'CardHeader';
+CardContent.displayName = 'CardContent';
+CardTitle.displayName = 'CardTitle';

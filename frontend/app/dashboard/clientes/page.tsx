@@ -25,6 +25,7 @@ export default function ClientesPage() {
 
   const isBusy = loadingLista || saving;
 
+  // ----------------------- Carga la lista de clientes -----------------------
   async function cargarClientes() {
     if (!token) return;
 
@@ -47,6 +48,7 @@ export default function ClientesPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
+  // ----------------------- Acciones de formulario -----------------------
   function handleNuevoCliente() {
     setClienteEditando(null);
     setShowForm(true);
@@ -60,7 +62,7 @@ export default function ClientesPage() {
   async function handleEliminarCliente(cliente: Client) {
     if (!token) return;
     const confirmar = window.confirm(
-      `¿Seguro que deseas eliminar al cliente "${cliente.nombre} ${cliente.apellido ?? ''}"?`,
+      `¿Seguro que deseas eliminar al cliente "${cliente.nombre} ${cliente.apellido ?? ''}"?`
     );
     if (!confirmar) return;
 
@@ -79,7 +81,7 @@ export default function ClientesPage() {
   }
 
   async function handleSubmitFormulario(
-    data: CreateClientData | UpdateClientData,
+    data: CreateClientData | UpdateClientData
   ): Promise<void> {
     if (!token) return;
 
@@ -109,29 +111,39 @@ export default function ClientesPage() {
     setClienteEditando(null);
   }
 
+  // ----------------------- Render principal -----------------------
   return (
-    <div className="space-y-6">
-      <header>
-        <h1 className="text-3xl font-bold mb-2">Clientes</h1>
-        <p className="text-gray-600 mb-6">Gestión de clientes</p>
+    <div className="space-y-6 animate-fade-in">
+      {/* Header */}
+      <header className="animate-slide-down">
+        <h1 className="text-3xl font-bold mb-2 text-white">Clientes</h1>
+        <p className="text-slate-300 mb-6">Gestión de clientes</p>
       </header>
 
+      {/* Mensaje de error */}
       {error && (
-        <div className="mb-4 rounded border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">
+        <div className="mb-4 rounded-xl border border-red-400/30 bg-red-900/20 px-4 py-2 text-sm text-red-300 shadow-[0_0_10px_rgba(239,68,68,0.2)] animate-slide-up">
           {error}
         </div>
       )}
 
-      <div className="bg-white p-6 rounded-lg shadow space-y-6">
+      {/* Contenedor principal */}
+      <div className="bg-slate-900/60 backdrop-blur-xl p-6 rounded-2xl border border-blue-400/30 shadow-[0_0_15px_rgba(59,130,246,0.1)] space-y-6 animate-slide-up delay-100">
+        {/* Encabezado de tabla */}
         <div className="flex justify-between items-center">
-          <h2 className="text-xl font-semibold">Listado de clientes</h2>
-          <Button onClick={handleNuevoCliente} disabled={isBusy}>
+          <h2 className="text-xl font-semibold text-white">Listado de clientes</h2>
+          <Button 
+            onClick={handleNuevoCliente} 
+            disabled={isBusy}
+            className="bg-blue-600/40 hover:bg-blue-600/50 border border-blue-400/30 text-white shadow-[0_0_15px_rgba(59,130,246,0.2)] hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:scale-105 transition-all duration-300"
+          >
             Nuevo cliente
           </Button>
         </div>
 
+        {/* Formulario */}
         {showForm && (
-          <div className="border border-secondary-200 rounded-lg p-4 bg-secondary-50">
+          <div className="border border-blue-400/30 rounded-xl p-4 bg-slate-800/40 backdrop-blur-sm animate-slide-up">
             <ClienteForm
               cliente={clienteEditando}
               onSubmit={handleSubmitFormulario}
@@ -141,6 +153,7 @@ export default function ClientesPage() {
           </div>
         )}
 
+        {/* Tabla de clientes */}
         <ClientesTable
           clientes={clientes}
           onEdit={handleEditarCliente}

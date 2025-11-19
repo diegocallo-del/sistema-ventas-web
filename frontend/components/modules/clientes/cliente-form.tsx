@@ -10,7 +10,6 @@ import {
   DocumentType,
 } from '@/lib/types';
 import { DOCUMENT_TYPE_OPTIONS } from '@/lib/constants';
-
 import {
   isValidClientName,
   isValidDocument,
@@ -58,12 +57,9 @@ export function ClienteForm({
   }, [cliente]);
 
   const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-
     setFormData((prev) => ({ ...prev, [name]: value }));
 
     if (errors[name]) {
@@ -124,19 +120,19 @@ export function ClienteForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+
       {/* DOCUMENTO */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium mb-1">
             Tipo de Documento <span className="text-red-500">*</span>
           </label>
-
           <select
             name="tipo_documento"
             value={formData.tipo_documento}
             onChange={handleChange}
             disabled={isLoading}
-            className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:outline-none"
+            className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-white focus:ring-2 focus:ring-purple-500 focus:outline-none"
           >
             {DOCUMENT_TYPE_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>
@@ -150,19 +146,16 @@ export function ClienteForm({
           <label className="block text-sm font-medium mb-1">
             Número de Documento <span className="text-red-500">*</span>
           </label>
-
           <Input
             name="numero_documento"
             value={formData.numero_documento}
             onChange={handleChange}
             disabled={isLoading}
             placeholder="12345678"
+            className="bg-white/5 text-white border border-white/10 rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none"
           />
-
           {errors.numero_documento && (
-            <p className="text-red-500 text-xs mt-1">
-              {errors.numero_documento}
-            </p>
+            <p className="text-red-500 text-xs mt-1">{errors.numero_documento}</p>
           )}
         </div>
       </div>
@@ -173,15 +166,14 @@ export function ClienteForm({
           <label className="block text-sm font-medium mb-1">
             Nombre <span className="text-red-500">*</span>
           </label>
-
           <Input
             name="nombre"
             value={formData.nombre}
             onChange={handleChange}
             disabled={isLoading}
             placeholder="Juan"
+            className="bg-white/5 text-white border border-white/10 rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none"
           />
-
           {errors.nombre && (
             <p className="text-red-500 text-xs mt-1">{errors.nombre}</p>
           )}
@@ -189,13 +181,13 @@ export function ClienteForm({
 
         <div>
           <label className="block text-sm font-medium mb-1">Apellido</label>
-
           <Input
             name="apellido"
             value={formData.apellido}
             onChange={handleChange}
             disabled={isLoading}
             placeholder="Pérez"
+            className="bg-white/5 text-white border border-white/10 rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none"
           />
         </div>
       </div>
@@ -211,6 +203,7 @@ export function ClienteForm({
             onChange={handleChange}
             disabled={isLoading}
             placeholder="correo@ejemplo.com"
+            className="bg-white/5 text-white border border-white/10 rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none"
           />
           {errors.email && (
             <p className="text-red-500 text-xs mt-1">{errors.email}</p>
@@ -225,6 +218,7 @@ export function ClienteForm({
             onChange={handleChange}
             disabled={isLoading}
             placeholder="987654321"
+            className="bg-white/5 text-white border border-white/10 rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none"
           />
           {errors.telefono && (
             <p className="text-red-500 text-xs mt-1">{errors.telefono}</p>
@@ -232,7 +226,7 @@ export function ClienteForm({
         </div>
       </div>
 
-      {/* DIRECCION */}
+      {/* DIRECCIÓN */}
       <div>
         <label className="block text-sm font-medium mb-1">Dirección</label>
         <textarea
@@ -241,27 +235,27 @@ export function ClienteForm({
           onChange={handleChange}
           disabled={isLoading}
           rows={2}
-          className="w-full rounded-lg border border-neutral-300 px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:outline-none"
           placeholder="Dirección opcional"
+          className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-white focus:ring-2 focus:ring-purple-500 focus:outline-none"
         />
       </div>
 
       {/* BOTONES */}
       <div className="flex justify-end gap-3 pt-4">
-  <Button
-    type="button"
-    variant="ghost"
-    onClick={onCancel}
-    disabled={isLoading}
-    className="border border-secondary-300 hover:bg-secondary-100"
-  >
-    Cancelar
-  </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          onClick={onCancel}
+          disabled={isLoading}
+          className="border border-white/20 hover:bg-white/10 text-white"
+        >
+          Cancelar
+        </Button>
 
-  <Button type="submit" disabled={isLoading}>
-    {isLoading ? 'Guardando...' : cliente ? 'Actualizar' : 'Crear'}
-  </Button>
-</div>
+        <Button type="submit" disabled={isLoading} className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white">
+          {isLoading ? 'Guardando...' : cliente ? 'Actualizar' : 'Crear'}
+        </Button>
+      </div>
     </form>
   );
 }

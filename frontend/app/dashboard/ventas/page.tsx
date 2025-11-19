@@ -20,6 +20,7 @@ export default function VentasPage() {
   const [inicializando, setInicializando] = useState(true);
   const [enviando, setEnviando] = useState(false);
 
+  // Carga inicial: clientes y productos
   useEffect(() => {
     async function inicializar() {
       if (!token) {
@@ -41,14 +42,17 @@ export default function VentasPage() {
     inicializar();
   }, [token, loadProducts]);
 
+  // Actualiza productos visibles cuando cambian los productos cargados
   useEffect(() => {
     setProductosVisibles(products);
   }, [products]);
 
+  // Selección de cliente
   function handleClienteSelect(clienteId: number) {
     setCliente(clienteId);
   }
 
+  // Filtrado de productos por búsqueda
   function handleSearchProducto(query: string) {
     if (!query) {
       setProductosVisibles(products);
@@ -64,6 +68,7 @@ export default function VentasPage() {
     setProductosVisibles(filtrados);
   }
 
+  // Enviar venta
   async function handleSubmit() {
     setEnviando(true);
     try {
@@ -76,19 +81,22 @@ export default function VentasPage() {
   const cargando = inicializando || ventasCargando || enviando;
 
   return (
-    <div className="space-y-6">
-      <header>
-        <h1 className="text-3xl font-bold mb-2">Ventas</h1>
-        <p className="text-gray-600 mb-6">Realizar y gestionar ventas</p>
+    <div className="space-y-6 animate-fade-in">
+      {/* HEADER */}
+      <header className="animate-slide-down">
+        <h1 className="text-3xl font-bold mb-2 text-white">Ventas</h1>
+        <p className="text-slate-300 mb-6">Realizar y gestionar ventas</p>
       </header>
 
+      {/* ERROR */}
       {ventasError && (
-        <div className="mb-4 rounded border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">
+        <div className="mb-4 rounded-xl border border-red-400/30 bg-red-900/20 px-4 py-2 text-sm text-red-300 shadow-[0_0_10px_rgba(239,68,68,0.2)] animate-slide-up">
           {ventasError}
         </div>
       )}
 
-      <div className="bg-white p-6 rounded-lg shadow">
+      {/* FORMULARIO DE VENTA */}
+      <div className="bg-slate-900/60 backdrop-blur-xl p-6 rounded-2xl border border-blue-400/30 shadow-[0_0_15px_rgba(59,130,246,0.1)] animate-slide-up delay-100">
         <VentaForm
           clientes={clientes}
           productos={productosVisibles}

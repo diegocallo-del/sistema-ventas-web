@@ -1,81 +1,73 @@
-/**
- * Componente de boton reutilizable
- */
+'use client';
 
-import React from 'react';
-import { clsx } from 'clsx';
+import * as React from 'react';
+import { cn } from '@/lib/utils';
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'danger' | 'ghost';
-  size?: 'sm' | 'md' | 'lg';
-  isLoading?: boolean;
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   fullWidth?: boolean;
+  isLoading?: boolean;
+  variant?: 'primary' | 'ghost' | 'secondary';
+  size?: 'sm' | 'md' | 'lg';
+  iconLeft?: React.ReactNode;
+  iconRight?: React.ReactNode;
 }
 
-export function Button({
-  children,
-  variant = 'primary',
-  size = 'md',
-  isLoading = false,
-  fullWidth = false,
-  className,
-  disabled,
-  ...props
-}: ButtonProps) {
-  const baseStyles = 'font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
-  
-  const variantStyles = {
-    primary: 'bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500',
-    secondary: 'bg-secondary-200 text-secondary-900 hover:bg-secondary-300 focus:ring-secondary-500',
-    danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500',
-    ghost: 'bg-transparent text-secondary-700 hover:bg-secondary-100 focus:ring-secondary-500',
-  };
-  
-  const sizeStyles = {
-    sm: 'px-3 py-1.5 text-sm',
-    md: 'px-4 py-2 text-base',
-    lg: 'px-6 py-3 text-lg',
-  };
-  
-  return (
-    <button
-      className={clsx(
-        baseStyles,
-        variantStyles[variant],
-        sizeStyles[size],
-        fullWidth && 'w-full',
-        className
-      )}
-      disabled={disabled || isLoading}
-      {...props}
-    >
-      {isLoading ? (
-        <span className="flex items-center justify-center">
-          <svg
-            className="animate-spin -ml-1 mr-2 h-4 w-4"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            />
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            />
-          </svg>
-          Cargando...
-        </span>
-      ) : (
-        children
-      )}
-    </button>
-  );
-}
+export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  (
+    {
+      className,
+      children,
+      fullWidth,
+      isLoading,
+      variant = 'primary',
+      size = 'md',
+      iconLeft,
+      iconRight,
+      disabled,
+      ...props
+    },
+    ref
+  ) => {
+    // Clases base según variante
+    const variantClasses = {
+      primary: 'bg-blue-600/40 hover:bg-blue-600/50 border border-blue-400/30 text-white shadow-[0_0_15px_rgba(59,130,246,0.2)] hover:shadow-[0_0_20px_rgba(59,130,246,0.3)]',
+      secondary: 'bg-slate-700/40 hover:bg-slate-700/50 border border-slate-500/30 text-slate-200 shadow-[0_0_10px_rgba(0,0,0,0.2)]',
+      ghost: 'bg-transparent border border-blue-400/20 text-slate-300 hover:bg-blue-500/10 hover:border-blue-400/30',
+    };
+
+    // Clases según tamaño
+    const sizeClasses = {
+      sm: 'text-sm py-2 px-3',
+      md: 'text-base py-3 px-5',
+      lg: 'text-lg py-4 px-6',
+    };
+
+    return (
+      <button
+        ref={ref}
+        className={cn(
+          "rounded-xl font-medium transition-all duration-300 flex items-center justify-center gap-2 hover:scale-105",
+          variantClasses[variant],
+          sizeClasses[size],
+          fullWidth && 'w-full',
+          (isLoading || disabled) && 'opacity-60 cursor-not-allowed',
+          className
+        )}
+        disabled={isLoading || disabled}
+        {...props}
+      >
+        {isLoading ? (
+          <span className="animate-spin">⏳ Cargando...</span>
+        ) : (
+          <>
+            {iconLeft && <span className="flex items-center">{iconLeft}</span>}
+            {children}
+            {iconRight && <span className="flex items-center">{iconRight}</span>}
+          </>
+        )}
+      </button>
+    );
+  }
+);
+
+Button.displayName = 'Button';

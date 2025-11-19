@@ -41,7 +41,7 @@ export const rolePermissions: RolePermissions = {
   ],
 
   /**
-   * Supervisor: puede gestionar productos, clientes, ventas y ver reportes
+   * Supervisor: puede gestionar productos, clientes y ventas, y ver reportes globales de vendedores y sus clientes
    */
   [UserRole.SUPERVISOR]: [
     Permission.PRODUCTOS_VER,
@@ -62,7 +62,7 @@ export const rolePermissions: RolePermissions = {
   ],
 
   /**
-   * Vendedor: puede realizar ventas y ver productos y clientes
+   * Vendedor: gestiona productos con proveedores, atiende a sus clientes y puede ver reportes de su propia gestión
    */
   [UserRole.VENDEDOR]: [
     Permission.PRODUCTOS_VER,
@@ -72,10 +72,13 @@ export const rolePermissions: RolePermissions = {
 
     Permission.VENTAS_VER,
     Permission.VENTAS_CREAR,
+
+    Permission.REPORTES_VER,
+    Permission.REPORTES_EXPORTAR,
   ],
 
   /**
-   * Cajero: enfocado en registrar y cobrar ventas en caja
+   * Cajero: enfocado en registrar y cobrar ventas en caja (actualmente no se utiliza)
    */
   [UserRole.CAJERO]: [
     Permission.VENTAS_VER,
@@ -85,10 +88,12 @@ export const rolePermissions: RolePermissions = {
   ],
 
   /**
-   * Cliente: si lo quieres agregar
+   * Cliente: compra y vende dentro del sistema (solo ve sus propias operaciones)
    */
   [UserRole.CLIENTE]: [
-    Permission.VENTAS_VER, // solo ver sus propias ventas
+    Permission.PRODUCTOS_VER,
+    Permission.VENTAS_VER,
+    Permission.VENTAS_CREAR, // crea compras/ventas para sí mismo
   ],
 };
 
@@ -108,8 +113,8 @@ export const roleLabels: Record<UserRole, string> = {
  */
 export const roleDescriptions: Record<UserRole, string> = {
   [UserRole.ADMIN]: 'Acceso completo al sistema, puede gestionar usuarios y configuración',
-  [UserRole.SUPERVISOR]: 'Puede gestionar productos, clientes, ventas y ver reportes',
-  [UserRole.VENDEDOR]: 'Puede realizar ventas y consultar productos y clientes',
+  [UserRole.SUPERVISOR]: 'Puede gestionar productos, clientes y ventas, y ver reportes globales de vendedores y sus clientes',
+  [UserRole.VENDEDOR]: 'Orientado a proveedores: gestiona productos, atiende a sus clientes y puede ver reportes de su propia gestión',
   [UserRole.CAJERO]: 'Puede registrar y cobrar ventas en caja, gestionando clientes básicos',
-  [UserRole.CLIENTE]: 'Solo puede consultar sus propias ventas',
+  [UserRole.CLIENTE]: 'Cliente tipo Mercado Libre: puede ver productos, comprar/vender y consultar solo sus propias operaciones',
 };

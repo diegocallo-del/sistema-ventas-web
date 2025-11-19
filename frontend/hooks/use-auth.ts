@@ -56,7 +56,7 @@ export function useAuth() {
         };
       }
 
-      console.log('✅ Usuario autenticado:', loggedUser.username);
+      console.log(' Usuario autenticado:', loggedUser.username);
 
       const updatedUser: User = {
         ...loggedUser,

@@ -1,7 +1,3 @@
-/**
- * Tabla de clientes con acciones
- */
-
 'use client';
 
 import React from 'react';
@@ -30,9 +26,7 @@ export function ClientesTable({
   onDelete,
   isLoading = false,
 }: ClientesTableProps) {
-  /**
-   * Loader animado (moderado y consistente con login)
-   */
+  // Loader animado
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -41,9 +35,7 @@ export function ClientesTable({
     );
   }
 
-  /**
-   * Vista sin datos
-   */
+  // Vista sin datos
   if (clientes.length === 0) {
     return (
       <div className="text-center py-12 opacity-80">
@@ -54,7 +46,7 @@ export function ClientesTable({
   }
 
   return (
-    <Table className="rounded-xl border bg-white shadow-sm">
+    <Table className="rounded-xl border border-white/10 bg-white/5 shadow-md">
       <TableHeader>
         <TableRow className="bg-gray-100/70">
           <TableHead className="font-semibold text-gray-700">Documento</TableHead>
@@ -72,7 +64,7 @@ export function ClientesTable({
         {clientes.map((cliente) => (
           <TableRow
             key={cliente.id}
-            className="hover:bg-purple-50/50 transition-colors"
+            className="hover:bg-purple-50/20 transition-colors"
           >
             {/* DOCUMENTO */}
             <TableCell>
@@ -93,9 +85,9 @@ export function ClientesTable({
             <TableCell>
               <div className="space-y-1">
                 {cliente.email && (
-                  <div className="flex items-center gap-1 text-sm text-gray-700">
+                  <div className="flex items-center gap-1 text-sm text-gray-700 truncate max-w-[150px]">
                     <Mail className="w-4 h-4 text-gray-400" />
-                    <span className="truncate max-w-xs">{cliente.email}</span>
+                    <span>{cliente.email}</span>
                   </div>
                 )}
 
@@ -115,7 +107,7 @@ export function ClientesTable({
             {/* DIRECCIÓN */}
             <TableCell>
               {cliente.direccion ? (
-                <p className="text-sm text-gray-700 truncate max-w-xs">
+                <p className="text-sm text-gray-700 truncate max-w-[200px]">
                   {cliente.direccion}
                 </p>
               ) : (
@@ -143,18 +135,18 @@ export function ClientesTable({
                   size="sm"
                   variant="ghost"
                   onClick={() => onEdit(cliente)}
-                  className="hover:bg-purple-100"
+                  className="p-2 hover:bg-purple-100 rounded-xl transition"
                 >
-                  <Edit className="w-4 h-4 text-gray-700" />
+                  <Edit className="w-5 h-5 text-gray-700" />
                 </Button>
 
                 <Button
                   size="sm"
                   variant="ghost"
                   onClick={() => onDelete(cliente)}
-                  className="hover:bg-red-100"
+                  className="p-2 hover:bg-red-100 rounded-xl transition"
                 >
-                  <Trash2 className="w-4 h-4 text-red-600" />
+                  <Trash2 className="w-5 h-5 text-red-600" />
                 </Button>
               </div>
             </TableCell>
@@ -164,3 +156,5 @@ export function ClientesTable({
     </Table>
   );
 }
+
+ClientesTable.displayName = 'ClientesTable';

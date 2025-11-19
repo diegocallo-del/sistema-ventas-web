@@ -4,8 +4,7 @@
  * ProductModalForm.tsx
  *
  * Formulario para crear o editar un producto dentro de un modal.
- * Implementado con estado controlado y validadores internos del proyecto,
- * sin dependencias externas como react-hook-form, zod o react-hot-toast.
+ * Completamente consistente con estilo de ClienteForm y dashboard.
  */
 
 import React, { useEffect, useState } from 'react';
@@ -14,7 +13,6 @@ import { Button } from '@/components/ui/button';
 import { createProducto, updateProducto } from '@/lib/productos';
 import { isValidProductName, isValidPrice, isValidStock } from '@/lib/validators';
 
-// Datos mínimos que necesitamos para editar/crear un producto
 interface ProductModalInitialData {
   id?: number;
   nombre?: string;
@@ -30,8 +28,8 @@ type ProductModalFormProps = {
 
 interface FormState {
   nombre: string;
-  precio: string; // mantenemos como string para el input, convertimos a number al enviar
-  stock: string;  // idem
+  precio: string;
+  stock: string;
   descripcion: string;
 }
 
@@ -49,7 +47,6 @@ export default function ProductModalForm({ initialData, onSaved }: ProductModalF
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Si cambian las props de entrada (editar otro producto), sincronizamos el estado
   useEffect(() => {
     if (initialData) {
       setForm({
@@ -63,13 +60,10 @@ export default function ProductModalForm({ initialData, onSaved }: ProductModalF
     }
   }, [initialData]);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setForm(prev => ({ ...prev, [name]: value }));
 
-    // limpiar error del campo
     if (errors[name as keyof FormState]) {
       setErrors(prev => {
         const next = { ...prev };
@@ -90,7 +84,9 @@ export default function ProductModalForm({ initialData, onSaved }: ProductModalF
     }
 
     const precioNumber = Number(form.precio.replace(',', '.'));
-    if (Number.isNaN(precioNumber)) {
+    if (!form.precio.trim()) {
+      nextErrors.precio = 'El precio es requerido';
+    } else if (Number.isNaN(precioNumber)) {
       nextErrors.precio = 'El precio debe ser un número válido';
     } else if (!isValidPrice(precioNumber)) {
       nextErrors.precio = 'El precio está fuera del rango permitido';
@@ -134,20 +130,13 @@ export default function ProductModalForm({ initialData, onSaved }: ProductModalF
         await createProducto(payload as any);
       }
 
-      // limpiar formulario después de guardar si es creación
       if (!initialData?.id) {
-        setForm({
-          nombre: '',
-          precio: '',
-          stock: '',
-          descripcion: '',
-        });
+        setForm({ nombre: '', precio: '', stock: '', descripcion: '' });
         setErrors({});
       }
 
       onSaved?.();
     } catch (err: any) {
-      // mensaje de error simple y seguro
       const apiMessage = err?.response?.data?.message as string | undefined;
       setSubmitError(apiMessage || 'Error al guardar el producto');
     } finally {
@@ -156,45 +145,67 @@ export default function ProductModalForm({ initialData, onSaved }: ProductModalF
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-5">
       {submitError && (
         <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2">
           {submitError}
         </p>
       )}
 
-      <Input
-        label="Nombre"
-        name="nombre"
-        value={form.nombre}
-        onChange={handleChange}
-        placeholder="Nombre del producto"
-        error={errors.nombre}
-      />
-
-      <Input
-        label="Precio (ej. 15.50)"
-        name="precio"
-        type="number"
-        step="0.01"
-        value={form.precio}
-        onChange={handleChange}
-        placeholder="0.00"
-        error={errors.precio}
-      />
-
-      <Input
-        label="Stock"
-        name="stock"
-        type="number"
-        value={form.stock}
-        onChange={handleChange}
-        placeholder="0"
-        error={errors.stock}
-      />
-
+      {/* NOMBRE */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block text-sm font-medium mb-1 text-gray-700">
+          Nombre <span className="text-red-500">*</span>
+        </label>
+        <Input
+          name="nombre"
+          value={form.nombre}
+          onChange={handleChange}
+          placeholder="Nombre del producto"
+        />
+        {errors.nombre && (
+          <p className="text-xs text-red-500 mt-1">{errors.nombre}</p>
+        )}
+      </div>
+
+      {/* PRECIO */}
+      <div>
+        <label className="block text-sm font-medium mb-1 text-gray-700">
+          Precio (ej. 15.50) <span className="text-red-500">*</span>
+        </label>
+        <Input
+          name="precio"
+          type="number"
+          step="0.01"
+          value={form.precio}
+          onChange={handleChange}
+          placeholder="0.00"
+        />
+        {errors.precio && (
+          <p className="text-xs text-red-500 mt-1">{errors.precio}</p>
+        )}
+      </div>
+
+      {/* STOCK */}
+      <div>
+        <label className="block text-sm font-medium mb-1 text-gray-700">
+          Stock <span className="text-red-500">*</span>
+        </label>
+        <Input
+          name="stock"
+          type="number"
+          value={form.stock}
+          onChange={handleChange}
+          placeholder="0"
+        />
+        {errors.stock && (
+          <p className="text-xs text-red-500 mt-1">{errors.stock}</p>
+        )}
+      </div>
+
+      {/* DESCRIPCIÓN */}
+      <div>
+        <label className="block text-sm font-medium mb-1 text-gray-700">
           Descripción
         </label>
         <textarea
@@ -207,12 +218,14 @@ export default function ProductModalForm({ initialData, onSaved }: ProductModalF
         />
       </div>
 
+      {/* BOTÓN */}
       <div className="flex justify-end">
         <Button
           type="submit"
-          disabled={isSubmitting}
           isLoading={isSubmitting}
-          className="px-4 py-2 rounded-md"
+          size="md"
+          variant="primary"
+          disabled={isSubmitting}
         >
           {initialData?.id ? 'Actualizar producto' : 'Crear producto'}
         </Button>

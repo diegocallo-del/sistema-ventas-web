@@ -13,6 +13,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Verificar que Firebase esté configurado
+    if (!auth) {
+      return NextResponse.json(
+        { error: 'Firebase no está configurado' },
+        { status: 500 }
+      );
+    }
+
     // Verificar token de Google con Firebase
     const credential = GoogleAuthProvider.credential(null, token);
     const userCredential = await signInWithCredential(auth, credential);

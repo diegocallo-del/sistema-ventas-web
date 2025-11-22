@@ -27,6 +27,7 @@ interface VentaFormProps {
   onSearchProducto: (query: string) => void;
   onSubmit: () => Promise<void>;
   isLoading?: boolean;
+  isClientUser?: boolean;
 }
 
 export function VentaForm({
@@ -37,6 +38,7 @@ export function VentaForm({
   onSearchProducto,
   onSubmit,
   isLoading = false,
+  isClientUser = false,
 }: VentaFormProps) {
   const {
     items,
@@ -64,6 +66,9 @@ export function VentaForm({
   };
 
   const isFormValid = (): boolean => {
+    if (isClientUser) {
+      return items.length > 0;
+    }
     return items.length > 0 && clienteId !== null;
   };
 
@@ -77,28 +82,34 @@ export function VentaForm({
             <CardTitle>Cliente</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex gap-3">
-              <Select
-                value={clienteId?.toString() ?? ''}
-                onValueChange={(value) => onClienteSelect(Number(value))}
-                disabled={isLoading}
-              >
-                <SelectTrigger className="flex-1">
-                  <SelectValue placeholder="Seleccionar cliente" />
-                </SelectTrigger>
-                <SelectContent>
-                  {clientes.map((cliente) => (
-                    <SelectItem key={cliente.id} value={cliente.id.toString()}>
-                      {cliente.nombre} {cliente.apellido} - {cliente.numero_documento}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Button onClick={onCreateCliente} disabled={isLoading}>
-                <UserPlus className="w-4 h-4 mr-2" />
-                Nuevo
-              </Button>
-            </div>
+            {isClientUser ? (
+              <p className="text-sm text-slate-300">
+                Esta compra se registrará a tu nombre.
+              </p>
+            ) : (
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                <Select
+                  value={clienteId?.toString() ?? ''}
+                  onValueChange={(value) => onClienteSelect(Number(value))}
+                  disabled={isLoading}
+                >
+                  <SelectTrigger className="flex-1">
+                    <SelectValue placeholder="Seleccionar cliente" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {clientes.map((cliente) => (
+                      <SelectItem key={cliente.id} value={cliente.id.toString()}>
+                        {cliente.nombre} {cliente.apellido} - {cliente.numero_documento}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button onClick={onCreateCliente} disabled={isLoading}>
+                  <UserPlus className="w-4 h-4 mr-2" />
+                  Nuevo
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -108,13 +119,16 @@ export function VentaForm({
             <CardTitle>Productos</CardTitle>
           </CardHeader>
           <CardContent>
-            <Input
-              placeholder="Buscar productos por nombre o código..."
-              value={searchQuery}
-              onChange={handleSearchChange}
-              disabled={isLoading}
-              className="pl-10"
-            />
+            <div className="relative">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <Input
+                placeholder="Buscar productos por nombre o código..."
+                value={searchQuery}
+                onChange={handleSearchChange}
+                disabled={isLoading}
+                className="pl-10"
+              />
+            </div>
             <div className="mt-4 space-y-2 max-h-96 overflow-y-auto">
               {productos.length === 0 ? (
                 <p className="text-center text-slate-400 py-8">

@@ -1,5 +1,6 @@
 /**
  * Componente de dialogo modal reutilizable
+ * Estilo consistente con el dashboard (tema oscuro, glassmorphism)
  */
 
 import React, { useEffect } from 'react';
@@ -48,7 +49,7 @@ export function Dialog({ isOpen, onClose, title, children, size = 'md' }: Dialog
     <div className="fixed inset-0 z-50 overflow-y-auto">
       {/* Overlay */}
       <div
-        className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
+        className="fixed inset-0 bg-black/70 backdrop-blur-sm transition-opacity animate-fade-in"
         onClick={onClose}
       />
       
@@ -56,18 +57,18 @@ export function Dialog({ isOpen, onClose, title, children, size = 'md' }: Dialog
       <div className="flex min-h-full items-center justify-center p-4">
         <div
           className={clsx(
-            'relative bg-white rounded-lg shadow-xl w-full',
+            'relative bg-slate-900/95 backdrop-blur-2xl rounded-2xl shadow-[0_0_30px_rgba(59,130,246,0.3)] border border-blue-400/30 w-full animate-slide-up',
             sizeStyles[size]
           )}
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
           {title && (
-            <div className="flex items-center justify-between px-6 py-4 border-b border-secondary-200">
-              <h3 className="text-lg font-semibold text-secondary-900">{title}</h3>
+            <div className="flex items-center justify-between px-6 py-4 border-b border-blue-400/30 bg-gradient-to-r from-blue-900/30 via-indigo-900/30 to-purple-900/30">
+              <h3 className="text-lg font-semibold text-white">{title}</h3>
               <button
                 onClick={onClose}
-                className="text-secondary-400 hover:text-secondary-500 transition-colors"
+                className="text-slate-400 hover:text-white hover:bg-slate-800/50 rounded-lg p-1.5 transition-all duration-300 hover:scale-110"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -75,7 +76,7 @@ export function Dialog({ isOpen, onClose, title, children, size = 'md' }: Dialog
           )}
           
           {/* Content */}
-          <div className="px-6 py-4">{children}</div>
+          <div className="px-6 py-6">{children}</div>
         </div>
       </div>
     </div>
@@ -89,7 +90,7 @@ interface DialogFooterProps {
 
 export function DialogFooter({ children, className }: DialogFooterProps) {
   return (
-    <div className={clsx('flex items-center justify-end gap-3 px-6 py-4 border-t border-secondary-200 bg-secondary-50', className)}>
+    <div className={clsx('flex items-center justify-end gap-3 px-6 py-4 border-t border-blue-400/30 bg-slate-800/40', className)}>
       {children}
     </div>
   );

@@ -2,30 +2,46 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Package, ShoppingCart, Users, Wallet } from 'lucide-react';
+import { useAuth } from '@/hooks/use-auth';
+import { roleLabels } from '@/lib/roles/role-config';
 
 export default function DashboardPage() {
+  const { user } = useAuth();
+
   return (
-    <div className="space-y-8 rounded-3xl border border-blue-400/30 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 shadow-[0_0_20px_rgba(59,130,246,0.15)] ring-1 ring-blue-400/20 p-6 md:p-8 animate-fade-in">
+    <div className="space-y-8 rounded-3xl border border-blue-500/20 bg-slate-950/80 shadow-[0_18px_45px_rgba(15,23,42,0.9)] p-6 md:p-8 animate-fade-in">
       {/* HEADER */}
-      <header className="flex flex-col gap-1 animate-slide-down">
-        <h1 className="text-3xl font-bold tracking-tight text-white">Dashboard</h1>
-        <p className="text-slate-300">
-          Bienvenido al sistema de punto de venta. Aquí verás un resumen rápido de tu negocio.
-        </p>
+      <header className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between animate-slide-down">
+        <div>
+          <p className="text-sm font-medium text-blue-400 uppercase tracking-[0.2em]">
+            POS System
+          </p>
+          <h1 className="mt-1 text-2xl md:text-3xl font-bold tracking-tight text-white">
+            Bienvenido{user ? `, ${user.nombre}` : ''}
+          </h1>
+          {user && (
+            <p className="text-sm text-slate-300">
+              Rol: <span className="font-medium text-blue-300">{roleLabels[user.rol]}</span>
+            </p>
+          )}
+          <p className="mt-2 text-sm md:text-base text-slate-300 max-w-2xl">
+            Aquí tienes un resumen rápido del estado actual de tu negocio.
+          </p>
+        </div>
       </header>
 
       {/* CARDS RESUMEN */}
-      <section className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+      <section className="grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2 xl:grid-cols-4">
         <Card
           variant="default"
-          className="group hover:shadow-xl transition-all duration-300 hover:scale-105 hover:-translate-y-1 bg-gradient-to-br from-blue-900/40 via-blue-800/30 to-indigo-900/40 text-white border border-blue-400/30 shadow-[0_0_15px_rgba(59,130,246,0.12)] animate-slide-up delay-100"
+          className="group rounded-2xl border border-blue-400/20 bg-gradient-to-br from-blue-900/50 via-blue-800/40 to-indigo-900/50 text-white shadow-[0_10px_30px_rgba(30,64,175,0.45)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_45px_rgba(30,64,175,0.6)]"
         >
           <CardContent className="flex items-center justify-between py-4">
-            <div className="animate-fade-in">
+            <div>
               <p className="text-sm text-slate-300 font-medium">Ventas hoy</p>
-              <p className="mt-2 text-3xl font-bold text-white group-hover:scale-110 transition-transform duration-300">0</p>
+              <p className="mt-2 text-3xl font-bold text-white">0</p>
             </div>
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-500/20 text-blue-400 group-hover:bg-blue-500/30 group-hover:scale-110 transition-all duration-300 group-hover:rotate-6 border border-blue-400/30">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-500/15 text-blue-300 border border-blue-400/40">
               <ShoppingCart className="h-6 w-6" />
             </div>
           </CardContent>
@@ -33,14 +49,14 @@ export default function DashboardPage() {
 
         <Card
           variant="default"
-          className="group hover:shadow-xl transition-all duration-300 hover:scale-105 hover:-translate-y-1 bg-gradient-to-br from-emerald-900/40 via-green-800/30 to-teal-900/40 text-white border border-emerald-400/30 shadow-[0_0_15px_rgba(16,185,129,0.12)] animate-slide-up delay-200"
+          className="group rounded-2xl border border-emerald-400/20 bg-gradient-to-br from-emerald-900/50 via-emerald-800/40 to-teal-900/50 text-white shadow-[0_10px_30px_rgba(4,120,87,0.45)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_45px_rgba(4,120,87,0.6)]"
         >
           <CardContent className="flex items-center justify-between py-4">
-            <div className="animate-fade-in">
+            <div>
               <p className="text-sm text-slate-300 font-medium">Productos</p>
-              <p className="mt-2 text-3xl font-bold text-white group-hover:scale-110 transition-transform duration-300">0</p>
+              <p className="mt-2 text-3xl font-bold text-white">0</p>
             </div>
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400 group-hover:bg-emerald-500/30 group-hover:scale-110 transition-all duration-300 group-hover:rotate-6 border border-emerald-400/30">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-400/40">
               <Package className="h-6 w-6" />
             </div>
           </CardContent>
@@ -48,14 +64,14 @@ export default function DashboardPage() {
 
         <Card
           variant="default"
-          className="group hover:shadow-xl transition-all duration-300 hover:scale-105 hover:-translate-y-1 bg-gradient-to-br from-purple-900/40 via-violet-800/30 to-fuchsia-900/40 text-white border border-purple-400/30 shadow-[0_0_15px_rgba(168,85,247,0.12)] animate-slide-up delay-300"
+          className="group rounded-2xl border border-purple-400/20 bg-gradient-to-br from-purple-900/50 via-violet-800/40 to-fuchsia-900/50 text-white shadow-[0_10px_30px_rgba(126,34,206,0.45)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_45px_rgba(126,34,206,0.6)]"
         >
           <CardContent className="flex items-center justify-between py-4">
-            <div className="animate-fade-in">
+            <div>
               <p className="text-sm text-slate-300 font-medium">Clientes</p>
-              <p className="mt-2 text-3xl font-bold text-white group-hover:scale-110 transition-transform duration-300">0</p>
+              <p className="mt-2 text-3xl font-bold text-white">0</p>
             </div>
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-purple-500/20 text-purple-400 group-hover:bg-purple-500/30 group-hover:scale-110 transition-all duration-300 group-hover:rotate-6 border border-purple-400/30">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-purple-500/15 text-purple-300 border border-purple-400/40">
               <Users className="h-6 w-6" />
             </div>
           </CardContent>
@@ -63,14 +79,14 @@ export default function DashboardPage() {
 
         <Card
           variant="default"
-          className="group hover:shadow-xl transition-all duration-300 hover:scale-105 hover:-translate-y-1 bg-gradient-to-br from-amber-900/40 via-yellow-800/30 to-orange-900/40 text-white border border-amber-400/30 shadow-[0_0_15px_rgba(245,158,11,0.12)] animate-slide-up delay-400"
+          className="group rounded-2xl border border-amber-400/20 bg-gradient-to-br from-amber-900/50 via-amber-800/40 to-orange-900/50 text-white shadow-[0_10px_30px_rgba(180,83,9,0.45)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_45px_rgba(180,83,9,0.6)]"
         >
           <CardContent className="flex items-center justify-between py-4">
-            <div className="animate-fade-in">
+            <div>
               <p className="text-sm text-slate-300 font-medium">Ingresos</p>
-              <p className="mt-2 text-3xl font-bold text-white group-hover:scale-110 transition-transform duration-300">S/ 0.00</p>
+              <p className="mt-2 text-3xl font-bold text-white">S/ 0.00</p>
             </div>
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-500/20 text-amber-400 group-hover:bg-amber-500/30 group-hover:scale-110 transition-all duration-300 group-hover:rotate-6 border border-amber-400/30">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-500/15 text-amber-300 border border-amber-400/40">
               <Wallet className="h-6 w-6" />
             </div>
           </CardContent>
@@ -78,20 +94,20 @@ export default function DashboardPage() {
       </section>
 
       {/* ACTIVIDAD RECIENTE */}
-      <section className="animate-slide-up delay-500">
+      <section className="animate-slide-up delay-200">
         <Card
           variant="outline"
-          className="border-blue-400/30 bg-slate-900/60 backdrop-blur-xl shadow-[0_0_15px_rgba(59,130,246,0.1)] hover:shadow-[0_0_20px_rgba(59,130,246,0.15)] transition-all duration-300"
+          className="rounded-2xl border border-slate-700/70 bg-slate-950/80 backdrop-blur-xl shadow-[0_12px_35px_rgba(15,23,42,0.85)]"
         >
           <CardHeader>
             <CardTitle className="text-white">Actividad reciente</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col items-center justify-center gap-3 py-10 text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-500/20 text-blue-400 animate-pulse-slow border border-blue-400/30">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-500/15 text-blue-300 border border-blue-400/40">
               <ShoppingCart className="h-6 w-6" />
             </div>
             <p className="font-medium text-slate-200">Todavía no hay actividad reciente</p>
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-slate-400 max-w-xl">
               Cuando registres ventas, clientes o productos, verás aquí un resumen de tus últimos movimientos.
             </p>
           </CardContent>

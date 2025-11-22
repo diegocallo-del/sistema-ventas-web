@@ -24,7 +24,7 @@ export function LayoutWrapper({
       {/* Header */}
       {showHeader && (
         <header className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 px-6 shadow-md">
-          <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <div className="max-w-7xl mx-auto flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <h1 className="text-xl font-bold">Mi App</h1>
             <nav className="space-x-4">
               <Link

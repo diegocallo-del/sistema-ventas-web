@@ -1,16 +1,15 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import { VentaForm } from '@/components/modules/ventas/venta-form';
-import { useVentas } from '@/hooks/use-ventas';
-import { useProductos } from '@/hooks/use-productos';
-import { useAuthStore } from '@/store/auth-store';
-import { useVentaStore } from '@/store/venta-store';
-import { Client, Product } from '@/lib/types';
-import { getClients } from '@/lib/services/cliente-service';
-
+import React, { useEffect, useState } from "react";
+import { VentaForm } from "@/components/modules/ventas/venta-form";
+import { useVentas } from "@/hooks/use-ventas";
+import { useProductos } from "@/hooks/use-productos";
+import { useAuthStore } from "@/store/auth-store";
+import { useVentaStore } from "@/store/venta-store";
+import { Client, Product } from "@/lib/types";
+import { getClients } from "@/lib/services/cliente-service";
 export default function VentasPage() {
-  const { token } = useAuthStore();
+  const { token, user } = useAuthStore();
   const { createSale, isLoading: ventasCargando, error: ventasError } = useVentas();
   const { products, loadProducts } = useProductos();
   const { setCliente } = useVentaStore();
@@ -79,13 +78,20 @@ export default function VentasPage() {
   }
 
   const cargando = inicializando || ventasCargando || enviando;
+  const isClientUser = user?.rol === "cliente";
 
   return (
     <div className="space-y-6 animate-fade-in">
       {/* HEADER */}
       <header className="animate-slide-down">
-        <h1 className="text-3xl font-bold mb-2 text-white">Ventas</h1>
-        <p className="text-slate-300 mb-6">Realizar y gestionar ventas</p>
+        <h1 className="text-3xl font-bold mb-2 text-white">
+          {isClientUser ? "Mis compras y ventas" : "Ventas"}
+        </h1>
+        <p className="text-slate-300 mb-6">
+          {isClientUser
+            ? "Revisa tu carrito y consulta todas tus compras y ventas."
+            : "Realizar y gestionar ventas"}
+        </p>
       </header>
 
       {/* ERROR */}
@@ -103,11 +109,12 @@ export default function VentasPage() {
           onClienteSelect={handleClienteSelect}
           onCreateCliente={() => {
             // Pendiente: integrar formulario de creación de clientes desde ventas
-            console.log('Crear cliente desde ventas aún no implementado');
+            console.log("Crear cliente desde ventas aún no implementado");
           }}
           onSearchProducto={handleSearchProducto}
           onSubmit={handleSubmit}
           isLoading={cargando}
+          isClientUser={isClientUser}
         />
       </div>
     </div>

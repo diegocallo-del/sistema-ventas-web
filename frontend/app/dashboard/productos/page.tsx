@@ -1,22 +1,39 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Plus, Search } from 'lucide-react';
+} from "@/components/ui/select";
+import { Plus, Search, ShoppingCart } from "lucide-react";
+import ProductModalForm from "@/components/modules/productos/ProductModalForm";
+import { ProductoForm } from "@/components/modules/productos/producto-form";
+import { Dialog } from "@/components/ui/dialog";
+import { useAuth } from "@/hooks/use-auth";
+import { UserRole } from "@/lib/types/usuario";
+import { CreateProductData, UpdateProductData } from "@/lib/types";
+import { createProduct } from "@/lib/services/producto-service";
+import { useAuthStore } from "@/store/auth-store";
 
 export default function ProductosPage() {
-  const [search, setSearch] = useState('');
-  const [categoria, setCategoria] = useState('');
-  const [estado, setEstado] = useState('');
+  const router = useRouter();
+  const { user } = useAuth();
+  const { token } = useAuthStore();
+  const isClient = user?.rol === UserRole.CLIENTE;
+
+  const [search, setSearch] = useState("");
+  const [categoria, setCategoria] = useState("");
+  const [estado, setEstado] = useState("");
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   return (
     <div className="space-y-8 animate-fade-in">
@@ -24,17 +41,41 @@ export default function ProductosPage() {
       <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 animate-slide-down">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-white">
-            Productos
+            {isClient ? "Comprar y vender productos" : "Productos"}
           </h1>
           <p className="text-slate-300">
-            Gestión completa de productos, inventario y precios del sistema.
+            {isClient
+              ? "Explora los productos disponibles y arma tu compra o venta de forma sencilla."
+              : "Gestión completa de productos, inventario y precios del sistema."}
           </p>
         </div>
 
-        <Button className="gap-2 bg-blue-600/40 hover:bg-blue-600/50 border border-blue-400/30 text-white shadow-[0_0_15px_rgba(59,130,246,0.2)] hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:scale-105 transition-all duration-300">
-          <Plus className="w-4 h-4" />
-          Nuevo producto
-        </Button>
+        {isClient ? (
+          <div className="flex flex-col sm:flex-row gap-2">
+            <Button
+              className="gap-2 bg-blue-600/40 hover:bg-blue-600/50 border border-blue-400/30 text-white shadow-[0_0_15px_rgba(59,130,246,0.2)] hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:scale-105 transition-all duration-300"
+              onClick={() => setIsCreateModalOpen(true)}
+            >
+              <Plus className="w-4 h-4" />
+              Crear mi producto
+            </Button>
+            <Button
+              className="gap-2 bg-blue-600/40 hover:bg-blue-600/50 border border-blue-400/30 text-white shadow-[0_0_15px_rgba(59,130,246,0.2)] hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:scale-105 transition-all duration-300"
+              onClick={() => router.push("/dashboard/ventas")}
+            >
+              <ShoppingCart className="w-4 h-4" />
+              Ir a mis compras y ventas
+            </Button>
+          </div>
+        ) : (
+          <Button 
+            className="gap-2 bg-blue-600/40 hover:bg-blue-600/50 border border-blue-400/30 text-white shadow-[0_0_15px_rgba(59,130,246,0.2)] hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:scale-105 transition-all duration-300"
+            onClick={() => setIsAdminModalOpen(true)}
+          >
+            <Plus className="w-4 h-4" />
+            Nuevo producto
+          </Button>
+        )}
       </header>
 
       {/* ----------------------- FILTROS ----------------------- */}
@@ -101,6 +142,55 @@ export default function ProductosPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Modal para clientes - formulario simplificado */}
+      {isClient && (
+        <Dialog
+          isOpen={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
+          title="Crear mi producto"
+        >
+          <ProductModalForm
+            onSaved={() => {
+              setIsCreateModalOpen(false);
+            }}
+          />
+        </Dialog>
+      )}
+
+      {/* Modal para admin/supervisor/vendedor - formulario completo */}
+      {!isClient && (
+        <Dialog
+          isOpen={isAdminModalOpen}
+          onClose={() => setIsAdminModalOpen(false)}
+          title="Nuevo producto"
+          size="lg"
+        >
+          <ProductoForm
+            producto={null}
+            onSubmit={async (data: CreateProductData | UpdateProductData) => {
+              if (!token) {
+                console.error('No hay token de autenticación');
+                return;
+              }
+              
+              setIsSaving(true);
+              try {
+                await createProduct(data as CreateProductData, token);
+                setIsAdminModalOpen(false);
+                // Aquí podrías recargar la lista de productos si es necesario
+              } catch (error) {
+                console.error('Error al crear producto:', error);
+                throw error;
+              } finally {
+                setIsSaving(false);
+              }
+            }}
+            onCancel={() => setIsAdminModalOpen(false)}
+            isLoading={isSaving}
+          />
+        </Dialog>
+      )}
     </div>
   );
 }

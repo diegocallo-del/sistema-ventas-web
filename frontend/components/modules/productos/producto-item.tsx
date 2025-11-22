@@ -54,7 +54,7 @@ export function ProductoItem({ producto, onSelect }: ProductoItemProps) {
         disabled={producto.stock === 0 || !producto.activo}
       >
         <Plus className="w-4 h-4 mr-1" />
-        Agregar
+        Agregar al carrito
       </Button>
     </div>
   );

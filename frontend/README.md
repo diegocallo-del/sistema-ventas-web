@@ -1,6 +1,6 @@
-# Sistema de Punto de Venta - Frontend
+# Sistema de Gestión de Ventas Web - Frontend
 
-Sistema integral de punto de venta desarrollado con Next.js 14, TypeScript y Tailwind CSS.
+Sistema integral de gestión de ventas web desarrollado con Next.js 14, TypeScript y Tailwind CSS.
 
 ## Caracteristicas Principales
 

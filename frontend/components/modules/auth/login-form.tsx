@@ -7,16 +7,17 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/hooks/use-auth';
-import { User, Lock, AlertCircle, Eye, EyeOff } from 'lucide-react';
+import { User, Lock, AlertCircle, Eye, EyeOff, Chrome } from 'lucide-react';
 
 export function LoginForm() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { login, loginWithGoogle } = useAuth();
 
   const [formData, setFormData] = useState({ username: '', password: '' });
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -43,6 +44,20 @@ export function LoginForm() {
     }
   };
 
+  const handleGoogleLogin = async () => {
+    setIsGoogleLoading(true);
+    setError(null);
+
+    const result = await loginWithGoogle();
+
+    if (!result.success) {
+      setError(result.error || 'Error al iniciar sesión con Google');
+      setIsGoogleLoading(false);
+    } else {
+      router.push('/dashboard');
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center px-4 
       bg-gradient-to-br from-slate-900 via-slate-800 to-black 
@@ -56,10 +71,10 @@ export function LoginForm() {
         backdrop-blur-2xl bg-slate-900/60 shadow-[0_0_20px_rgba(59,130,246,0.15)]
         transition-all animate-slide-up">
 
-        <CardHeader className="py-8 text-center">
+        <CardHeader className="py-6 sm:py-8 text-center">
           <div className="mb-4">
-            <h1 className="text-2xl font-bold text-white tracking-wide px-4 py-2 rounded-xl border border-blue-400/30 bg-blue-500/10 backdrop-blur-sm shadow-[0_0_10px_rgba(59,130,246,0.2)] inline-block">
-              POS System
+            <h1 className="hidden sm:inline-block text-2xl font-bold text-white tracking-wide px-4 py-2 rounded-xl border border-blue-400/30 bg-blue-500/10 backdrop-blur-sm shadow-[0_0_10px_rgba(59,130,246,0.2)]">
+              Sistema de Ventas Web
             </h1>
           </div>
           <CardTitle className="text-3xl font-bold text-white tracking-wide">
@@ -68,7 +83,7 @@ export function LoginForm() {
           <p className="text-slate-300 mt-2 text-sm">Ingresa tus credenciales</p>
         </CardHeader>
 
-        <CardContent className="p-8">
+        <CardContent className="p-6 sm:p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
 
             {error && (
@@ -128,6 +143,27 @@ export function LoginForm() {
                 transition-all duration-300 hover:scale-105"
             >
               Iniciar Sesión
+            </Button>
+
+            <div className="flex items-center my-4">
+              <div className="flex-1 border-t border-slate-600"></div>
+              <span className="px-3 text-slate-400 text-sm">o</span>
+              <div className="flex-1 border-t border-slate-600"></div>
+            </div>
+
+            {/* Botón de Google */}
+            <Button
+              type="button"
+              onClick={handleGoogleLogin}
+              fullWidth
+              isLoading={isGoogleLoading}
+              className="w-full py-3 rounded-xl text-white font-medium text-lg
+                bg-red-600/40 hover:bg-red-600/50 border border-red-400/30
+                shadow-[0_0_15px_rgba(239,68,68,0.2)] hover:shadow-[0_0_20px_rgba(239,68,68,0.3)]
+                transition-all duration-300 hover:scale-105"
+            >
+              <Chrome className="w-5 h-5 mr-3" />
+              Continuar con Google
             </Button>
 
             <p className="text-center text-slate-300 text-sm mt-3">

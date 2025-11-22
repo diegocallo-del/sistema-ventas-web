@@ -871,7 +871,7 @@ function ProductoItem({ producto, onSelect }) {
                         lineNumber: 56,
                         columnNumber: 9
                     }, this),
-                    "Agregar"
+                    "Agregar al carrito"
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/modules/productos/producto-item.tsx",
@@ -1163,6 +1163,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$constants$2e$ts__$5b$
 var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$formatters$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/formatters.ts [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$modules$2f$productos$2f$producto$2d$item$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/components/modules/productos/producto-item.tsx [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$modules$2f$ventas$2f$carrito$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/components/modules/ventas/carrito.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$search$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Search$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/search.mjs [app-client] (ecmascript) <export default as Search>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$user$2d$plus$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__UserPlus$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/user-plus.mjs [app-client] (ecmascript) <export default as UserPlus>");
 ;
 var _s = __turbopack_context__.k.signature();
@@ -1178,7 +1179,7 @@ var _s = __turbopack_context__.k.signature();
 ;
 ;
 ;
-function VentaForm({ clientes, productos, onClienteSelect, onCreateCliente, onSearchProducto, onSubmit, isLoading = false }) {
+function VentaForm({ clientes, productos, onClienteSelect, onCreateCliente, onSearchProducto, onSubmit, isLoading = false, isClientUser = false }) {
     _s();
     const { items, clienteId, metodoPago, observaciones, subtotal, igv, total, addItem, setMetodoPago, setObservaciones } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$store$2f$venta$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useVentaStore"])();
     const [searchQuery, setSearchQuery] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])('');
@@ -1191,6 +1192,9 @@ function VentaForm({ clientes, productos, onClienteSelect, onCreateCliente, onSe
         addItem(producto, 1);
     };
     const isFormValid = ()=>{
+        if (isClientUser) {
+            return items.length > 0;
+        }
         return items.length > 0 && clienteId !== null;
     };
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1206,17 +1210,24 @@ function VentaForm({ clientes, productos, onClienteSelect, onCreateCliente, onSe
                                     children: "Cliente"
                                 }, void 0, false, {
                                     fileName: "[project]/components/modules/ventas/venta-form.tsx",
-                                    lineNumber: 77,
+                                    lineNumber: 82,
                                     columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/modules/ventas/venta-form.tsx",
-                                lineNumber: 76,
+                                lineNumber: 81,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
-                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    className: "flex gap-3",
+                                children: isClientUser ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                    className: "text-sm text-slate-300",
+                                    children: "Esta compra se registrará a tu nombre."
+                                }, void 0, false, {
+                                    fileName: "[project]/components/modules/ventas/venta-form.tsx",
+                                    lineNumber: 86,
+                                    columnNumber: 15
+                                }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: "flex flex-col gap-3 sm:flex-row sm:items-center",
                                     children: [
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
                                             value: clienteId?.toString() ?? '',
@@ -1229,13 +1240,13 @@ function VentaForm({ clientes, productos, onClienteSelect, onCreateCliente, onSe
                                                         placeholder: "Seleccionar cliente"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/modules/ventas/venta-form.tsx",
-                                                        lineNumber: 87,
-                                                        columnNumber: 19
+                                                        lineNumber: 97,
+                                                        columnNumber: 21
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/modules/ventas/venta-form.tsx",
-                                                    lineNumber: 86,
-                                                    columnNumber: 17
+                                                    lineNumber: 96,
+                                                    columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
                                                     children: clientes.map((cliente)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -1249,19 +1260,19 @@ function VentaForm({ clientes, productos, onClienteSelect, onCreateCliente, onSe
                                                             ]
                                                         }, cliente.id, true, {
                                                             fileName: "[project]/components/modules/ventas/venta-form.tsx",
-                                                            lineNumber: 91,
-                                                            columnNumber: 21
+                                                            lineNumber: 101,
+                                                            columnNumber: 23
                                                         }, this))
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/modules/ventas/venta-form.tsx",
-                                                    lineNumber: 89,
-                                                    columnNumber: 17
+                                                    lineNumber: 99,
+                                                    columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/modules/ventas/venta-form.tsx",
-                                            lineNumber: 81,
-                                            columnNumber: 15
+                                            lineNumber: 91,
+                                            columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
                                             onClick: onCreateCliente,
@@ -1271,31 +1282,31 @@ function VentaForm({ clientes, productos, onClienteSelect, onCreateCliente, onSe
                                                     className: "w-4 h-4 mr-2"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/modules/ventas/venta-form.tsx",
-                                                    lineNumber: 98,
-                                                    columnNumber: 17
+                                                    lineNumber: 108,
+                                                    columnNumber: 19
                                                 }, this),
                                                 "Nuevo"
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/modules/ventas/venta-form.tsx",
-                                            lineNumber: 97,
-                                            columnNumber: 15
+                                            lineNumber: 107,
+                                            columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/modules/ventas/venta-form.tsx",
-                                    lineNumber: 80,
-                                    columnNumber: 13
+                                    lineNumber: 90,
+                                    columnNumber: 15
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/modules/ventas/venta-form.tsx",
-                                lineNumber: 79,
+                                lineNumber: 84,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/modules/ventas/venta-form.tsx",
-                        lineNumber: 75,
+                        lineNumber: 80,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -1305,25 +1316,41 @@ function VentaForm({ clientes, productos, onClienteSelect, onCreateCliente, onSe
                                     children: "Productos"
                                 }, void 0, false, {
                                     fileName: "[project]/components/modules/ventas/venta-form.tsx",
-                                    lineNumber: 108,
+                                    lineNumber: 119,
                                     columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/modules/ventas/venta-form.tsx",
-                                lineNumber: 107,
+                                lineNumber: 118,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
                                 children: [
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
-                                        placeholder: "Buscar productos por nombre o código...",
-                                        value: searchQuery,
-                                        onChange: handleSearchChange,
-                                        disabled: isLoading,
-                                        className: "pl-10"
-                                    }, void 0, false, {
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        className: "relative",
+                                        children: [
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$search$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Search$3e$__["Search"], {
+                                                className: "w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                                            }, void 0, false, {
+                                                fileName: "[project]/components/modules/ventas/venta-form.tsx",
+                                                lineNumber: 123,
+                                                columnNumber: 15
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+                                                placeholder: "Buscar productos por nombre o código...",
+                                                value: searchQuery,
+                                                onChange: handleSearchChange,
+                                                disabled: isLoading,
+                                                className: "pl-10"
+                                            }, void 0, false, {
+                                                fileName: "[project]/components/modules/ventas/venta-form.tsx",
+                                                lineNumber: 124,
+                                                columnNumber: 15
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
                                         fileName: "[project]/components/modules/ventas/venta-form.tsx",
-                                        lineNumber: 111,
+                                        lineNumber: 122,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1333,37 +1360,37 @@ function VentaForm({ clientes, productos, onClienteSelect, onCreateCliente, onSe
                                             children: searchQuery ? 'No se encontraron productos' : 'Busca un producto para agregarlo a la venta'
                                         }, void 0, false, {
                                             fileName: "[project]/components/modules/ventas/venta-form.tsx",
-                                            lineNumber: 120,
+                                            lineNumber: 134,
                                             columnNumber: 17
                                         }, this) : productos.map((producto)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$modules$2f$productos$2f$producto$2d$item$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ProductoItem"], {
                                                 producto: producto,
                                                 onSelect: handleAddProduct
                                             }, producto.id, false, {
                                                 fileName: "[project]/components/modules/ventas/venta-form.tsx",
-                                                lineNumber: 127,
+                                                lineNumber: 141,
                                                 columnNumber: 19
                                             }, this))
                                     }, void 0, false, {
                                         fileName: "[project]/components/modules/ventas/venta-form.tsx",
-                                        lineNumber: 118,
+                                        lineNumber: 132,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/modules/ventas/venta-form.tsx",
-                                lineNumber: 110,
+                                lineNumber: 121,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/modules/ventas/venta-form.tsx",
-                        lineNumber: 106,
+                        lineNumber: 117,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/modules/ventas/venta-form.tsx",
-                lineNumber: 73,
+                lineNumber: 78,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1380,29 +1407,29 @@ function VentaForm({ clientes, productos, onClienteSelect, onCreateCliente, onSe
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/modules/ventas/venta-form.tsx",
-                                    lineNumber: 144,
+                                    lineNumber: 158,
                                     columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/modules/ventas/venta-form.tsx",
-                                lineNumber: 143,
+                                lineNumber: 157,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
                                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$modules$2f$ventas$2f$carrito$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Carrito"], {}, void 0, false, {
                                     fileName: "[project]/components/modules/ventas/venta-form.tsx",
-                                    lineNumber: 147,
+                                    lineNumber: 161,
                                     columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/modules/ventas/venta-form.tsx",
-                                lineNumber: 146,
+                                lineNumber: 160,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/modules/ventas/venta-form.tsx",
-                        lineNumber: 142,
+                        lineNumber: 156,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -1412,12 +1439,12 @@ function VentaForm({ clientes, productos, onClienteSelect, onCreateCliente, onSe
                                     children: "Resumen"
                                 }, void 0, false, {
                                     fileName: "[project]/components/modules/ventas/venta-form.tsx",
-                                    lineNumber: 154,
+                                    lineNumber: 168,
                                     columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/modules/ventas/venta-form.tsx",
-                                lineNumber: 153,
+                                lineNumber: 167,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -1430,7 +1457,7 @@ function VentaForm({ clientes, productos, onClienteSelect, onCreateCliente, onSe
                                                 children: "Metodo de Pago"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/modules/ventas/venta-form.tsx",
-                                                lineNumber: 159,
+                                                lineNumber: 173,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
@@ -1443,12 +1470,12 @@ function VentaForm({ clientes, productos, onClienteSelect, onCreateCliente, onSe
                                                             placeholder: "Seleccionar método de pago"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/modules/ventas/venta-form.tsx",
-                                                            lineNumber: 168,
+                                                            lineNumber: 182,
                                                             columnNumber: 19
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/modules/ventas/venta-form.tsx",
-                                                        lineNumber: 167,
+                                                        lineNumber: 181,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -1457,24 +1484,24 @@ function VentaForm({ clientes, productos, onClienteSelect, onCreateCliente, onSe
                                                                 children: option.label
                                                             }, option.value, false, {
                                                                 fileName: "[project]/components/modules/ventas/venta-form.tsx",
-                                                                lineNumber: 172,
+                                                                lineNumber: 186,
                                                                 columnNumber: 21
                                                             }, this))
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/modules/ventas/venta-form.tsx",
-                                                        lineNumber: 170,
+                                                        lineNumber: 184,
                                                         columnNumber: 17
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/modules/ventas/venta-form.tsx",
-                                                lineNumber: 162,
+                                                lineNumber: 176,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/modules/ventas/venta-form.tsx",
-                                        lineNumber: 158,
+                                        lineNumber: 172,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1484,7 +1511,7 @@ function VentaForm({ clientes, productos, onClienteSelect, onCreateCliente, onSe
                                                 children: "Observaciones"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/modules/ventas/venta-form.tsx",
-                                                lineNumber: 182,
+                                                lineNumber: 196,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("textarea", {
@@ -1496,13 +1523,13 @@ function VentaForm({ clientes, productos, onClienteSelect, onCreateCliente, onSe
                                                 disabled: isLoading
                                             }, void 0, false, {
                                                 fileName: "[project]/components/modules/ventas/venta-form.tsx",
-                                                lineNumber: 185,
+                                                lineNumber: 199,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/modules/ventas/venta-form.tsx",
-                                        lineNumber: 181,
+                                        lineNumber: 195,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1516,7 +1543,7 @@ function VentaForm({ clientes, productos, onClienteSelect, onCreateCliente, onSe
                                                         children: "Subtotal:"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/modules/ventas/venta-form.tsx",
-                                                        lineNumber: 198,
+                                                        lineNumber: 212,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1524,13 +1551,13 @@ function VentaForm({ clientes, productos, onClienteSelect, onCreateCliente, onSe
                                                         children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$formatters$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["formatCurrency"])(subtotal)
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/modules/ventas/venta-form.tsx",
-                                                        lineNumber: 199,
+                                                        lineNumber: 213,
                                                         columnNumber: 17
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/modules/ventas/venta-form.tsx",
-                                                lineNumber: 197,
+                                                lineNumber: 211,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1541,7 +1568,7 @@ function VentaForm({ clientes, productos, onClienteSelect, onCreateCliente, onSe
                                                         children: "IGV (18%):"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/modules/ventas/venta-form.tsx",
-                                                        lineNumber: 202,
+                                                        lineNumber: 216,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1549,13 +1576,13 @@ function VentaForm({ clientes, productos, onClienteSelect, onCreateCliente, onSe
                                                         children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$formatters$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["formatCurrency"])(igv)
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/modules/ventas/venta-form.tsx",
-                                                        lineNumber: 203,
+                                                        lineNumber: 217,
                                                         columnNumber: 17
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/modules/ventas/venta-form.tsx",
-                                                lineNumber: 201,
+                                                lineNumber: 215,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1566,7 +1593,7 @@ function VentaForm({ clientes, productos, onClienteSelect, onCreateCliente, onSe
                                                         children: "Total:"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/modules/ventas/venta-form.tsx",
-                                                        lineNumber: 206,
+                                                        lineNumber: 220,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1574,19 +1601,19 @@ function VentaForm({ clientes, productos, onClienteSelect, onCreateCliente, onSe
                                                         children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$formatters$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["formatCurrency"])(total)
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/modules/ventas/venta-form.tsx",
-                                                        lineNumber: 207,
+                                                        lineNumber: 221,
                                                         columnNumber: 17
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/modules/ventas/venta-form.tsx",
-                                                lineNumber: 205,
+                                                lineNumber: 219,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/modules/ventas/venta-form.tsx",
-                                        lineNumber: 196,
+                                        lineNumber: 210,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -1598,31 +1625,31 @@ function VentaForm({ clientes, productos, onClienteSelect, onCreateCliente, onSe
                                         children: "Completar Venta"
                                     }, void 0, false, {
                                         fileName: "[project]/components/modules/ventas/venta-form.tsx",
-                                        lineNumber: 212,
+                                        lineNumber: 226,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/modules/ventas/venta-form.tsx",
-                                lineNumber: 156,
+                                lineNumber: 170,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/modules/ventas/venta-form.tsx",
-                        lineNumber: 152,
+                        lineNumber: 166,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/modules/ventas/venta-form.tsx",
-                lineNumber: 140,
+                lineNumber: 154,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/modules/ventas/venta-form.tsx",
-        lineNumber: 71,
+        lineNumber: 76,
         columnNumber: 5
     }, this);
 }
@@ -1750,9 +1777,11 @@ if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelper
 ]);
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$store$2f$auth$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/store/auth-store.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$types$2f$usuario$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/types/usuario.ts [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$store$2f$venta$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/store/venta-store.ts [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$services$2f$venta$2d$service$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/services/venta-service.ts [app-client] (ecmascript)");
 var _s = __turbopack_context__.k.signature();
+;
 ;
 ;
 ;
@@ -1814,13 +1843,21 @@ function useVentas() {
    * Crea una nueva venta desde el carrito actual
    */ const createNewSale = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
         "useVentas.useCallback[createNewSale]": async ()=>{
-            if (!token || !clienteId || items.length === 0) {
+            if (!token || items.length === 0) {
                 setError('Faltan datos para completar la venta');
+                return null;
+            }
+            let finalClienteId = clienteId;
+            if (!finalClienteId && user?.rol === __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$types$2f$usuario$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["UserRole"].CLIENTE) {
+                finalClienteId = user.id;
+            }
+            if (!finalClienteId) {
+                setError('Debes seleccionar un cliente para completar la venta');
                 return null;
             }
             try {
                 const saleData = {
-                    cliente_id: clienteId,
+                    cliente_id: finalClienteId,
                     metodo_pago: metodoPago,
                     observaciones: observaciones || undefined,
                     detalles: items.map({
@@ -1957,19 +1994,66 @@ async function getProductById(id, token) {
     return response.data;
 }
 async function createProduct(data, token) {
-    const response = await __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$axios$2f$lib$2f$axios$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].post(__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$config$2f$endpoints$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["productEndpoints"].create, data, {
-        headers: {
-            Authorization: `Bearer ${token}`
+    let response;
+    // Si hay una imagen (File), usar FormData
+    if (data.imagen instanceof File) {
+        const formData = new FormData();
+        formData.append('codigo', data.codigo);
+        formData.append('nombre', data.nombre);
+        formData.append('precio', data.precio.toString());
+        formData.append('stock', data.stock.toString());
+        if (data.descripcion) {
+            formData.append('descripcion', data.descripcion);
         }
-    });
+        if (data.categoria) {
+            formData.append('categoria', data.categoria);
+        }
+        formData.append('imagen', data.imagen);
+        response = await __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$axios$2f$lib$2f$axios$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].post(__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$config$2f$endpoints$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["productEndpoints"].create, formData, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+    } else {
+        // Envío normal como JSON
+        response = await __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$axios$2f$lib$2f$axios$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].post(__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$config$2f$endpoints$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["productEndpoints"].create, data, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+    }
     return response.data;
 }
 async function updateProduct(id, data, token) {
-    const response = await __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$axios$2f$lib$2f$axios$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].put(__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$config$2f$endpoints$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["productEndpoints"].update(id), data, {
-        headers: {
-            Authorization: `Bearer ${token}`
-        }
-    });
+    let response;
+    // Si hay una imagen (File), usar FormData
+    if (data.imagen instanceof File) {
+        const formData = new FormData();
+        if (data.codigo) formData.append('codigo', data.codigo);
+        if (data.nombre) formData.append('nombre', data.nombre);
+        if (data.precio !== undefined) formData.append('precio', data.precio.toString());
+        if (data.stock !== undefined) formData.append('stock', data.stock.toString());
+        if (data.descripcion) formData.append('descripcion', data.descripcion);
+        if (data.categoria) formData.append('categoria', data.categoria);
+        if (data.activo !== undefined) formData.append('activo', data.activo.toString());
+        formData.append('imagen', data.imagen);
+        response = await __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$axios$2f$lib$2f$axios$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].put(__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$config$2f$endpoints$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["productEndpoints"].update(id), formData, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+    } else {
+        // Envío normal como JSON
+        response = await __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$axios$2f$lib$2f$axios$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].put(__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$config$2f$endpoints$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["productEndpoints"].update(id), data, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+    }
     return response.data;
 }
 async function deleteProduct(id, token) {
@@ -2302,7 +2386,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$store$2f$venta$2d$store$2e$t
 var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$services$2f$cliente$2d$service$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/services/cliente-service.ts [app-client] (ecmascript)");
 ;
 var _s = __turbopack_context__.k.signature();
-'use client';
+"use client";
 ;
 ;
 ;
@@ -2312,7 +2396,7 @@ var _s = __turbopack_context__.k.signature();
 ;
 function VentasPage() {
     _s();
-    const { token } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$store$2f$auth$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAuthStore"])();
+    const { token, user } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$store$2f$auth$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAuthStore"])();
     const { createSale, isLoading: ventasCargando, error: ventasError } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$hooks$2f$use$2d$ventas$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useVentas"])();
     const { products, loadProducts } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$hooks$2f$use$2d$productos$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useProductos"])();
     const { setCliente } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$store$2f$venta$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useVentaStore"])();
@@ -2376,6 +2460,7 @@ function VentasPage() {
         }
     }
     const cargando = inicializando || ventasCargando || enviando;
+    const isClientUser = user?.rol === "cliente";
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
         className: "space-y-6 animate-fade-in",
         children: [
@@ -2384,7 +2469,7 @@ function VentasPage() {
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
                         className: "text-3xl font-bold mb-2 text-white",
-                        children: "Ventas"
+                        children: isClientUser ? "Mis compras y ventas" : "Ventas"
                     }, void 0, false, {
                         fileName: "[project]/app/dashboard/ventas/page.tsx",
                         lineNumber: 87,
@@ -2392,10 +2477,10 @@ function VentasPage() {
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                         className: "text-slate-300 mb-6",
-                        children: "Realizar y gestionar ventas"
+                        children: isClientUser ? "Revisa tu carrito y consulta todas tus compras y ventas." : "Realizar y gestionar ventas"
                     }, void 0, false, {
                         fileName: "[project]/app/dashboard/ventas/page.tsx",
-                        lineNumber: 88,
+                        lineNumber: 90,
                         columnNumber: 9
                     }, this)
                 ]
@@ -2409,7 +2494,7 @@ function VentasPage() {
                 children: ventasError
             }, void 0, false, {
                 fileName: "[project]/app/dashboard/ventas/page.tsx",
-                lineNumber: 93,
+                lineNumber: 99,
                 columnNumber: 9
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2420,19 +2505,20 @@ function VentasPage() {
                     onClienteSelect: handleClienteSelect,
                     onCreateCliente: ()=>{
                         // Pendiente: integrar formulario de creación de clientes desde ventas
-                        console.log('Crear cliente desde ventas aún no implementado');
+                        console.log("Crear cliente desde ventas aún no implementado");
                     },
                     onSearchProducto: handleSearchProducto,
                     onSubmit: handleSubmit,
-                    isLoading: cargando
+                    isLoading: cargando,
+                    isClientUser: isClientUser
                 }, void 0, false, {
                     fileName: "[project]/app/dashboard/ventas/page.tsx",
-                    lineNumber: 100,
+                    lineNumber: 106,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/dashboard/ventas/page.tsx",
-                lineNumber: 99,
+                lineNumber: 105,
                 columnNumber: 7
             }, this)
         ]
@@ -2442,7 +2528,7 @@ function VentasPage() {
         columnNumber: 5
     }, this);
 }
-_s(VentasPage, "Rx+wjmJXXlvgHIryb0Y9a0ITW9U=", false, function() {
+_s(VentasPage, "muzX5atpv3kJYrMEed/Bx/hMkXc=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$store$2f$auth$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAuthStore"],
         __TURBOPACK__imported__module__$5b$project$5d2f$hooks$2f$use$2d$ventas$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useVentas"],

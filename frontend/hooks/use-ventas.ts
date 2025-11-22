@@ -4,6 +4,7 @@
 
 import { useState, useCallback } from 'react';
 import { useAuthStore } from '@/store/auth-store';
+import { UserRole } from '@/lib/types/usuario';
 import { useVentaStore } from '@/store/venta-store';
 import {
   getSales,
@@ -84,14 +85,25 @@ export function useVentas() {
    */
   const createNewSale = useCallback(
     async () => {
-      if (!token || !clienteId || items.length === 0) {
+      if (!token || items.length === 0) {
         setError('Faltan datos para completar la venta');
+        return null;
+      }
+
+      let finalClienteId = clienteId;
+
+      if (!finalClienteId && user?.rol === UserRole.CLIENTE) {
+        finalClienteId = user.id;
+      }
+
+      if (!finalClienteId) {
+        setError('Debes seleccionar un cliente para completar la venta');
         return null;
       }
       
       try {
         const saleData: CreateSaleData = {
-          cliente_id: clienteId,
+          cliente_id: finalClienteId,
           metodo_pago: metodoPago,
           observaciones: observaciones || undefined,
           detalles: items.map((item) => ({

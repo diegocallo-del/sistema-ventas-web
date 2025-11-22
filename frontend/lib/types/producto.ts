@@ -13,6 +13,7 @@ export interface Product {
   precio: number;
   stock: number;
   categoria: string | null;
+  imagen?: string | null;
   activo: boolean;
   fecha_creacion: string;
   fecha_actualizacion: string;
@@ -28,6 +29,7 @@ export interface CreateProductData {
   precio: number;
   stock: number;
   categoria?: string;
+  imagen?: File | string | null; // File para envío, string para URL/base64, null para sin imagen
 }
 
 /**
@@ -40,6 +42,7 @@ export interface UpdateProductData {
   precio?: number;
   stock?: number;
   categoria?: string;
+  imagen?: File | string | null; // File para envío, string para URL/base64, null para eliminar imagen
   activo?: boolean;
 }
 

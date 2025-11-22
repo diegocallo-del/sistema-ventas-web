@@ -454,14 +454,18 @@ const rolePermissions = {
         __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$roles$2f$role$2d$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Permission"].VENTAS_CANCELAR,
         __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$roles$2f$role$2d$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Permission"].VENTAS_VER_TODAS,
         __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$roles$2f$role$2d$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Permission"].REPORTES_VER,
-        __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$roles$2f$role$2d$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Permission"].REPORTES_EXPORTAR
+        __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$roles$2f$role$2d$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Permission"].REPORTES_EXPORTAR,
+        __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$roles$2f$role$2d$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Permission"].USUARIOS_VER
     ],
     /**
    * Vendedor: gestiona productos con proveedores, atiende a sus clientes y puede ver reportes de su propia gestión
    */ [__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$types$2f$usuario$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["UserRole"].VENDEDOR]: [
         __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$roles$2f$role$2d$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Permission"].PRODUCTOS_VER,
+        __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$roles$2f$role$2d$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Permission"].PRODUCTOS_CREAR,
+        __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$roles$2f$role$2d$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Permission"].PRODUCTOS_EDITAR,
         __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$roles$2f$role$2d$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Permission"].CLIENTES_VER,
         __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$roles$2f$role$2d$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Permission"].CLIENTES_CREAR,
+        __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$roles$2f$role$2d$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Permission"].CLIENTES_EDITAR,
         __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$roles$2f$role$2d$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Permission"].VENTAS_VER,
         __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$roles$2f$role$2d$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Permission"].VENTAS_CREAR,
         __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$roles$2f$role$2d$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Permission"].REPORTES_VER,
@@ -479,6 +483,8 @@ const rolePermissions = {
    * Cliente: compra y vende dentro del sistema (solo ve sus propias operaciones)
    */ [__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$types$2f$usuario$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["UserRole"].CLIENTE]: [
         __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$roles$2f$role$2d$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Permission"].PRODUCTOS_VER,
+        __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$roles$2f$role$2d$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Permission"].PRODUCTOS_CREAR,
+        __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$roles$2f$role$2d$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Permission"].PRODUCTOS_EDITAR,
         __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$roles$2f$role$2d$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Permission"].VENTAS_VER,
         __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$roles$2f$role$2d$types$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Permission"].VENTAS_CREAR
     ]
@@ -1027,13 +1033,13 @@ function LoginForm() {
                 className: "w-full max-w-md rounded-3xl border border-blue-400/30    backdrop-blur-2xl bg-slate-900/60 shadow-[0_0_20px_rgba(59,130,246,0.15)]   transition-all animate-slide-up",
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardHeader"], {
-                        className: "py-8 text-center",
+                        className: "py-6 sm:py-8 text-center",
                         children: [
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 className: "mb-4",
                                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
-                                    className: "text-2xl font-bold text-white tracking-wide px-4 py-2 rounded-xl border border-blue-400/30 bg-blue-500/10 backdrop-blur-sm shadow-[0_0_10px_rgba(59,130,246,0.2)] inline-block",
-                                    children: "POS System"
+                                    className: "hidden sm:inline-block text-2xl font-bold text-white tracking-wide px-4 py-2 rounded-xl border border-blue-400/30 bg-blue-500/10 backdrop-blur-sm shadow-[0_0_10px_rgba(59,130,246,0.2)]",
+                                    children: "Sistema de Ventas Web"
                                 }, void 0, false, {
                                     fileName: "[project]/components/modules/auth/login-form.tsx",
                                     lineNumber: 61,
@@ -1067,7 +1073,7 @@ function LoginForm() {
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
-                        className: "p-8",
+                        className: "p-6 sm:p-8",
                         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("form", {
                             onSubmit: handleSubmit,
                             className: "space-y-6",

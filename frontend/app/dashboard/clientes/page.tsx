@@ -130,7 +130,7 @@ export default function ClientesPage() {
       {/* Contenedor principal */}
       <div className="bg-slate-900/60 backdrop-blur-xl p-6 rounded-2xl border border-blue-400/30 shadow-[0_0_15px_rgba(59,130,246,0.1)] space-y-6 animate-slide-up delay-100">
         {/* Encabezado de tabla */}
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="text-xl font-semibold text-white">Listado de clientes</h2>
           <Button 
             onClick={handleNuevoCliente} 

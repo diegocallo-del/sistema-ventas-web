@@ -7,11 +7,11 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/hooks/use-auth';
-import { User, Lock, Mail, AlertCircle, Eye, EyeOff } from 'lucide-react';
+import { User, Lock, Mail, AlertCircle, Eye, EyeOff, Chrome } from 'lucide-react';
 
 export function RegisterForm() {
   const router = useRouter();
-  const { register } = useAuth();
+  const { register, loginWithGoogle } = useAuth();
 
   const [formData, setFormData] = useState({
     username: '',
@@ -24,6 +24,7 @@ export function RegisterForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showPassword2, setShowPassword2] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -60,6 +61,20 @@ export function RegisterForm() {
     }
   };
 
+  const handleGoogleLogin = async () => {
+    setIsGoogleLoading(true);
+    setError(null);
+
+    const result = await loginWithGoogle();
+
+    if (!result.success) {
+      setError(result.error || 'Error al iniciar sesión con Google');
+      setIsGoogleLoading(false);
+    } else {
+      router.push('/dashboard');
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center px-4 
       bg-gradient-to-br from-slate-900 via-slate-800 to-black 
@@ -85,7 +100,7 @@ export function RegisterForm() {
           <p className="text-slate-300 mt-2 text-sm">Registra tus datos para continuar</p>
         </CardHeader>
 
-        <CardContent className="p-8">
+        <CardContent className="p-6 sm:p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
 
             {error && (
@@ -173,6 +188,27 @@ export function RegisterForm() {
                 transition-all duration-300 hover:scale-105"
             >
               Registrarse
+            </Button>
+
+            <div className="flex items-center my-4">
+              <div className="flex-1 border-t border-slate-600"></div>
+              <span className="px-3 text-slate-400 text-sm">o</span>
+              <div className="flex-1 border-t border-slate-600"></div>
+            </div>
+
+            {/* Botón de Google */}
+            <Button
+              type="button"
+              onClick={handleGoogleLogin}
+              fullWidth
+              isLoading={isGoogleLoading}
+              className="w-full py-3 rounded-xl text-white font-medium text-lg
+                bg-red-600/40 hover:bg-red-600/50 border border-red-400/30
+                shadow-[0_0_15px_rgba(239,68,68,0.2)] hover:shadow-[0_0_20px_rgba(239,68,68,0.3)]
+                transition-all duration-300 hover:scale-105"
+            >
+              <Chrome className="w-5 h-5 mr-3" />
+              Continuar con Google
             </Button>
 
             <p className="text-center text-slate-300 text-sm mt-3">

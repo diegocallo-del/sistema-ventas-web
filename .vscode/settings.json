@@ -1,4 +1,4 @@
-﻿{
+{
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.tabSize": 2,
@@ -39,5 +39,6 @@
 
   "tabnine.experimentalAutoImports": true,
   "tabnine.inlineHints": true,
-  "tabnine.enableCompletions": true
+  "tabnine.enableCompletions": true,
+  "java.configuration.updateBuildConfiguration": "interactive"
 }

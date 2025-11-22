@@ -11,7 +11,13 @@ interface DashboardLayoutProps {
 }
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
-  const [isMenuOpen, setIsMenuOpen] = React.useState(true);
+  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
+      setIsMenuOpen(true);
+    }
+  }, []);
 
   return (
     <ProtectedRoute>
@@ -20,18 +26,18 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           {/* SIDEBAR DESLIZABLE FIJO */}
           <div
             className={cn(
-              'fixed left-0 top-0 bottom-0 z-30 w-64 shrink-0 transform transition-transform duration-500 ease-in-out',
+              'fixed left-0 top-0 bottom-0 z-40 w-60 lg:w-64 shrink-0 transform transition-transform duration-500 ease-in-out',
               isMenuOpen ? 'translate-x-0' : '-translate-x-full'
             )}
           >
             <Sidebar />
           </div>
 
-          {/* CONTENIDO PRINCIPAL ESTÁTICO */}
+          {/* CONTENIDO PRINCIPAL */}
           <div
             className={cn(
               'flex min-h-screen w-full flex-col transition-[margin-left] duration-500 ease-in-out',
-              isMenuOpen ? 'ml-64' : 'ml-0'
+              isMenuOpen ? 'lg:ml-64' : 'ml-0'
             )}
           >
             <Header onMenuToggle={() => setIsMenuOpen((open) => !open)} />

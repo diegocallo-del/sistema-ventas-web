@@ -59,6 +59,8 @@ export const rolePermissions: RolePermissions = {
 
     Permission.REPORTES_VER,
     Permission.REPORTES_EXPORTAR,
+
+    Permission.USUARIOS_VER,
   ],
 
   /**
@@ -66,9 +68,12 @@ export const rolePermissions: RolePermissions = {
    */
   [UserRole.VENDEDOR]: [
     Permission.PRODUCTOS_VER,
+    Permission.PRODUCTOS_CREAR,
+    Permission.PRODUCTOS_EDITAR,
 
     Permission.CLIENTES_VER,
     Permission.CLIENTES_CREAR,
+    Permission.CLIENTES_EDITAR,
 
     Permission.VENTAS_VER,
     Permission.VENTAS_CREAR,
@@ -92,6 +97,9 @@ export const rolePermissions: RolePermissions = {
    */
   [UserRole.CLIENTE]: [
     Permission.PRODUCTOS_VER,
+    Permission.PRODUCTOS_CREAR,
+    Permission.PRODUCTOS_EDITAR,
+
     Permission.VENTAS_VER,
     Permission.VENTAS_CREAR, // crea compras/ventas para sí mismo
   ],

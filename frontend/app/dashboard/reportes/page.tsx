@@ -4,13 +4,61 @@ import VentasChart from '@/components/dashboard/VentasChart';
 import ProductosChart from '@/components/dashboard/ProductosChart';
 import CategoriasChart from '@/components/dashboard/CategoriasChart';
 import { Button } from '@/components/ui/button';
+import { useState } from 'react';
+import { api } from '@/lib/api';
+import { reportEndpoints } from '@/lib/config/endpoints';
 
 export default function ReportesPage() {
+  const [isExportingPdf, setIsExportingPdf] = useState(false);
+  const [isExportingExcel, setIsExportingExcel] = useState(false);
+
+  const handleExport = async (format: 'pdf' | 'excel') => {
+    const isPdf = format === 'pdf';
+
+    try {
+      if (isPdf) {
+        setIsExportingPdf(true);
+      } else {
+        setIsExportingExcel(true);
+      }
+
+      const response = await api.get<Blob>(reportEndpoints.export, {
+        responseType: 'blob',
+        params: { format },
+      });
+
+      const mimeType =
+        format === 'pdf'
+          ? 'application/pdf'
+          : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+
+      const blob = new Blob([response.data], { type: mimeType });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      const extension = format === 'pdf' ? 'pdf' : 'xlsx';
+
+      link.href = url;
+      link.download = `reporte-ventas.${extension}`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error al exportar reporte', error);
+    } finally {
+      if (isPdf) {
+        setIsExportingPdf(false);
+      } else {
+        setIsExportingExcel(false);
+      }
+    }
+  };
+
   return (
-    <div className="p-8 space-y-10 min-h-screen animate-fade-in">
+    <div className="min-h-screen animate-fade-in space-y-10 px-4 py-6 sm:p-6 lg:p-8">
 
       {/* HEADER */}
-      <div className="flex items-center justify-between animate-slide-down">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between animate-slide-down">
         <div>
           <h1 className="text-4xl font-semibold tracking-tight text-white">
             Reportes y Estadísticas
@@ -18,9 +66,22 @@ export default function ReportesPage() {
           <p className="text-slate-300 mt-1">Análisis actualizado de ventas y actividad del sistema.</p>
         </div>
 
-        <Button className="rounded-xl bg-blue-600/40 hover:bg-blue-600/50 border border-blue-400/30 px-5 py-2.5 text-white shadow-[0_0_15px_rgba(59,130,246,0.2)] hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:scale-105 transition-all duration-300">
-          Exportar PDF
-        </Button>
+        <div className="flex flex-wrap gap-3">
+          <Button
+            className="rounded-xl bg-blue-600/40 hover:bg-blue-600/50 border border-blue-400/30 px-5 py-2.5 text-white shadow-[0_0_15px_rgba(59,130,246,0.2)] hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:scale-105 transition-all duration-300"
+            onClick={() => handleExport('pdf')}
+            disabled={isExportingPdf}
+          >
+            {isExportingPdf ? 'Exportando PDF...' : 'Exportar PDF'}
+          </Button>
+          <Button
+            className="rounded-xl bg-blue-600/40 hover:bg-blue-600/50 border border-blue-400/30 px-5 py-2.5 text-white shadow-[0_0_15px_rgba(59,130,246,0.2)] hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:scale-105 transition-all duration-300"
+            onClick={() => handleExport('excel')}
+            disabled={isExportingExcel}
+          >
+            {isExportingExcel ? 'Exportando Excel...' : 'Exportar Excel'}
+          </Button>
+        </div>
       </div>
 
       {/* CARDS RESUMEN */}

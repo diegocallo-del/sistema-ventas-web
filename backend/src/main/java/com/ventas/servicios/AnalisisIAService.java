@@ -3,26 +3,26 @@ package com.ventas.servicios;
 import com.ventas.dto.AnalisisIARequestDTO;
 import com.ventas.dto.AnalisisIAResponseDTO;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.beans.factory.annotation.Value;
+import java.util.Map;
+import java.util.List;
 
 @Service
 public class AnalisisIAService {
 
-    // Se eliminan las dependencias a otros servicios temporalmente
-    // ya que la implementación de la IA es simulada.
-    // En una implementación real, aquí se inyectarían los servicios necesarios
-    // para recopilar los datos que se enviarán a la IA.
-    public AnalisisIAService() {
-        // Constructor vacío
+    private final WebClient webClient;
+    private final String apiKey;
+
+    public AnalisisIAService(WebClient webClient, @Value("${ia.api.key}") String apiKey) {
+        this.webClient = webClient;
+        this.apiKey = apiKey;
     }
 
     public AnalisisIAResponseDTO obtenerAnalisis(AnalisisIARequestDTO request) {
-        // 1. Recopilar datos basados en el contexto (simulado)
         String datosFormateados = recopilarYFormatearDatos(request.contexto());
-
-        // 2. Construir el prompt para la IA
         String prompt = construirPrompt(request.pregunta(), datosFormateados);
 
-        // 3. Llamar a la API de la IA externa (Simulación)
         String respuestaIA = llamarIAExterna(prompt);
 
         return new AnalisisIAResponseDTO(respuestaIA);
@@ -48,6 +48,17 @@ public class AnalisisIAService {
         System.out.println(prompt);
         System.out.println("-----------------------------");
 
-        return "Análisis de IA simulado: Basado en los datos, el producto más vendido es la 'Laptop Gamer' y el día de menor actividad es el domingo.";
+        Map<String, Object> requestBody = Map.of(
+            "contents", List.of(
+                Map.of("parts", List.of(Map.of("text", prompt)))
+            )
+        );
+
+        return webClient.post()
+                .uri(uriBuilder -> uriBuilder.queryParam("key", apiKey).build())
+                .bodyValue(requestBody)
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
     }
 }

@@ -7,8 +7,12 @@ import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { api } from '@/lib/api';
 import { reportEndpoints } from '@/lib/config/endpoints';
+import { AnalisisIA } from '@/components/modules/ia/AnalisisIA';
+import { isSupervisorOrAbove } from '@/lib/roles/role-checker';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function ReportesPage() {
+  const { user } = useAuth();
   const [isExportingPdf, setIsExportingPdf] = useState(false);
   const [isExportingExcel, setIsExportingExcel] = useState(false);
 
@@ -103,6 +107,17 @@ export default function ReportesPage() {
           </div>
         ))}
       </div>
+
+      {/* SECCIÓN DE ANÁLISIS CON IA */}
+      {isSupervisorOrAbove(user) && (
+        <div className="animate-slide-up delay-300">
+          <AnalisisIA
+            contexto="reporte_ventas"
+            titulo="Asistente de Análisis con IA"
+            descripcion="Haz una pregunta en lenguaje natural sobre los datos de ventas y la IA te dará un resumen."
+          />
+        </div>
+      )}
 
       {/* GRAFICO PRINCIPAL */}
       <div className="grid grid-cols-1 gap-6">

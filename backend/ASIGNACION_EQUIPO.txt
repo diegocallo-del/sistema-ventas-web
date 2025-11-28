@@ -1,0 +1,633 @@
+﻿﻿MANUAL DE ASIGNACIÓN DE EQUIPO
+SISTEMA DE VENTAS – SPRING BOOT (BACKEND) + NEXT.JS (FRONTEND)
+EQUIPO DE 7 PERSONAS
+
+PROYECTO
+- Nombre: Sistema de Ventas Web
+- Ubicación del proyecto: D:\sistema-ventas-web
+- Paquete base backend: com.ventas
+- Alcance: API REST segura para un sistema de ventas, consumida por un frontend moderno en Next.js.
+
+STACK TECNOLÓGICO PRINCIPAL
+- Backend: Java 21, Spring Boot 3.5.x, Spring Web, Spring Data JPA, Spring Security, 
+  Spring Validation, MySQL 8.0, Maven
+- Librerías clave: Lombok (reduce código), ModelMapper (mapeo DTO-Entidad), 
+  Nimbus JOSE + JWT (autenticación), Flyway (migraciones), springdoc-openapi (Swagger)
+- Frontend: Next.js 16, React 18, TypeScript 5, Tailwind CSS 3.4, Zustand, Axios
+- Control de versiones: Git
+
+ESTRUCTURA DE CARPETAS DEL BACKEND
+backend/
+├── src/main/java/com/ventas/
+│   ├── modelos/          (Persona 1 - DBA)
+│   ├── enums/            (Persona 1 - DBA)
+│   ├── abstractas/       (Persona 2 - Infraestructura)
+│   ├── interfaces/       (Persona 3 - Repositorios)
+│   ├── dao/              (Persona 3 - Repositorios) - NO SE USA (Spring Data JPA lo reemplaza)
+│   ├── repositorios/     (Persona 3 - Repositorios)
+│   ├── dto/              (Persona 2 - Infraestructura)
+│   ├── excepciones/      (Persona 2 - Infraestructura)
+│   ├── servicios/       (Persona 4 - Servicios)
+│   ├── controladores/   (Persona 5 - Controladores)
+│   ├── config/           (Persona 2 - Infraestructura)
+│   ├── seguridad/         (Persona 5 - Controladores)
+│   └── util/             (Persona 2 - Infraestructura)
+├── src/main/resources/
+│   ├── application.properties  (Persona 2 - Infraestructura)
+│   └── db/migration/           (Persona 2 - Infraestructura, con scripts de Persona 1)
+└── database/                   (Persona 1 - DBA)
+
+CONCEPTOS OOP QUE APLICAREMOS
+- ENCAPSULAMIENTO: Atributos privados con getters/setters (Lombok @Getter/@Setter)
+- HERENCIA: Clases abstractas base (EntidadBase, PersonaBase)
+- POLIMORFISMO: Interfaces para repositorios y servicios
+- ABSTRACCIÓN: Clases abstractas y interfaces para contratos comunes
+
+====================================================================
+PERSONA 1 – ADMINISTRADOR DE BASE DE DATOS (DBA)
+====================================================================
+MISIÓN DEL ROL
+Eres el ARQUITECTO DE DATOS. Diseñas y mantienes la base de datos de ventas, asegurando que
+las tablas, relaciones y tipos de datos soporten bien las necesidades del negocio.
+
+CARPETAS QUE CREARÁS Y ARCHIVOS
+📁 backend/src/main/java/com/ventas/modelos/
+   - Producto.java
+   - Cliente.java
+   - Usuario.java
+   - Categoria.java
+   - Venta.java
+   - DetalleVenta.java
+
+📁 backend/src/main/java/com/ventas/enums/
+   - RolUsuario.java (ADMIN, SUPERVISOR, VENDEDOR, CLIENTE)
+   - EstadoVenta.java (PENDIENTE, COMPLETADA, CANCELADA)
+   - TipoPago.java (EFECTIVO, TARJETA, TRANSFERENCIA)
+
+📁 backend/database/
+   - esquema.sql (creación de tablas)
+   - datos_prueba.sql (inserción de datos de prueba)
+   - diccionario_datos.md (documentación de campos)
+
+RESPONSABILIDADES PRINCIPALES
+1. Diseñar el modelo relacional completo (tablas, relaciones, claves)
+2. Crear las entidades JPA con anotaciones (@Entity, @Table, @Id, @ManyToOne, etc.)
+3. Definir enums para valores constantes del sistema
+4. Crear scripts SQL para la base de datos
+5. Documentar el diccionario de datos
+6. Coordinar con Persona 2 para migraciones Flyway
+
+TAREAS DETALLADAS
+
+Tarea 1. Diseño del modelo de datos
+- Definir 6 entidades principales: Usuario, Cliente, Categoria, Producto, Venta, DetalleVenta
+- Establecer relaciones:
+  * Venta → DetalleVenta (OneToMany)
+  * Producto → Categoria (ManyToOne)
+  * Venta → Cliente (ManyToOne)
+  * Venta → Usuario (ManyToOne - quién registró la venta)
+- Crear diagrama ER (puede ser texto o imagen)
+
+Tarea 2. Crear entidades JPA en modelos/
+- Usar anotaciones JPA: @Entity, @Table, @Id, @GeneratedValue
+- Usar Lombok: @Data, @NoArgsConstructor, @AllArgsConstructor
+- Definir relaciones: @ManyToOne, @OneToMany, @JoinColumn
+- Validaciones: @NotNull, @Size, @DecimalMin para precios
+- Campos comunes: id, fechaCreacion, fechaModificacion, activo
+
+Tarea 3. Crear enums en enums/
+- RolUsuario: ADMIN, SUPERVISOR, VENDEDOR, CLIENTE
+- EstadoVenta: PENDIENTE, COMPLETADA, CANCELADA
+- TipoPago: EFECTIVO, TARJETA, TRANSFERENCIA
+
+Tarea 4. Scripts SQL en database/
+- esquema.sql: CREATE TABLE para todas las tablas
+- datos_prueba.sql: INSERT de usuarios, productos, clientes de prueba
+- diccionario_datos.md: Documentación de cada campo
+
+Tarea 5. Coordinación con Persona 2
+- Entregar scripts SQL para que Persona 2 los convierta en migraciones Flyway
+- Revisar que los tipos de datos SQL sean compatibles con JPA
+
+DIAGRAMA DE FLUJO - PROCESO DE DISEÑO DE DATOS
+1. Analizar requerimientos del sistema
+2. Identificar entidades principales
+3. Definir relaciones entre entidades
+4. Crear diagrama ER
+5. Definir tipos de datos y restricciones
+6. Crear scripts SQL
+7. Crear entidades JPA
+8. Validar con el equipo
+
+PROMPT SUGERIDO PARA IA (PERSONA 1)
+"Actúa como DBA experto en MySQL y JPA para un sistema de ventas. Necesito:
+1) Diseñar 6 entidades: Usuario, Cliente, Categoria, Producto, Venta, DetalleVenta
+2) Crear las clases JPA usando Spring Boot 3.5, Java 21, con Lombok (@Data, @NoArgsConstructor)
+3) Incluir relaciones: Venta tiene muchos DetalleVenta, Producto pertenece a Categoria, 
+   Venta tiene Cliente y Usuario
+4) Usar tipos compatibles: Long para IDs, BigDecimal para precios, LocalDateTime para fechas
+5) Agregar campos comunes: id, fechaCreacion, fechaModificacion, activo
+6) Generar el DDL SQL para crear las tablas con claves foráneas e índices
+Devuélveme las 6 clases JPA completas y el SQL DDL."
+
+====================================================================
+PERSONA 2 – DESARROLLADOR BACKEND (INFRAESTRUCTURA)
+====================================================================
+MISIÓN DEL ROL
+Eres el INGENIERO DE INFRAESTRUCTURA. Diseñas las piezas transversales del backend que todos
+los demás usarán: DTOs, excepciones, configuración, utilidades, migraciones Flyway.
+
+CARPETAS QUE CREARÁS Y ARCHIVOS
+📁 backend/src/main/java/com/ventas/dto/
+   - ProductoDTO.java
+   - ClienteDTO.java
+   - UsuarioDTO.java
+   - VentaDTO.java
+   - DetalleVentaDTO.java
+   - ReporteDTO.java
+   - ErrorResponse.java
+
+📁 backend/src/main/java/com/ventas/excepciones/
+   - ResourceNotFoundException.java
+   - BusinessException.java
+   - ValidationException.java
+   - GlobalExceptionHandler.java
+
+📁 backend/src/main/java/com/ventas/abstractas/
+   - EntidadBase.java (clase abstracta con id, fechas, activo)
+   - PersonaBase.java (clase abstracta para Cliente/Usuario con nombre, email, telefono)
+
+📁 backend/src/main/java/com/ventas/config/
+   - SecurityConfig.java (configuración Spring Security)
+   - CorsConfig.java (configuración CORS)
+   - ModelMapperConfig.java (configuración ModelMapper)
+   - JwtConfig.java (utilidades JWT)
+
+📁 backend/src/main/java/com/ventas/util/
+   - ValidadorUtil.java (validar DNI, email, etc.)
+   - FormatoUtil.java (formatear moneda, fechas)
+   - FechaUtil.java (utilidades de fechas)
+
+📁 backend/src/main/resources/
+   - application.properties (configuración Spring Boot)
+   - db/migration/ (migraciones Flyway - V1__crear_tablas.sql, V2__datos_prueba.sql)
+
+RESPONSABILIDADES PRINCIPALES
+1. Crear DTOs para todas las entidades (usar records o clases con Lombok)
+2. Definir excepciones personalizadas y manejador global
+3. Configurar Spring Boot (application.properties)
+4. Configurar Flyway con scripts de Persona 1
+5. Configurar ModelMapper para convertir Entidad ↔ DTO
+6. Configurar CORS para permitir frontend
+7. Crear clases abstractas base para reutilización
+8. Crear utilidades comunes
+
+TAREAS DETALLADAS
+
+Tarea 1. Crear DTOs en dto/
+- Usar records de Java o clases con Lombok @Data
+- Incluir validaciones Jakarta: @NotNull, @NotBlank, @Size, @Email, @Positive
+- DTOs de entrada (CreateProductoDTO) y salida (ProductoDTO)
+- ErrorResponse para respuestas de error estandarizadas
+
+Tarea 2. Crear excepciones en excepciones/
+- ResourceNotFoundException: cuando no se encuentra un recurso
+- BusinessException: errores de lógica de negocio
+- ValidationException: errores de validación
+- GlobalExceptionHandler con @RestControllerAdvice para manejar todas
+
+Tarea 3. Configurar application.properties
+- Datasource (URL, usuario, contraseña MySQL)
+- JPA (hibernate.ddl-auto=none, show-sql=true)
+- Flyway (habilitado, ruta de migraciones)
+- JWT (secret key, tiempo de expiración)
+- CORS (origen permitido: http://localhost:3000)
+
+Tarea 4. Migraciones Flyway en db/migration/
+- Convertir scripts SQL de Persona 1 a formato Flyway
+- V1__crear_tablas.sql (esquema completo)
+- V2__datos_prueba.sql (datos iniciales)
+
+Tarea 5. Configurar ModelMapper
+- Crear ModelMapperConfig como @Configuration
+- Definir mapeos personalizados si es necesario
+- Usar ModelMapper para convertir entre Entidad y DTO
+
+Tarea 6. Crear clases abstractas en abstractas/
+- EntidadBase: id, fechaCreacion, fechaModificacion, activo
+- PersonaBase: nombre, email, telefono, direccion
+- Las entidades extenderán estas clases (herencia)
+
+Tarea 7. Crear utilidades en util/
+- ValidadorUtil: validar DNI peruano, email, teléfono
+- FormatoUtil: formatear moneda (S/), fechas
+- FechaUtil: operaciones con fechas
+
+DIAGRAMA DE FLUJO - PROCESO DE CONFIGURACIÓN
+1. Leer scripts SQL de Persona 1
+2. Convertir a migraciones Flyway
+3. Configurar application.properties
+4. Crear DTOs con validaciones
+5. Crear excepciones personalizadas
+6. Configurar ModelMapper
+7. Configurar CORS y Security
+8. Probar que la aplicación arranca
+
+PROMPT SUGERIDO PARA IA (PERSONA 2)
+"Actúa como desarrollador de infraestructura en Spring Boot 3.5 + Java 21. Necesito:
+1) Crear DTOs usando records de Java con validaciones Jakarta (@NotNull, @NotBlank, @Size)
+2) Crear excepciones: ResourceNotFoundException, BusinessException y GlobalExceptionHandler
+3) Configurar application.properties para MySQL, JPA, Flyway, JWT
+4) Configurar ModelMapper para mapear entre Entidad y DTO automáticamente
+5) Crear clase abstracta EntidadBase con campos comunes (id, fechas, activo) usando Lombok
+6) Configurar CORS para permitir http://localhost:3000
+7) Convertir scripts SQL a migraciones Flyway (V1__..., V2__...)
+Devuélveme el código completo de estas clases y configuraciones."
+
+====================================================================
+PERSONA 3 – DESARROLLADOR DE REPOSITORIOS (SPRING DATA JPA)
+====================================================================
+MISIÓN DEL ROL
+Eres el ESPECIALISTA EN ACCESO A DATOS. Creas interfaces Repository usando Spring Data JPA.
+NO escribes SQL manual, Spring Data JPA lo genera automáticamente.
+
+CARPETAS QUE CREARÁS Y ARCHIVOS
+📁 backend/src/main/java/com/ventas/repositorios/
+   - ProductoRepository.java
+   - ClienteRepository.java
+   - UsuarioRepository.java
+   - CategoriaRepository.java
+   - VentaRepository.java
+   - DetalleVentaRepository.java
+
+📁 backend/src/main/java/com/ventas/interfaces/
+   - IBaseRepository.java (interfaz genérica opcional)
+
+RESPONSABILIDADES PRINCIPALES
+1. Crear interfaces Repository que extienden JpaRepository
+2. Definir métodos de consulta por convención de nombres
+3. Crear consultas personalizadas con @Query cuando sea necesario
+4. Asegurar que las consultas son eficientes
+
+TAREAS DETALLADAS
+
+Tarea 1. Crear repositorios básicos en repositorios/
+- Cada repositorio extiende JpaRepository<Entidad, Long>
+- Spring Data JPA proporciona automáticamente: save(), findById(), findAll(), delete()
+- NO necesitas implementar estos métodos, Spring lo hace
+
+Tarea 2. Métodos de consulta por convención
+- findByNombreContainingIgnoreCase(String nombre)
+- findByCategoriaIdAndActivoTrue(Long categoriaId)
+- findByFechaCreacionBetween(LocalDateTime inicio, LocalDateTime fin)
+- Spring Data JPA genera el SQL automáticamente
+
+Tarea 3. Consultas personalizadas con @Query
+- Para consultas complejas usar @Query con JPQL
+- Ejemplo: productos más vendidos, ventas por rango de fechas
+- Usar @Param para parámetros
+
+Tarea 4. Crear interfaz genérica (opcional) en interfaces/
+- IBaseRepository<T> con métodos comunes
+- Los repositorios pueden extender esta interfaz (herencia de interfaces)
+
+CONCEPTOS OOP APLICADOS
+- POLIMORFISMO: Interfaces Repository que pueden usarse de forma genérica
+- HERENCIA: Interfaces que extienden JpaRepository
+- ABSTRACCIÓN: Métodos definidos en interfaces, implementación automática por Spring
+
+DIAGRAMA DE FLUJO - PROCESO DE CREACIÓN DE REPOSITORIOS
+1. Revisar entidades creadas por Persona 1
+2. Crear interfaz Repository para cada entidad
+3. Extender JpaRepository<Entidad, Long>
+4. Agregar métodos de consulta por convención
+5. Agregar @Query para consultas complejas
+6. Probar métodos con tests o Postman
+
+PROMPT SUGERIDO PARA IA (PERSONA 3)
+"Actúa como especialista en Spring Data JPA. Necesito crear interfaces Repository para:
+1) ProductoRepository: buscar por nombre, categoría, stock bajo, activos
+2) ClienteRepository: buscar por DNI, nombre, email
+3) VentaRepository: buscar por rango de fechas, cliente, usuario, estado
+4) UsuarioRepository: buscar por username, email, rol
+Usa Spring Data JPA con Java 21 + Spring Boot 3.5. Los métodos deben seguir la convención
+findBy... y usar @Query con JPQL solo cuando sea necesario. Devuélveme las 6 interfaces completas."
+
+====================================================================
+PERSONA 4 – DESARROLLADOR DE SERVICIOS (LÓGICA DE NEGOCIO)
+====================================================================
+MISIÓN DEL ROL
+Eres el CEREBRO DEL SISTEMA. Implementas las reglas de negocio usando los repositorios y
+convirtiendo entre Entidades y DTOs con ModelMapper.
+
+CARPETAS QUE CREARÁS Y ARCHIVOS
+📁 backend/src/main/java/com/ventas/servicios/
+   - ProductoService.java
+   - ClienteService.java
+   - UsuarioService.java
+   - VentaService.java
+   - ReporteService.java
+   - AuthService.java (autenticación)
+
+📁 backend/src/main/java/com/ventas/interfaces/
+   - IProductoService.java (interfaz opcional)
+   - IVentaService.java (interfaz opcional)
+
+RESPONSABILIDADES PRINCIPALES
+1. Implementar lógica de negocio para cada módulo
+2. Usar repositorios para acceder a datos
+3. Usar ModelMapper para convertir Entidad ↔ DTO
+4. Validar reglas de negocio y lanzar excepciones
+5. Usar @Transactional para operaciones que modifican datos
+
+TAREAS DETALLADAS
+
+Tarea 1. Servicios básicos CRUD
+- ProductoService: listar, buscar por ID, crear, actualizar, eliminar (soft delete)
+- ClienteService: CRUD completo
+- UsuarioService: CRUD completo
+- Usar ModelMapper para convertir DTO → Entidad y Entidad → DTO
+
+Tarea 2. VentaService (el más complejo)
+- procesarVenta(VentaDTO): validar stock, calcular totales, guardar venta y detalles
+- Usar @Transactional para asegurar que todo se guarda o nada
+- Validar que productos tengan stock suficiente
+- Actualizar stock de productos después de la venta
+
+Tarea 3. ReporteService
+- obtenerVentasPorFecha(LocalDate inicio, LocalDate fin)
+- obtenerProductosMasVendidos()
+- obtenerClientesFrecuentes()
+- Usar repositorios para consultas agregadas
+
+Tarea 4. AuthService
+- login(String username, String password): validar credenciales y generar JWT
+- validarToken(String token): verificar si el token es válido
+- Usar repositorios para buscar usuarios
+
+CONCEPTOS OOP APLICADOS
+- ENCAPSULAMIENTO: Lógica de negocio encapsulada en servicios
+- POLIMORFISMO: Interfaces de servicios que pueden tener múltiples implementaciones
+- ABSTRACCIÓN: Servicios abstraen la complejidad de la lógica de negocio
+
+DIAGRAMA DE FLUJO - PROCESO DE VENTA
+1. Recibir VentaDTO del controlador
+2. Validar que el cliente existe
+3. Para cada DetalleVentaDTO:
+   a. Buscar producto
+   b. Validar stock suficiente
+   c. Calcular subtotal de línea
+4. Calcular subtotal total
+5. Calcular impuestos (18%)
+6. Calcular total
+7. Crear entidad Venta
+8. Crear entidades DetalleVenta
+9. Guardar venta (transacción)
+10. Actualizar stock de productos
+11. Retornar VentaDTO
+
+PROMPT SUGERIDO PARA IA (PERSONA 4)
+"Actúa como desarrollador de servicios en Spring Boot 3.5 + Java 21. Necesito:
+1) VentaService que procese una venta completa:
+   - Recibe VentaDTO con lista de DetalleVentaDTO
+   - Valida que cliente existe
+   - Valida stock de cada producto
+   - Calcula subtotal, impuestos (18%), total
+   - Guarda venta y detalles en transacción (@Transactional)
+   - Actualiza stock de productos
+2) Usar ModelMapper para convertir DTO ↔ Entidad
+3) Usar repositorios inyectados con @RequiredArgsConstructor (Lombok)
+4) Lanzar ResourceNotFoundException o BusinessException cuando corresponda
+5) ProductoService con métodos CRUD usando ModelMapper
+Devuélveme el código completo de VentaService y ProductoService."
+
+====================================================================
+PERSONA 5 – DESARROLLADOR DE CONTROLADORES REST Y SEGURIDAD
+====================================================================
+MISIÓN DEL ROL
+Eres el ARQUITECTO DE LA API. Diseñas y expones endpoints REST que el frontend consumirá.
+También implementas la seguridad con Spring Security y JWT.
+
+CARPETAS QUE CREARÁS Y ARCHIVOS
+📁 backend/src/main/java/com/ventas/controladores/
+   - ProductoController.java
+   - ClienteController.java
+   - VentaController.java
+   - UsuarioController.java
+   - ReporteController.java
+   - AuthController.java
+
+📁 backend/src/main/java/com/ventas/seguridad/
+   - JwtTokenProvider.java (generar y validar JWT)
+   - JwtAuthenticationFilter.java (filtro para validar token)
+   - UserDetailsServiceImpl.java (cargar usuario para Spring Security)
+
+RESPONSABILIDADES PRINCIPALES
+1. Crear controladores REST con endpoints claros
+2. Implementar autenticación JWT
+3. Configurar Spring Security (colaborar con Persona 2)
+4. Documentar API con OpenAPI/Swagger
+5. Aplicar validaciones en endpoints
+
+TAREAS DETALLADAS
+
+Tarea 1. Controladores REST en controladores/
+- ProductoController: GET /api/productos, GET /api/productos/{id}, POST, PUT, DELETE
+- ClienteController: CRUD completo
+- VentaController: POST /api/ventas (procesar venta), GET /api/ventas
+- ReporteController: GET /api/reportes/ventas, /api/reportes/productos
+- Usar @RestController, @RequestMapping, @GetMapping, @PostMapping, etc.
+- Usar @Valid para validar DTOs
+- Retornar códigos HTTP correctos (200, 201, 404, 400)
+
+Tarea 2. AuthController en controladores/
+- POST /api/auth/login: recibe username/password, retorna JWT
+- POST /api/auth/refresh: refrescar token
+- GET /api/auth/me: obtener usuario actual
+
+Tarea 3. Implementar JWT en seguridad/
+- JwtTokenProvider: generar token, validar token, extraer claims
+- Usar Nimbus JOSE + JWT
+- JwtAuthenticationFilter: interceptar requests y validar token
+- UserDetailsServiceImpl: implementar UserDetailsService para Spring Security
+
+Tarea 4. Configurar Spring Security (colaborar con Persona 2)
+- SecurityConfig: definir qué rutas son públicas (/api/auth/login) y cuáles protegidas
+- Configurar filtro JWT
+- Configurar CORS
+
+Tarea 5. Documentar API con OpenAPI
+- Agregar @Operation, @ApiResponse en controladores
+- Configurar springdoc-openapi (Persona 2 puede ayudar)
+- Acceder a Swagger UI en /swagger-ui.html
+
+DIAGRAMA DE FLUJO - PROCESO DE AUTENTICACIÓN
+1. Cliente envía POST /api/auth/login con username/password
+2. AuthController recibe credenciales
+3. AuthService valida usuario y contraseña
+4. Si válido: generar JWT con claims (username, rol, expiración)
+5. Retornar JWT al cliente
+6. Cliente incluye JWT en header Authorization: Bearer <token>
+7. JwtAuthenticationFilter intercepta request
+8. Extraer y validar token
+9. Si válido: cargar UserDetails y continuar
+10. Si inválido: retornar 401 Unauthorized
+
+PROMPT SUGERIDO PARA IA (PERSONA 5)
+"Actúa como desarrollador de APIs REST con Spring Boot 3.5 + Spring Security. Necesito:
+1) ProductoController con endpoints: GET /api/productos, GET /api/productos/{id}, 
+   POST /api/productos, PUT /api/productos/{id}, DELETE /api/productos/{id}
+2) AuthController con POST /api/auth/login que genere JWT usando Nimbus JOSE + JWT
+3) JwtTokenProvider para generar y validar tokens JWT
+4) JwtAuthenticationFilter que intercepte requests y valide token en header Authorization
+5) SecurityConfig que permita /api/auth/** público y requiera autenticación para /api/**
+6) Documentar endpoints con @Operation de OpenAPI
+7) Usar @Valid para validar DTOs y retornar códigos HTTP correctos
+Devuélveme el código completo de estos componentes."
+
+====================================================================
+PERSONA 6 – COORDINADOR TÉCNICO / LÍDER DE INTEGRACIÓN BACKEND
+====================================================================
+MISIÓN DEL ROL
+Eres el LÍDER TÉCNICO del backend. Garantizas coherencia técnica, revisas código y
+coordinas la integración entre todas las personas.
+
+RESPONSABILIDADES PRINCIPALES
+1. Revisar código de todas las personas
+2. Asegurar que se siguen los estándares definidos
+3. Coordinar integración entre módulos
+4. Resolver conflictos técnicos
+5. Verificar que el backend funciona end-to-end
+
+TAREAS DETALLADAS
+
+Tarea 1. Estándares y convenciones
+- Definir convenciones de nombres (clases, métodos, variables)
+- Formato de código (usar formatter de IDE)
+- Estructura de commits Git
+- Documentar estándares en README.md
+
+Tarea 2. Revisión de código
+- Revisar que las entidades usan Lombok correctamente
+- Verificar que los DTOs tienen validaciones
+- Asegurar que los servicios usan @Transactional donde corresponde
+- Verificar que los controladores retornan códigos HTTP correctos
+
+Tarea 3. Integración end-to-end
+- Probar flujo completo: login → obtener productos → crear venta
+- Verificar que ModelMapper funciona correctamente
+- Asegurar que las migraciones Flyway se ejecutan
+- Probar que JWT funciona en todos los endpoints protegidos
+
+Tarea 4. Coordinación con frontend
+- Revisar que los endpoints coinciden con lo que el frontend espera
+- Verificar formato de respuestas JSON
+- Asegurar que los errores se manejan correctamente
+
+PROMPT SUGERIDO PARA IA (PERSONA 6)
+"Actúa como arquitecto de software y líder técnico. Necesito crear un documento de estándares
+para un equipo de 7 personas desarrollando un sistema de ventas con Spring Boot 3.5 + Java 21.
+El documento debe incluir:
+1) Convenciones de nombres para clases, métodos, variables
+2) Estructura de paquetes y organización de código
+3) Formato estándar de respuestas JSON (éxito y error)
+4) Política de seguridad (qué endpoints son públicos/protegidos)
+5) Uso de Lombok, ModelMapper, Spring Data JPA
+6) Buenas prácticas de código Java moderno
+Devuélveme un documento claro y conciso que todo el equipo pueda seguir."
+
+====================================================================
+PERSONA 7 – INTEGRADOR FRONTEND–BACKEND (NEXT.JS + API REST)
+====================================================================
+MISIÓN DEL ROL
+Eres quien UNE el frontend en Next.js con la API REST del backend. Aseguras que las pantallas
+se alimenten correctamente con datos reales.
+
+RESPONSABILIDADES PRINCIPALES
+1. Conectar servicios del frontend con endpoints del backend
+2. Manejar autenticación JWT en el frontend
+3. Integrar respuestas del backend con stores de Zustand
+4. Manejar errores del backend en el frontend
+
+TAREAS DETALLADAS
+
+Tarea 1. Actualizar servicios del frontend
+- Modificar frontend/lib/services/*.ts para llamar a endpoints reales
+- Configurar axios con baseURL del backend
+- Agregar interceptor para incluir JWT en headers
+
+Tarea 2. Integrar autenticación
+- Modificar login para llamar a POST /api/auth/login
+- Guardar JWT en localStorage o cookies
+- Incluir JWT en todas las peticiones
+
+Tarea 3. Actualizar stores de Zustand
+- Modificar stores para usar datos reales del backend
+- Manejar estados de carga y error
+- Sincronizar datos entre frontend y backend
+
+Tarea 4. Manejo de errores
+- Capturar errores del backend (404, 400, 401, 500)
+- Mostrar mensajes de error amigables al usuario
+- Manejar token expirado (redirigir a login)
+
+PROMPT SUGERIDO PARA IA (PERSONA 7)
+"Actúa como desarrollador frontend en Next.js 16 + TypeScript. Tengo un backend Spring Boot
+que expone endpoints REST. Necesito:
+1) Configurar axios para llamar a http://localhost:8080/api
+2) Interceptor que agregue JWT del localStorage al header Authorization
+3) Servicio de autenticación que llame a POST /api/auth/login y guarde el token
+4) Actualizar store de Zustand para usar datos reales del backend
+5) Manejar errores 401 para redirigir a login cuando el token expire
+6) Mostrar mensajes de error del backend al usuario
+Devuélveme el código TypeScript completo para estos componentes."
+
+====================================================================
+RESUMEN DE ESTRUCTURA Y RESPONSABILIDADES
+====================================================================
+
+PERSONA 1 (DBA):
+- Carpetas: modelos/, enums/, database/
+- Crea: Entidades JPA, Enums, Scripts SQL
+
+PERSONA 2 (Infraestructura):
+- Carpetas: dto/, excepciones/, abstractas/, config/, util/, resources/
+- Crea: DTOs, Excepciones, Configuraciones, Utilidades, Migraciones Flyway
+
+PERSONA 3 (Repositorios):
+- Carpetas: repositorios/, interfaces/
+- Crea: Interfaces Repository (Spring Data JPA)
+
+PERSONA 4 (Servicios):
+- Carpetas: servicios/, interfaces/
+- Crea: Servicios con lógica de negocio
+
+PERSONA 5 (Controladores):
+- Carpetas: controladores/, seguridad/
+- Crea: Controladores REST, JWT, Spring Security
+
+PERSONA 6 (Líder):
+- Revisa y coordina todo el código
+
+PERSONA 7 (Frontend):
+- Modifica frontend para conectar con backend
+
+CONCEPTOS OOP IMPLEMENTADOS:
+✓ ENCAPSULAMIENTO: Atributos privados, getters/setters (Lombok)
+✓ HERENCIA: EntidadBase, PersonaBase (clases abstractas)
+✓ POLIMORFISMO: Interfaces Repository y Service
+✓ ABSTRACCIÓN: Interfaces y clases abstractas
+
+LIBRERÍAS QUE SIMPLIFICAN EL CÓDIGO:
+✓ Lombok: @Data, @RequiredArgsConstructor (reduce boilerplate)
+✓ Spring Data JPA: No escribes SQL, solo interfaces
+✓ ModelMapper: Conversión automática Entidad ↔ DTO
+✓ Spring Boot: Configuración automática
+
+====================================================================
+RESUMEN FINAL
+====================================================================
+Este manual organiza el trabajo del equipo en 7 roles complementarios. Cada persona tiene
+carpetas específicas que crear, tareas claras y prompts de IA sugeridos. El objetivo es
+trabajar de forma coordinada usando Spring Boot 3.5, Spring Data JPA, Lombok y ModelMapper
+para simplificar el código y enfocarse en la lógica de negocio.

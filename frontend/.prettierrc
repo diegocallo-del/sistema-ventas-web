@@ -1,0 +1,28 @@
+{
+  "semi": true,
+  "trailingComma": "es5",
+  "singleQuote": true,
+  "printWidth": 100,
+  "tabWidth": 2,
+  "useTabs": false
+}
+```
+
+### .eslintignore
+```
+node_modules
+.next
+out
+build
+dist
+```
+
+### .prettierignore
+```
+node_modules
+.next
+out
+build
+dist
+package-lock.json
+yarn.lock

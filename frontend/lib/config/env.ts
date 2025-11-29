@@ -4,7 +4,7 @@
  */
 
 // Variables requeridas
-const requiredEnvVars = ['NEXT_PUBLIC_API_URL'] as const;
+const requiredEnvVars = ['BACKEND_URL'] as const;
 
 /**
  * Función de validación segura
@@ -20,7 +20,7 @@ function checkEnvVar(varName: string) {
 
 // Exportar variables de entorno de forma segura
 export const env = {
-  apiUrl: checkEnvVar('NEXT_PUBLIC_API_URL') || 'http://localhost:8080',
+  apiUrl: checkEnvVar('BACKEND_URL') || 'http://localhost:8080',
   isDevelopment: process.env.NODE_ENV === 'development',
   isProduction: process.env.NODE_ENV === 'production',
   isTest: process.env.NODE_ENV === 'test',

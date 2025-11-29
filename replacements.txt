@@ -1,1 +1,0 @@
-﻿groq.api.key=.*==>groq.api.key=REDACTED

@@ -38,11 +38,11 @@ Puedes cambiar el modelo en `application.properties`:
 
 ## Ventajas de Groq
 
-✅ **Completamente gratuito** - Sin límites estrictos
-✅ **Muy rápido** - Respuestas en milisegundos
-✅ **Modelos potentes** - Llama 3.1 70B es uno de los mejores modelos open-source
-✅ **Sin tarjeta de crédito** - No requiere pago
-✅ **API simple** - Fácil de integrar
+**Completamente gratuito** - Sin límites estrictos
+**Muy rápido** - Respuestas en milisegundos
+**Modelos potentes** - Llama 3.1 70B es uno de los mejores modelos open-source
+**Sin tarjeta de crédito** - No requiere pago
+**API simple** - Fácil de integrar
 
 ## Notas importantes
 

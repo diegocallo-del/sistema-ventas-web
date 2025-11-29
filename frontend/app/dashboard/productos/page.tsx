@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,25 +15,88 @@ import {
 import { Plus, Search, ShoppingCart } from "lucide-react";
 import ProductModalForm from "@/components/modules/productos/ProductModalForm";
 import { ProductoForm } from "@/components/modules/productos/producto-form";
+import { ProductosTable } from "@/components/modules/productos/productos-table";
 import { Dialog } from "@/components/ui/dialog";
 import { useAuth } from "@/hooks/use-auth";
 import { UserRole } from "@/lib/types/usuario";
-import { CreateProductData, UpdateProductData } from "@/lib/types";
-import { createProduct } from "@/lib/services/producto-service";
+import { CreateProductData, UpdateProductData, Product } from "@/lib/types";
+import { createProduct, getProducts, updateProduct, deleteProduct } from "@/lib/services/producto-service";
 import { useAuthStore } from "@/store/auth-store";
 
 export default function ProductosPage() {
   const router = useRouter();
   const { user } = useAuth();
-  const { token } = useAuthStore();
+  const { token, isAuthenticated } = useAuthStore();
   const isClient = user?.rol === UserRole.CLIENTE;
 
+  const [productos, setProductos] = useState<Product[]>([]);
+  const [loadingLista, setLoadingLista] = useState(false);
   const [search, setSearch] = useState("");
   const [categoria, setCategoria] = useState("");
   const [estado, setEstado] = useState("");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [productoEditando, setProductoEditando] = useState<Product | null>(null);
+
+  // Cargar productos del backend
+  async function cargarProductos() {
+    if (!token || !isAuthenticated) return;
+
+    setLoadingLista(true);
+    setError(null);
+
+    try {
+      const response = await getProducts({}, token);
+      setProductos(response.items);
+    } catch (err: any) {
+      console.warn('Error al cargar productos', err);
+      setError(err?.message || 'Error al cargar productos');
+    } finally {
+      setLoadingLista(false);
+    }
+  }
+
+  useEffect(() => {
+    if (isAuthenticated && token) {
+      void cargarProductos();
+    }
+  }, [isAuthenticated, token]);
+
+  // Filtrar productos localmente
+  const productosFiltrados = productos.filter((p) => {
+    const matchSearch = !search || p.nombre.toLowerCase().includes(search.toLowerCase()) || p.codigo.toLowerCase().includes(search.toLowerCase());
+    const matchCategoria = !categoria || p.categoria === categoria;
+    const matchEstado = !estado || (estado === 'activo' && p.activo) || (estado === 'inactivo' && !p.activo) || (estado === 'agotado' && p.stock === 0);
+    return matchSearch && matchCategoria && matchEstado;
+  });
+
+  async function handleEditarProducto(producto: Product) {
+    setProductoEditando(producto);
+    setIsAdminModalOpen(true);
+  }
+
+  async function handleEliminarProducto(producto: Product) {
+    if (!token) return;
+    const confirmar = window.confirm(
+      `¿Seguro que deseas eliminar el producto "${producto.nombre}"?`
+    );
+    if (!confirmar) return;
+
+    setIsSaving(true);
+    setError(null);
+
+    try {
+      await deleteProduct(producto.id, token);
+      await cargarProductos();
+    } catch (err: any) {
+      console.warn('Error al eliminar producto', err);
+      setError(err?.message || 'Error al eliminar producto');
+    } finally {
+      setIsSaving(false);
+    }
+  }
 
   return (
     <div className="space-y-8 animate-fade-in">
@@ -123,6 +186,13 @@ export default function ProductosPage() {
         </CardContent>
       </Card>
 
+      {/* Mensaje de error */}
+      {error && (
+        <div className="mb-4 rounded-xl border border-red-400/30 bg-red-900/20 px-4 py-2 text-sm text-red-300 shadow-[0_0_10px_rgba(239,68,68,0.2)] animate-slide-up">
+          {error}
+        </div>
+      )}
+
       {/* ----------------------- TABLA DE PRODUCTOS ----------------------- */}
       <Card className="border-blue-400/30 shadow-[0_0_15px_rgba(59,130,246,0.1)] bg-slate-900/60 backdrop-blur-xl animate-slide-up delay-200">
         <CardHeader>
@@ -131,14 +201,21 @@ export default function ProductosPage() {
 
         <CardContent>
           <div className="border-t border-blue-400/30 pt-4">
-            <p className="text-slate-300 text-sm">
-              Aquí irá la tabla de productos.  
-              Esta tarjeta ya está preparada para integrar una tabla dinámica (DataTable) con acciones como editar, eliminar, stock y precios.
-            </p>
-
-            <div className="mt-4 p-4 bg-blue-900/20 rounded-xl text-slate-300 border border-blue-400/20">
-              <span className="font-semibold text-blue-300">Sugerencia:</span> puedes integrar aquí tu componente de tabla o un DataTable de Shadcn para una experiencia más profesional.
-            </div>
+            {!isClient && (
+              <ProductosTable
+                productos={productosFiltrados}
+                onEdit={handleEditarProducto}
+                onDelete={handleEliminarProducto}
+                isLoading={loadingLista}
+              />
+            )}
+            {isClient && (
+              <div className="text-center py-12">
+                <p className="text-slate-300 text-sm">
+                  Vista de productos para clientes - en desarrollo
+                </p>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -162,12 +239,15 @@ export default function ProductosPage() {
       {!isClient && (
         <Dialog
           isOpen={isAdminModalOpen}
-          onClose={() => setIsAdminModalOpen(false)}
-          title="Nuevo producto"
+          onClose={() => {
+            setIsAdminModalOpen(false);
+            setProductoEditando(null);
+          }}
+          title={productoEditando ? "Editar producto" : "Nuevo producto"}
           size="lg"
         >
           <ProductoForm
-            producto={null}
+            producto={productoEditando}
             onSubmit={async (data: CreateProductData | UpdateProductData) => {
               if (!token) {
                 console.error('No hay token de autenticación');
@@ -175,18 +255,28 @@ export default function ProductosPage() {
               }
               
               setIsSaving(true);
+              setError(null);
               try {
-                await createProduct(data as CreateProductData, token);
+                if (productoEditando) {
+                  await updateProduct(productoEditando.id, data as UpdateProductData, token);
+                } else {
+                  await createProduct(data as CreateProductData, token);
+                }
                 setIsAdminModalOpen(false);
-                // Aquí podrías recargar la lista de productos si es necesario
-              } catch (error) {
-                console.error('Error al crear producto:', error);
+                setProductoEditando(null);
+                await cargarProductos();
+              } catch (error: any) {
+                console.error('Error al guardar producto:', error);
+                setError(error?.message || 'Error al guardar producto');
                 throw error;
               } finally {
                 setIsSaving(false);
               }
             }}
-            onCancel={() => setIsAdminModalOpen(false)}
+            onCancel={() => {
+              setIsAdminModalOpen(false);
+              setProductoEditando(null);
+            }}
             isLoading={isSaving}
           />
         </Dialog>

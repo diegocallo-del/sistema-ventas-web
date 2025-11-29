@@ -38,7 +38,7 @@ try {
     Write-Host "MySQL detected" -ForegroundColor Green
     $MYSQL_AVAILABLE = $true
 } catch {
-    Write-Host "MySQL NOT detected - Use Railway for DB" -ForegroundColor Yellow
+    Write-Host "MySQL NOT detected - Configure MySQL Workbench manually" -ForegroundColor Yellow
     $MYSQL_AVAILABLE = $false
 }
 
@@ -67,7 +67,7 @@ if ($MYSQL_AVAILABLE) {
     }
 } else {
     Write-Host "`nMYSQL NOT AVAILABLE LOCALLY" -ForegroundColor Yellow
-    Write-Host "Use Railway for database in production" -ForegroundColor Cyan
+    Write-Host "Configure MySQL Workbench with database: sistema_ventas_db" -ForegroundColor Cyan
 }
 
 # ===============================================================================

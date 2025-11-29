@@ -6,6 +6,7 @@
 import axios from 'axios';
 import { api } from '../api';
 import { productEndpoints } from '../config/endpoints';
+import { env } from '../config/env';
 import {
   Product,
   CreateProductData,
@@ -17,129 +18,190 @@ import {
 } from '../types';
 
 /**
- * Obtiene lista paginada de productos
+ * Interfaz temporal para la respuesta del backend
+ */
+interface ProductoDTOBackend {
+  id: number;
+  codigo: string;
+  nombre: string;
+  descripcion: string | null;
+  precio: number;
+  stock: number;
+  categoriaId: number | null;
+  categoriaNombre: string | null;
+  imagen: string | null;
+  activo: boolean;
+  fechaCreacion: string;
+  fechaActualizacion: string;
+}
+
+/**
+ * Mapea ProductoDTO del backend a Product del frontend
+ */
+function mapProductoFromBackend(dto: ProductoDTOBackend): Product {
+  return {
+    id: dto.id,
+    codigo: dto.codigo,
+    nombre: dto.nombre,
+    descripcion: dto.descripcion,
+    precio: Number(dto.precio),
+    stock: dto.stock,
+    categoria: dto.categoriaNombre,
+    imagen: dto.imagen,
+    activo: dto.activo,
+    fecha_creacion: dto.fechaCreacion,
+    fecha_actualizacion: dto.fechaActualizacion,
+  };
+}
+
+/**
+ * Obtiene lista de productos
+ * El backend devuelve una lista directa, no paginada
  */
 export async function getProducts(
   options: QueryOptions = {},
   token: string
 ): Promise<PaginatedResponse<Product>> {
-  const params = {
-    page: options.page || 1,
-    page_size: options.page_size || 10,
-    sort_by: options.sort_by,
-    sort_order: options.sort_order,
-    ...options.filters,
-  };
-
-  const response = await axios.get<PaginatedResponse<Product>>(productEndpoints.base, {
-    params,
+  const response = await axios.get<ProductoDTOBackend[]>(productEndpoints.base, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
 
-  return response.data;
+  // Mapear productos del backend al formato del frontend
+  const items = response.data.map(mapProductoFromBackend);
+  
+  // Convertir lista a formato paginado para compatibilidad
+  const page = options.page || 1;
+  const pageSize = options.page_size || 10;
+  const start = (page - 1) * pageSize;
+  const end = start + pageSize;
+  const paginatedItems = items.slice(start, end);
+
+  return {
+    items: paginatedItems,
+    total: items.length,
+    page: page,
+    page_size: pageSize,
+    total_pages: Math.ceil(items.length / pageSize),
+  };
 }
 
 /**
  * Obtiene un producto por ID
  */
 export async function getProductById(id: number, token: string): Promise<Product> {
-  const response = await axios.get<Product>(productEndpoints.byId(id), {
+  const response = await axios.get<ProductoDTOBackend>(productEndpoints.byId(id), {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
 
-  return response.data;
+  return mapProductoFromBackend(response.data);
+}
+
+/**
+ * Obtiene el ID de una categoría por su nombre
+ */
+async function getCategoriaIdByName(nombre: string, token: string): Promise<number | null> {
+  try {
+    const response = await axios.get<any[]>(`${env.apiUrl}/api/categorias`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const categoria = response.data.find((c: any) => c.nombre === nombre);
+    return categoria ? categoria.id : null;
+  } catch {
+    return null;
+  }
 }
 
 /**
  * Crea un nuevo producto
- * Si el dato contiene una imagen (File), se envía como FormData
- * De lo contrario, se envía como JSON normal
+ * Convierte el nombre de categoría a ID si es necesario
  */
 export async function createProduct(data: CreateProductData, token: string): Promise<Product> {
-  let response;
-
-  // Si hay una imagen (File), usar FormData
-  if (data.imagen instanceof File) {
-    const formData = new FormData();
-    formData.append('codigo', data.codigo);
-    formData.append('nombre', data.nombre);
-    formData.append('precio', data.precio.toString());
-    formData.append('stock', data.stock.toString());
-    
-    if (data.descripcion) {
-      formData.append('descripcion', data.descripcion);
+  // Convertir nombre de categoría a ID si es necesario
+  let categoriaId: number | null = null;
+  if (data.categoria) {
+    // Si categoria es un número, usarlo directamente
+    const parsedId = parseInt(data.categoria);
+    if (!isNaN(parsedId)) {
+      categoriaId = parsedId;
+    } else {
+      // Si es un string (nombre), buscar el ID
+      categoriaId = await getCategoriaIdByName(data.categoria, token);
+      if (!categoriaId) {
+        throw new Error(`Categoría "${data.categoria}" no encontrada`);
+      }
     }
-    if (data.categoria) {
-      formData.append('categoria', data.categoria);
-    }
-    formData.append('imagen', data.imagen);
-
-    response = await axios.post<Product>(productEndpoints.create, formData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-  } else {
-    // Envío normal como JSON
-    response = await axios.post<Product>(productEndpoints.create, data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    });
   }
 
-  return response.data;
+  // Preparar datos para el backend
+  const backendData = {
+    nombre: data.nombre,
+    descripcion: data.descripcion || null,
+    precio: data.precio,
+    stock: data.stock,
+    categoriaId: categoriaId,
+  };
+
+  const response = await axios.post<ProductoDTOBackend>(productEndpoints.create, backendData, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  });
+
+  return mapProductoFromBackend(response.data);
 }
 
 /**
  * Actualiza un producto existente
- * Si el dato contiene una imagen (File), se envía como FormData
- * De lo contrario, se envía como JSON normal
+ * Convierte el nombre de categoría a ID si es necesario
  */
 export async function updateProduct(
   id: number,
   data: UpdateProductData,
   token: string
 ): Promise<Product> {
-  let response;
-
-  // Si hay una imagen (File), usar FormData
-  if (data.imagen instanceof File) {
-    const formData = new FormData();
-    
-    if (data.codigo) formData.append('codigo', data.codigo);
-    if (data.nombre) formData.append('nombre', data.nombre);
-    if (data.precio !== undefined) formData.append('precio', data.precio.toString());
-    if (data.stock !== undefined) formData.append('stock', data.stock.toString());
-    if (data.descripcion) formData.append('descripcion', data.descripcion);
-    if (data.categoria) formData.append('categoria', data.categoria);
-    if (data.activo !== undefined) formData.append('activo', data.activo.toString());
-    
-    formData.append('imagen', data.imagen);
-
-    response = await axios.put<Product>(productEndpoints.update(id), formData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-  } else {
-    // Envío normal como JSON
-    response = await axios.put<Product>(productEndpoints.update(id), data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    });
+  // Convertir nombre de categoría a ID si es necesario
+  let categoriaId: number | null | undefined = undefined;
+  if (data.categoria !== undefined) {
+    if (data.categoria === null) {
+      categoriaId = null;
+    } else {
+      // Si categoria es un número, usarlo directamente
+      const parsedId = parseInt(data.categoria);
+      if (!isNaN(parsedId)) {
+        categoriaId = parsedId;
+      } else {
+        // Si es un string (nombre), buscar el ID
+        categoriaId = await getCategoriaIdByName(data.categoria, token);
+        if (categoriaId === null) {
+          throw new Error(`Categoría "${data.categoria}" no encontrada`);
+        }
+      }
+    }
   }
 
-  return response.data;
+  // Preparar datos para el backend
+  const backendData: any = {};
+  if (data.nombre !== undefined) backendData.nombre = data.nombre;
+  if (data.descripcion !== undefined) backendData.descripcion = data.descripcion || null;
+  if (data.precio !== undefined) backendData.precio = data.precio;
+  if (data.stock !== undefined) backendData.stock = data.stock;
+  if (categoriaId !== undefined) backendData.categoriaId = categoriaId;
+
+  const response = await axios.put<ProductoDTOBackend>(productEndpoints.update(id), backendData, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  });
+
+  return mapProductoFromBackend(response.data);
 }
 
 /**
@@ -155,23 +217,23 @@ export async function deleteProduct(id: number, token: string): Promise<void> {
 
 /**
  * Busca productos por termino de busqueda
+ * El backend usa /buscar con parámetro 'nombre'
  */
 export async function searchProducts(
   query: string,
   filters: ProductFilters = {},
   token: string
 ): Promise<Product[]> {
-  const response = await axios.get<Product[]>(productEndpoints.search, {
+  const response = await axios.get<ProductoDTOBackend[]>(`${productEndpoints.base}/buscar`, {
     params: {
-      q: query,
-      ...filters,
+      nombre: query,
     },
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
 
-  return response.data;
+  return response.data.map(mapProductoFromBackend);
 }
 
 /**

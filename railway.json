@@ -2,7 +2,7 @@
   "build": {
     "builder": "dockerfile",
     "dockerfilePath": "./backend/src/main/resources/Dockerfile",
-    "buildContext": "./backend"
+    "buildContext": "."
   },
   "deploy": {
     "startCommand": "java -jar -Dspring.profiles.active=prod app.jar",

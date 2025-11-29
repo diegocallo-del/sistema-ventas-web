@@ -9,9 +9,9 @@ COPY .mvn .mvn
 # Download dependencies (caching layer)
 RUN ./mvnw dependency:go-offline -B
 
-# Copy source code with correct paths from buildContext ./backend
-COPY src/main/java ./src/main/java
-COPY src/main/resources ./src/main/resources
+# Copy source code with correct paths from buildContext root (desde sistema-ventas-web/)
+COPY backend/src/main/java ./backend/src/main/java
+COPY backend/src/main/resources ./backend/src/main/resources
 
 # Build the application
 RUN ./mvnw clean package -DskipTests

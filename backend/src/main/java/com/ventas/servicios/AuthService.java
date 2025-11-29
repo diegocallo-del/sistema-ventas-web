@@ -7,6 +7,7 @@ import com.ventas.excepciones.ResourceNotFoundException;
 import com.ventas.excepciones.ValidationException;
 import com.ventas.modelos.Usuario;
 import com.ventas.repositorios.UsuarioRepository;
+import com.ventas.seguridad.UsuarioPrincipal;
 import com.ventas.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -38,29 +39,55 @@ public class AuthService {
      */
     public AuthResponseDTO login(LoginRequestDTO loginRequest) {
         try {
+            // Añadir logs detallados para debugging
+            System.out.println("=== LOGIN DEBUG ===");
+            System.out.println("Username recibido: " + loginRequest.username());
+            System.out.println("Password recibido: " + (loginRequest.password() != null ? "[OCULTO]" : "null"));
+
+            // Verificar si el usuario existe en la base de datos
+            Usuario usuarioExistente = usuarioRepository.findByEmail(loginRequest.username())
+                .orElse(null);
+            System.out.println("Usuario encontrado en BD: " + (usuarioExistente != null ? "SI" : "NO"));
+
+            if (usuarioExistente != null) {
+                System.out.println("Usuario ID: " + usuarioExistente.getId());
+                System.out.println("Usuario activo: " + usuarioExistente.isActivo());
+                System.out.println("Usuario rol: " + usuarioExistente.getRol());
+                System.out.println("Password almacenada: " + usuarioExistente.getPassword());
+            }
+
             Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                     loginRequest.username(),
                     loginRequest.password()
                 )
             );
+            System.out.println("Autenticación exitosa");
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            Usuario usuario = (Usuario) authentication.getPrincipal();
+            UsuarioPrincipal usuarioPrincipal = (UsuarioPrincipal) authentication.getPrincipal();
+            System.out.println("Usuario autenticado: " + usuarioPrincipal.getEmail());
+
+            // Obtener el usuario completo desde la base de datos
+            Usuario usuario = usuarioRepository.findByEmail(usuarioPrincipal.getEmail())
+                .orElseThrow(() -> new ValidationException("Usuario no encontrado"));
 
             String token = jwtUtil.generateToken(usuario);
+            System.out.println("Token generado exitosamente");
 
             return new AuthResponseDTO(
                 token,
                 usuario.getId(),
                 usuario.getNombre(),
-                usuario.getUsername(),
+                usuario.getEmail(), // Cambiar de getUsername() a getEmail()
                 usuario.getRol()
             );
 
         } catch (Exception e) {
-            throw new ValidationException("Credenciales inválidas");
+            System.out.println("ERROR en login: " + e.getMessage());
+            e.printStackTrace();
+            throw new ValidationException("Credenciales inválidas: " + e.getMessage());
         }
     }
 
@@ -72,18 +99,17 @@ public class AuthService {
     public AuthResponseDTO registrarUsuario(CreateUsuarioDTO createUsuario) {
         validarDatosRegistro(createUsuario);
 
-        if (usuarioRepository.existsByUsername(createUsuario.username())) {
-            throw new ValidationException("El nombre de usuario ya está en uso");
+        if (usuarioRepository.existsByEmail(createUsuario.email())) {
+            throw new ValidationException("El email ya está en uso");
         }
 
         Usuario usuario = Usuario.builder()
-                .username(createUsuario.username())
+                .email(createUsuario.username()) // Usar email como identificador
                 .password(passwordEncoder.encode(createUsuario.password()))
                 .rol(createUsuario.rol())
+                .activo(true)
                 .build();
         usuario.setNombre(createUsuario.nombre());
-        usuario.setEmail(createUsuario.email());
-        usuario.setActivo(true);
 
         Usuario usuarioGuardado = usuarioRepository.save(usuario);
 
@@ -94,7 +120,7 @@ public class AuthService {
             token,
             usuarioGuardado.getId(),
             usuarioGuardado.getNombre(),
-            usuarioGuardado.getUsername(),
+            usuarioGuardado.getEmail(), // Cambiar a getEmail()
             usuarioGuardado.getRol()
         );
     }
@@ -111,8 +137,8 @@ public class AuthService {
             throw new ValidationException("Usuario no autenticado");
         }
 
-        String username = authentication.getName();
-        return usuarioRepository.findByUsername(username)
+        String email = authentication.getName(); // Ahora el nombre es el email
+        return usuarioRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
     }
 
@@ -129,18 +155,13 @@ public class AuthService {
             throw new ValidationException("No puede actualizar el perfil de otro usuario");
         }
 
-        if (!usuarioActual.getUsername().equals(createUsuario.username()) &&
-            usuarioRepository.existsByUsername(createUsuario.username())) {
-            throw new ValidationException("El nombre de usuario ya está en uso");
-        }
-
+        // Como usamos email como identificador único, solo verificamos duplicados de email
         if (!usuarioActual.getEmail().equals(createUsuario.email()) &&
             usuarioRepository.existsByEmail(createUsuario.email())) {
             throw new ValidationException("El email ya está en uso");
         }
 
         usuarioActual.setNombre(createUsuario.nombre());
-        usuarioActual.setUsername(createUsuario.username());
         usuarioActual.setEmail(createUsuario.email());
 
         // Solo actualizar contraseña si se proporciona

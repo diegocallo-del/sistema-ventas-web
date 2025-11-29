@@ -7,17 +7,19 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/hooks/use-auth';
-import { User, Lock, Mail, AlertCircle, Eye, EyeOff, Chrome } from 'lucide-react';
+import { User, Lock, Mail, AlertCircle, Eye, EyeOff, Chrome, TestTube } from 'lucide-react';
 
 export function RegisterForm() {
   const router = useRouter();
-  const { register, loginWithGoogle } = useAuth();
+  const { register, loginWithGoogle, testConnection } = useAuth();
 
   const [formData, setFormData] = useState({
     username: '',
+    nombre: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    rol: 'VENDEDOR' // Valor por defecto
   });
 
   const [error, setError] = useState<string | null>(null);
@@ -35,8 +37,13 @@ export function RegisterForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.username || !formData.email || !formData.password || !formData.confirmPassword) {
+    if (!formData.username || !formData.nombre || !formData.email || !formData.password || !formData.confirmPassword) {
       setError('Por favor completa todos los campos');
+      return;
+    }
+
+    if (formData.password.length < 8) {
+      setError('La contraseña debe tener al menos 8 caracteres');
       return;
     }
 
@@ -49,8 +56,10 @@ export function RegisterForm() {
 
     const result = await register({
       username: formData.username,
+      nombre: formData.nombre,
       email: formData.email,
-      password: formData.password
+      password: formData.password,
+      rol: formData.rol as any
     });
 
     if (!result.success) {
@@ -110,6 +119,19 @@ export function RegisterForm() {
                 <span>{error}</span>
               </div>
             )}
+
+            {/* Nombre */}
+            <div className="relative">
+              <User className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
+              <Input
+                type="text"
+                name="nombre"
+                value={formData.nombre}
+                onChange={handleChange}
+                placeholder="Nombre completo"
+                className="pl-12 pr-12"
+              />
+            </div>
 
             {/* Usuario */}
             <div className="relative">
@@ -188,6 +210,25 @@ export function RegisterForm() {
                 transition-all duration-300 hover:scale-105"
             >
               Registrarse
+            </Button>
+
+            {/* Botón de prueba CORS */}
+            <Button
+              type="button"
+              onClick={async () => {
+                const result = await testConnection();
+                setError(result.success
+                  ? `✅ Comunicación exitosa: ${result.error?.substring(0, 100)}...`
+                  : `❌ Error CORS: ${result.error}`
+                );
+              }}
+              className="w-full py-2 rounded-xl text-white font-medium text-sm
+                bg-green-600/40 hover:bg-green-600/50 border border-green-400/30
+                shadow-[0_0_10px_rgba(34,197,94,0.2)] hover:shadow-[0_0_15px_rgba(34,197,94,0.3)]
+                transition-all duration-300"
+            >
+              <TestTube className="w-4 h-4 mr-2" />
+              Testear Comunicación CORS
             </Button>
 
             <div className="flex items-center my-4">

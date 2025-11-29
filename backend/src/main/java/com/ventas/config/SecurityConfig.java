@@ -2,6 +2,7 @@
 package com.ventas.config;
 
 import com.ventas.seguridad.JwtAuthFilter;
+import com.ventas.seguridad.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,6 +12,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -28,7 +30,7 @@ import java.util.Arrays;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Value("${cors.allowed-origins}")
+    @Value("${cors.allowed-origins:http://localhost:3000}")
     private String allowedOrigins;
 
     private final JwtAuthFilter jwtAuthFilter;
@@ -40,25 +42,31 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            // 1. Agrega el filtro JWT antes del filtro de autenticación de usuario/contraseña
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-
-            // 2. Usa la configuración de CORS definida en el bean corsConfigurationSource()
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-
-            // 3. Deshabilita CSRF (Cross-Site Request Forgery)
+            // 1. Primero deshabilita CSRF - IMPORTANTE HACERLO ANTES
             .csrf(csrf -> csrf.disable())
 
-            // 4. Define las reglas de autorización para las peticiones HTTP.
-            .authorizeHttpRequests(authz -> authz
-                // Rutas públicas (no requieren autenticación)
-                .requestMatchers("/api/auth/login", "/api/auth/register").permitAll()
-                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                .requestMatchers("/actuator/health").permitAll()
+            // 2. Configura CORS antes que cualquier otra cosa
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
-                // Todas las otras rutas requieren autenticación
+            // 3. Rutas públicas - especificar UNA POR UNA para asegurar prioridad
+            .authorizeHttpRequests(authz -> authz
+                // Permitir endpoints específicos PRIMERO
+                .requestMatchers("/actuator/health").permitAll()
+                .requestMatchers("/actuator/**").permitAll()
+                .requestMatchers("/api/auth/login").permitAll()
+                .requestMatchers("/api/auth/register").permitAll()
+                .requestMatchers("/api/auth/test").permitAll() // NUEVO
+                .requestMatchers("/api/auth/bootstrap").permitAll() // TEMPORAL PARA CREAR PRIMER USUARIO
+                .requestMatchers("/api/auth/fix-passwords").permitAll() // TEMPORAL PARA RECODIFICAR CONTRASEÑAS
+                .requestMatchers("/swagger-ui/**").permitAll()
+                .requestMatchers("/v3/api-docs/**").permitAll()
+
+                // TODAS LAS DEMÁS rutas requieren autenticación
                 .anyRequest().authenticated()
             )
+
+            // 4. Agregamos el filtro JWT DESPUÉS de configurar las rutas
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
 
             // 5. Configura el manejo de sesiones para que sea SIN ESTADO (stateless).
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
@@ -69,33 +77,48 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        
-        // Lee los orígenes permitidos desde application.properties y los configura
-        configuration.setAllowedOrigins(Arrays.asList(allowedOrigins.split(",")));
-        
-        // Permite los métodos HTTP más comunes
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        
-        // Permite todas las cabeceras
+
+        // CONFIGURACIÓN RADICAL PARA DESARROLLO: Permitir TODO
+        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
+
+        // TODOS los métodos HTTP
+        configuration.setAllowedMethods(Arrays.asList(
+            "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD", "TRACE"
+        ));
+
+        // TODAS las cabeceras
         configuration.setAllowedHeaders(Arrays.asList("*"));
-        
-        // Permite el envío de credenciales (como cookies)
-        configuration.setAllowCredentials(true);
-        
+
+        // NO requerir credenciales (para evitar problemas de preflight)
+        configuration.setAllowCredentials(false);
+
+        // Headers expuestos
+        configuration.setExposedHeaders(Arrays.asList(
+            "Access-Control-Allow-Origin",
+            "Access-Control-Allow-Credentials",
+            "Access-Control-Allow-Methods",
+            "Access-Control-Allow-Headers"
+        ));
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        // Aplica esta configuración a todas las rutas de la API
-        source.registerCorsConfiguration("/**", configuration);
-        
+
+        // Configuración específica para endpoints públicos
+        source.registerCorsConfiguration("/api/auth/**", configuration);
+        source.registerCorsConfiguration("/actuator/**", configuration);
+        source.registerCorsConfiguration("/api/**", configuration); // Configuración permisiva para toda la API
+        source.registerCorsConfiguration("/**", configuration); // Backup para todo
+
         return source;
     }
 
     /**
-     * Configura el codificador de contraseñas para usar BCrypt.
-     * @return PasswordEncoder con algoritmo BCrypt
+     * Configura el codificador de contraseñas - NO ENCODER PARA DESARROLLO.
+     * @return PasswordEncoder sin encriptación (desarrollo únicamente)
      */
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        // Para desarrollo simple - NO usar en producción
+        return org.springframework.security.crypto.password.NoOpPasswordEncoder.getInstance();
     }
 
     /**

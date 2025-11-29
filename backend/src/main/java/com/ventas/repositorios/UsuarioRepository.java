@@ -14,27 +14,12 @@ import java.util.Optional;
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
     /**
-     * Busca usuario por nombre de usuario (username).
+     * Busca usuario por email (usado como identificador único).
      * Utilizado principalmente para la autenticación.
-     * @param username El nombre de usuario único
-     * @return Optional del usuario si existe
-     */
-    Optional<Usuario> findByUsername(String username);
-
-    /**
-     * Busca usuario por email.
-     * Los emails deben ser únicos en el sistema.
-     * @param email El email del usuario
+     * @param email El email del usuario (identificador único)
      * @return Optional del usuario si existe
      */
     Optional<Usuario> findByEmail(String email);
-
-    /**
-     * Verifica si existe un usuario con el nombre de usuario especificado.
-     * @param username El nombre de usuario a verificar
-     * @return true si el usuario existe, false en caso contrario
-     */
-    boolean existsByUsername(String username);
 
     /**
      * Verifica si existe un usuario con el email especificado.

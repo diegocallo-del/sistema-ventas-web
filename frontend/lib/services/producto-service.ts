@@ -4,6 +4,7 @@
  */
 
 import axios from 'axios';
+import { api } from '../api';
 import { productEndpoints } from '../config/endpoints';
 import {
   Product,

@@ -5,13 +5,14 @@ import { env } from './env';
  * Mantiene todas las URLs de API en un solo lugar
  */
 
-const API_BASE = `${env.apiUrl}/api/v1`;
+const API_BASE = `${env.apiUrl}/api`;
 
 /**
  * Endpoints de autenticacion
  */
 export const authEndpoints = {
   login: `${API_BASE}/auth/login`,
+  register: `${API_BASE}/auth/register`,
   logout: `${API_BASE}/auth/logout`,
   refresh: `${API_BASE}/auth/refresh`,
   me: `${API_BASE}/auth/me`,

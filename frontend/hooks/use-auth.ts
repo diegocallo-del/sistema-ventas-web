@@ -2,19 +2,23 @@
 
 import { useEffect } from 'react';
 import axios from 'axios';
+import { api } from '@/lib/api';
 import { signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider } from '@/lib/config/firebase';
 import { User, LoginCredentials, UserRole } from '../lib/types/usuario';
 import { useAuthStore } from '@/store/auth-store';
 import { Permission } from '@/lib/roles/role-types';
 import { hasPermission as checkPermission } from '@/lib/roles/role-checker';
-import { loginTestUser, debugUsers } from '@/lib/config/test-users';
+import { debugUsers } from '@/lib/config/test-users';
 import { authEndpoints, userEndpoints } from '@/lib/config/endpoints';
+import { env } from '@/lib/config/env';
 
 type RegisterPayload = {
   username: string;
+  nombre: string;
   email: string;
   password: string;
+  rol: UserRole;
 };
 
 type RegisterResult = {
@@ -43,43 +47,60 @@ export function useAuth() {
   // =============================
   // 🚀 LOGIN
   // =============================
-  async function login(credentials: LoginCredentials) {
-    console.log('🔐 Intentando login...', credentials);
+  async function login(credentials: LoginCredentials | { email: string; password: string }) {
+    console.log('🔐 Intentando login con backend...', credentials);
 
-    // Primero intentar con usuarios de test
-    const testUser = loginTestUser(credentials);
-    if (testUser) {
-      console.log('✅ Usuario de test encontrado:', testUser.username);
-
-      // Crear tokens fake para compatibilidad
-      const token = `test-token-${testUser.id}-${Date.now()}`;
-      const refreshToken = `test-refresh-${testUser.id}-${Date.now()}`;
-
-      storeLogin(testUser, token, refreshToken);
-
-      return { success: true, user: testUser };
-    }
-
-    // Si no es usuario de test, intentar con backend
-    console.log('🔄 No es usuario de test, intentando con backend...');
     try {
-      const response = await axios.post(authEndpoints.login, credentials);
+      // Preparar datos para enviar al backend
+      const loginData = {
+        username: 'email' in credentials ? credentials.email : credentials.username,
+        password: credentials.password,
+      };
 
-      if (response.data.success) {
-        console.log(' Usuario autenticado:', response.data.user.username);
+      console.log('📤 Enviando al backend:', loginData);
+
+      // Enviar credenciales de login al backend SIN INTERCEPTOR (evita 403)
+      const response = await axios.post(authEndpoints.login, loginData, {
+        baseURL: undefined, // Reset baseURL para usar URL completa
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          // NO incluir Authorization header para endpoint público
+        },
+        withCredentials: false, // Importante: deshabilitar credenciales para CORS
+        timeout: 15000, // 15 segundos timeout
+      });
+      console.log('📡 Respuesta del backend:', response);
+
+      if (response.data && response.data.token) {
+        console.log('✅ Usuario autenticado:', response.data.username);
+
+      // Crear objeto de usuario desde respuesta del backend
+        const usernameUsed = 'email' in credentials ? credentials.email : credentials.username;
+        const user = {
+          id: response.data.id,
+          username: usernameUsed, // El username original usado para login
+          email: response.data.username, // El backend retorna username pero es el email
+          nombre: response.data.nombre,
+          apellido: '', // No viene del backend, dejar vacío
+          rol: response.data.rol.toLowerCase() as UserRole, // Convertir a minúsculas para coincidir con enum
+          activo: true,
+          fecha_creacion: new Date().toISOString(),
+          ultimo_acceso: new Date().toISOString(),
+        };
 
         const token = response.data.token;
-        const refreshToken = response.data.refreshToken || '';
+        const refreshToken = ''; // El backend no retorna refresh token por ahora
 
-        storeLogin(response.data.user, token, refreshToken);
+        storeLogin(user, token, refreshToken);
 
-        return { success: true, user: response.data.user };
+        return { success: true, user };
       } else {
-        console.warn('❌ Credenciales incorrectas');
+        console.warn('❌ Respuesta inválida del backend');
         clearLoading();
         return {
           success: false,
-          error: response.data.message || 'Usuario o contraseña incorrectos',
+          error: 'Respuesta inválida del servidor',
         };
       }
     } catch (error) {
@@ -94,6 +115,11 @@ export function useAuth() {
 
         if (typeof responseMessage === 'string') {
           message = responseMessage;
+        }
+
+        // Si es error 401/403, credenciales incorrectas
+        if (error.response?.status === 401 || error.response?.status === 403) {
+          message = 'Usuario o contraseña incorrectos';
         }
       }
 
@@ -152,27 +178,66 @@ export function useAuth() {
     console.log('📝 Intentando registro...', data);
 
     try {
-      await axios.post(userEndpoints.create, data);
+      // Para registro público, usar configuración específica sin interceptores
+      const response = await axios.post(authEndpoints.register, data, {
+        baseURL: undefined, // Reset baseURL para usar URL completa
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          // NO incluir Authorization header para endpoint público
+        },
+        withCredentials: false, // Importante: deshabilitar credenciales para CORS
+        timeout: 15000, // 15 segundos timeout
+      });
 
+      console.log('✅ Registro exitoso:', response.data);
       return { success: true };
     } catch (error) {
       console.error('💥 Error en registro:', error);
 
       let message = 'Error al registrarse';
+      let statusCode = 0;
 
       if (axios.isAxiosError(error)) {
+        statusCode = error.response?.status || 0;
         const responseData = error.response?.data as any;
-        const responseMessage =
-          responseData?.message ?? responseData?.error ?? responseData?.detail;
 
-        if (typeof responseMessage === 'string') {
-          message = responseMessage;
+        console.error('📋 Detalles del error:', {
+          status: statusCode,
+          statusText: error.response?.statusText,
+          data: responseData,
+          headers: error.response?.headers,
+        });
+
+        // Determinar mensaje específico por código de error
+        switch (statusCode) {
+          case 400:
+            message = responseData?.message || 'Datos inválidos. Verifica la información.';
+            break;
+          case 403:
+            message = 'Acceso denegado. Verifica la configuración de seguridad.';
+            break;
+          case 409:
+            message = responseData?.message || 'Ya existe un usuario con estos datos.';
+            break;
+          case 500:
+            message = 'Error del servidor. Inténtalo más tarde.';
+            break;
+          case 0:
+            message = 'No se pudo conectar con el servidor. Verifica tu conexión.';
+            break;
+          default:
+            const responseMessage =
+              responseData?.message ?? responseData?.error ?? responseData?.detail;
+            message = typeof responseMessage === 'string' ? responseMessage : 'Error desconocido';
         }
+      } else if (error instanceof Error) {
+        message = error.message;
       }
 
       return {
         success: false,
-        error: message,
+        error: `${message} (Código: ${statusCode})`,
       };
     }
   }
@@ -198,6 +263,69 @@ export function useAuth() {
   // =============================
   // 📦 RETORNO DEL HOOK
   // =============================
+  // =============================
+  // 🧪 FUNCTION DE TEST PARA VERIFICAR COMUNICACIÓN
+  // =============================
+  async function testConnection(): Promise<RegisterResult> {
+    console.log('🧪 Probando comunicación con backend...');
+    const testData = { test: true, timestamp: Date.now() };
+
+    try {
+      // Para registro público, usar configuración específica sin interceptores
+      const response = await axios.post(`${env.apiUrl}/auth/test`, testData, {
+        baseURL: undefined, // Reset baseURL para usar URL completa
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          // NO incluir Authorization header para endpoint público
+        },
+        withCredentials: false, // Importante: deshabilitar credenciales para CORS
+        timeout: 10000, // 10 segundos timeout
+      });
+
+      console.log('✅ Test exitoso:', response.data);
+      return { success: true, error: JSON.stringify(response.data) };
+    } catch (error) {
+      console.error('💥 Error en test de conexión:', error);
+
+      let message = 'Error de conexión';
+      let statusCode = 0;
+
+      if (axios.isAxiosError(error)) {
+        statusCode = error.response?.status || 0;
+        const responseData = error.response?.data as any;
+
+        console.error('📋 Detalles del error de test:', {
+          status: statusCode,
+          statusText: error.response?.statusText,
+          data: responseData,
+          headers: error.response?.headers,
+        });
+
+        // Determinar mensaje específico por código de error
+        switch (statusCode) {
+          case 403:
+            message = '🚫 CORS/Security blocking - Axios setup needed';
+            break;
+          case 0:
+            message = '💔 No network connection to backend';
+            break;
+          default:
+            const responseMessage =
+              responseData?.message ?? responseData?.error ?? responseData?.detail;
+            message = typeof responseMessage === 'string' ? responseMessage : 'Backend communication error';
+        }
+      } else if (error instanceof Error) {
+        message = error.message;
+      }
+
+      return {
+        success: false,
+        error: `${message} (HTTP ${statusCode})`,
+      };
+    }
+  }
+
   return {
     user,
     isAuthenticated,
@@ -207,5 +335,7 @@ export function useAuth() {
     register,
     logout,
     hasPermission,
+    // Función de debug para verificar comunicación
+    testConnection,
   };
 }

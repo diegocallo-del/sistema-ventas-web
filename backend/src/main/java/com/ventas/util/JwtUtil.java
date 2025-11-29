@@ -157,9 +157,9 @@ public class JwtUtil {
      */
     private String extractUsernameFromUser(Object userDetails) {
         // Para este ejemplo simple, asumo que es un objeto Usuario o similar
-        // En implementación real, debe accederse correctamente al username
+        // En implementación real, debe accederse correctamente al username/email
         if (userDetails instanceof com.ventas.modelos.Usuario usuario) {
-            return usuario.getUsername();
+            return usuario.getEmail(); // Cambiar a getEmail()
         }
         return "user";
     }

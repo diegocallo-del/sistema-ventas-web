@@ -95,7 +95,7 @@ async function tryRefreshToken(): Promise<boolean> {
     const refreshToken = localStorage.getItem('refresh_token');
     if (!refreshToken) return false;
 
-    const response = await axios.post(`${env.apiUrl}/api/v1/auth/refresh`, { refresh_token: refreshToken });
+    const response = await axios.post(`${env.apiUrl}/auth/refresh`, { refresh_token: refreshToken });
 
     const { access_token, refresh_token: newRefreshToken } = response.data;
     localStorage.setItem('auth_token', access_token);

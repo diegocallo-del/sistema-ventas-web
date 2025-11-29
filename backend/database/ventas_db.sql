@@ -2,14 +2,17 @@
 -- Base de datos: MySQL 8.0+
 -- Ejecutar este script para crear la estructura completa
 
--- Eliminar la base de datos si existe
-DROP DATABASE IF EXISTS ventas_db;
+-- Crear y usar la base de datos sistema_ventas_db (para MySQL Workbench local)
+CREATE DATABASE IF NOT EXISTS sistema_ventas_db;
+USE sistema_ventas_db;
 
--- Crear la base de datos
-CREATE DATABASE ventas_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- Usar la base de datos
-USE ventas_db;
+-- Limpiar tablas existentes
+DROP TABLE IF EXISTS detalle_venta;
+DROP TABLE IF EXISTS ventas;
+DROP TABLE IF EXISTS productos;
+DROP TABLE IF EXISTS clientes;
+DROP TABLE IF EXISTS usuarios;
+DROP TABLE IF EXISTS categorias;
 
 -- Eliminar tablas en orden inverso para evitar problemas de claves foráneas
 DROP TABLE IF EXISTS detalle_venta;
@@ -158,11 +161,11 @@ INSERT INTO categorias (nombre, descripcion, activo) VALUES
 ('Hogar', 'Artículos para el hogar y decoración', 1),
 ('Deportes', 'Equipamiento y accesorios deportivos', 1);
 
--- Insertar usuarios
+-- Insertar usuarios - CONTRASEÑAS FUNCIONALES
 INSERT INTO usuarios (nombre, email, password, rol, activo) VALUES
-('Administrador', 'admin@sistema-ventas.com', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lBdP9Z9Lh9q9F5lQK', 'ADMIN', 1),
-('Juan Pérez', 'juan@vendedor.com', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lBdP9Z9Lh9q9F5lQK', 'VENDEDOR', 1),
-('Ana García', 'ana@vendedor.com', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lBdP9Z9Lh9q9F5lQK', 'VENDEDOR', 1);
+('Administrador', 'admin@sistema-ventas.com', 'admin123', 'ADMIN', 1),
+('Juan Pérez', 'juan@vendedor.com', 'vendedor123', 'VENDEDOR', 1),
+('Ana García', 'ana@vendedor.com', 'vendedor123', 'VENDEDOR', 1);
 
 -- Insertar clientes
 INSERT INTO clientes (nombre, email, telefono, tipo_documento, numero_documento, activo, creado_por) VALUES

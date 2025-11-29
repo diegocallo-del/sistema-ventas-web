@@ -62,7 +62,11 @@ public class ProductoService {
         Categoria categoria = categoriaRepository.findById(createDTO.categoriaId())
                 .orElseThrow(() -> new ValidationException("La categoría especificada no existe"));
 
+        // Generar código automáticamente
+        String codigo = generarCodigoProducto(createDTO.nombre());
+
         Producto producto = Producto.builder()
+                .codigo(codigo)
                 .nombre(createDTO.nombre())
                 .descripcion(createDTO.descripcion())
                 .precio(createDTO.precio())
@@ -178,12 +182,29 @@ public class ProductoService {
     private ProductoDTO convertirADTO(Producto producto) {
         return new ProductoDTO(
                 producto.getId(),
+                producto.getCodigo(),
                 producto.getNombre(),
                 producto.getDescripcion(),
                 producto.getPrecio(),
                 producto.getStock(),
                 producto.getCategoria() != null ? producto.getCategoria().getId() : null,
-                producto.getCategoria() != null ? producto.getCategoria().getNombre() : null
+                producto.getCategoria() != null ? producto.getCategoria().getNombre() : null,
+                null, // imagen - por ahora null ya que no está implementada en el modelo
+                producto.isActivo(),
+                producto.getFechaCreacion(),
+                producto.getFechaModificacion()
         );
+    }
+
+    /**
+     * Genera un código único para el producto basado en su nombre.
+     * Formula: PRIMERA_LETRA_MAYUSCULA + (N+1) donde N es el total de productos actuales
+     * @param nombre Nombre del producto
+     * @return Código generado
+     */
+    private String generarCodigoProducto(String nombre) {
+        String primeraLetra = nombre.substring(0, 1).toUpperCase();
+        long cantidadProductos = productoRepository.count();
+        return primeraLetra + String.format("%03d", cantidadProductos + 1);
     }
 }

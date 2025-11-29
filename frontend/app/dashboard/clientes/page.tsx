@@ -14,7 +14,7 @@ import {
 } from '@/lib/services/cliente-service';
 
 export default function ClientesPage() {
-  const { token } = useAuthStore();
+  const { token, isAuthenticated } = useAuthStore();
 
   const [clientes, setClientes] = useState<Client[]>([]);
   const [loadingLista, setLoadingLista] = useState(false);
@@ -27,7 +27,7 @@ export default function ClientesPage() {
 
   // ----------------------- Carga la lista de clientes -----------------------
   async function cargarClientes() {
-    if (!token) return;
+    if (!token || !isAuthenticated) return;
 
     setLoadingLista(true);
     setError(null);
@@ -44,9 +44,11 @@ export default function ClientesPage() {
   }
 
   useEffect(() => {
-    void cargarClientes();
+    if (isAuthenticated && token) {
+      void cargarClientes();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token]);
+  }, [isAuthenticated, token]);
 
   // ----------------------- Acciones de formulario -----------------------
   function handleNuevoCliente() {

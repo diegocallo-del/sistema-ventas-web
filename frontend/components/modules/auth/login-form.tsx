@@ -13,7 +13,7 @@ export function LoginForm() {
   const router = useRouter();
   const { login, loginWithGoogle } = useAuth();
 
-  const [formData, setFormData] = useState({ username: '', password: '' });
+  const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -28,13 +28,13 @@ export function LoginForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.username || !formData.password) {
+    if (!formData.email || !formData.password) {
       setError('Por favor completa todos los campos');
       return;
     }
 
     setIsLoading(true);
-    const result = await login(formData);
+    const result = await login({ username: formData.email, password: formData.password });
 
     if (!result.success) {
       setError(result.error || 'Error al iniciar sesión');
@@ -94,15 +94,15 @@ export function LoginForm() {
               </div>
             )}
 
-            {/* Usuario */}
+            {/* Email */}
             <div className="relative">
               <User className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
               <Input
-                type="text"
-                name="username"
-                value={formData.username}
+                type="email"
+                name="email"
+                value={formData.email}
                 onChange={handleChange}
-                placeholder="Usuario"
+                placeholder="Email"
                 className="pl-12 bg-slate-800/50 text-white placeholder-slate-400
                   border border-blue-400/30 rounded-xl
                   focus:ring-2 focus:ring-blue-400/50 focus:border-blue-400/50 w-full"

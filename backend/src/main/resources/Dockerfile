@@ -2,9 +2,9 @@
 FROM eclipse-temurin:21-jdk-alpine AS build
 WORKDIR /app
 
-# Copy Maven wrapper and pom.xml
-COPY mvnw pom.xml ./
-COPY .mvn .mvn
+# Copy Maven wrapper and pom.xml from backend directory
+COPY backend/mvnw backend/pom.xml ./
+COPY backend/.mvn ./.mvn
 
 # Download dependencies (caching layer)
 RUN ./mvnw dependency:go-offline -B

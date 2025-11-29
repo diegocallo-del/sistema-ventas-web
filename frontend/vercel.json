@@ -3,19 +3,6 @@
   "devCommand": "npm run dev",
   "installCommand": "npm install",
   "framework": "nextjs",
-  "build": {
-    "env": {
-      "NEXT_PUBLIC_API_URL": "@next_public_api_url"
-    }
-  },
-  "env": {
-    "NEXT_PUBLIC_API_URL": "http://localhost:8080"
-  },
-  "functions": {
-    "pages/api/**/*.js": {
-      "maxDuration": 30
-    }
-  },
   "regions": ["iad1"],
   "redirects": [
     {

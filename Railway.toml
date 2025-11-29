@@ -1,10 +1,10 @@
 [build]
 builder = "dockerfile"
-buildContext = "."
-dockerfilePath = "./backend/Dockerfile"
+buildContext = "backend"
+dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = "java -jar app.jar"
+startCommand = "java -jar app.jar -Dspring.profiles.active=prod"
 healthcheckPath = "/actuator/health"
 healthcheckTimeout = 300
 restartPolicyType = "ON_FAILURE"

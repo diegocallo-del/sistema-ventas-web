@@ -12,7 +12,7 @@ CREATE DATABASE ventas_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE ventas_db;
 
 -- Eliminar tablas en orden inverso para evitar problemas de claves foráneas
-DROP TABLE IF EXISTS detalle_ventas;
+DROP TABLE IF EXISTS detalle_venta;
 DROP TABLE IF EXISTS ventas;
 DROP TABLE IF EXISTS productos;
 DROP TABLE IF EXISTS clientes;
@@ -116,7 +116,7 @@ CREATE TABLE ventas (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Crear tabla de detalle de ventas
-CREATE TABLE detalle_ventas (
+CREATE TABLE detalle_venta (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     venta_id BIGINT NOT NULL,
     producto_id BIGINT NOT NULL,
@@ -124,7 +124,9 @@ CREATE TABLE detalle_ventas (
     precio_unitario DECIMAL(10,2) NOT NULL,
     subtotal DECIMAL(10,2) NOT NULL,
     descuento DECIMAL(10,2) DEFAULT 0.00,
-    fecha_creacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    fecha_creacion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    fecha_modificacion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    activo TINYINT(1) NOT NULL DEFAULT 1,
     FOREIGN KEY (venta_id) REFERENCES ventas(id) ON DELETE CASCADE,
     FOREIGN KEY (producto_id) REFERENCES productos(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -143,8 +145,9 @@ CREATE INDEX idx_ventas_cliente_id ON ventas(cliente_id);
 CREATE INDEX idx_ventas_usuario_id ON ventas(usuario_id);
 CREATE INDEX idx_ventas_fecha_venta ON ventas(fecha_venta);
 CREATE INDEX idx_ventas_estado ON ventas(estado);
-CREATE INDEX idx_detalle_ventas_venta_id ON detalle_ventas(venta_id);
-CREATE INDEX idx_detalle_ventas_producto_id ON detalle_ventas(producto_id);
+CREATE INDEX idx_detalle_venta_venta_id ON detalle_venta(venta_id);
+CREATE INDEX idx_detalle_venta_producto_id ON detalle_venta(producto_id);
+CREATE INDEX idx_detalle_venta_activo ON detalle_venta(activo);
 
 -- Datos de ejemplo
 -- Insertar categorías
@@ -180,9 +183,9 @@ INSERT INTO ventas (cliente_id, usuario_id, fecha_venta, total, estado, metodo_p
 (2, 2, NOW(), 2580.00, 'COMPLETADA', 'EFECTIVO', 2);
 
 -- Insertar detalle de la venta
-INSERT INTO detalle_ventas (venta_id, producto_id, cantidad, precio_unitario, subtotal) VALUES
-(1, 1, 1, 2500.00, 2500.00),
-(1, 5, 2, 35.00, 70.00);
+INSERT INTO detalle_venta (venta_id, producto_id, cantidad, precio_unitario, subtotal, activo) VALUES
+(1, 1, 1, 2500.00, 2500.00, 1),
+(1, 5, 2, 35.00, 70.00, 1);
 
 -- Crear vistas útiles (opcional)
 CREATE VIEW vista_ventas_resumen AS
@@ -224,7 +227,7 @@ CREATE PROCEDURE sp_actualizar_stock(
 )
 BEGIN
     UPDATE productos p
-    INNER JOIN detalle_ventas dv ON p.id = dv.producto_id
+    INNER JOIN detalle_venta dv ON p.id = dv.producto_id
     SET p.stock = p.stock - dv.cantidad
     WHERE dv.venta_id = p_venta_id;
 END //
@@ -236,7 +239,7 @@ BEGIN
     UPDATE ventas v
     SET v.total = (
         SELECT SUM(dv.subtotal - dv.descuento)
-        FROM detalle_ventas dv
+        FROM detalle_venta dv
         WHERE dv.venta_id = p_venta_id
     )
     WHERE v.id = p_venta_id;

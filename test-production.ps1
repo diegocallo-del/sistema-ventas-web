@@ -18,13 +18,19 @@ function Test-Endpoint {
         }
     } catch {
         $errorMessage = $_.Exception.Message
-        if ($errorMessage -like "*Application not found*") {
-            Write-Host "❌ $description - APLICACIÓN NO ENCONTRADA" -ForegroundColor Red
-            Write-Host "   La aplicación aún no está desplegada en Railway" -ForegroundColor Red
-        } elseif ($errorMessage -like "*timed out*") {
-            Write-Host "⏱️  $description - Timeout (posiblemente desplegando)" -ForegroundColor Yellow
-        } else {
-            Write-Host "❌ $description - Error: $errorMessage" -ForegroundColor Red
+        switch {
+            ($errorMessage -like "*Application not found*") {
+                Write-Host "❌ $description - APLICACIÓN NO ENCONTRADA" -ForegroundColor Red
+                Write-Host "   La aplicación aún no está desplegada en Railway" -ForegroundColor Red
+                break
+            }
+            ($errorMessage -like "*timed out*") {
+                Write-Host "⏱️  $description - Timeout (posiblemente desplegando)" -ForegroundColor Yellow
+                break
+            }
+            default {
+                Write-Host "❌ $description - Error: $errorMessage" -ForegroundColor Red
+            }
         }
     }
     Write-Host ""
@@ -72,5 +78,7 @@ if ($healthCheck -and $healthCheck.StatusCode -eq 200) {
     Write-Host "- Confirma que el Dockerfile funciona (railway run docker build -t test .)" -ForegroundColor White
 }
 
+Write-Host ""
+Write-Host "Ejecuta este script nuevamente: .\test-production.ps1" -ForegroundColor Gray
 Write-Host ""
 Write-Host "Ejecuta este script nuevamente: .\test-production.ps1" -ForegroundColor Gray

@@ -1,7 +1,7 @@
 [build]
 builder = "dockerfile"
 buildContext = "./backend"
-dockerfilePath = "./backend/Dockerfile"
+dockerfilePath = "./Dockerfile"
 
 [deploy]
 startCommand = "java -jar app.jar -Dspring.profiles.active=prod"

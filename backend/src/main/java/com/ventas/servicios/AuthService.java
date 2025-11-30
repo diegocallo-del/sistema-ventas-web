@@ -7,14 +7,7 @@ import com.ventas.excepciones.ResourceNotFoundException;
 import com.ventas.excepciones.ValidationException;
 import com.ventas.modelos.Usuario;
 import com.ventas.repositorios.UsuarioRepository;
-import com.ventas.seguridad.UsuarioPrincipal;
-import com.ventas.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,9 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthService {
 
     private final UsuarioRepository usuarioRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final AuthenticationManager authenticationManager;
-    private final JwtUtil jwtUtil;
 
     /**
      * Realiza el proceso de login y genera un token JWT.
@@ -38,57 +28,26 @@ public class AuthService {
      * @return Respuesta con token JWT y información del usuario
      */
     public AuthResponseDTO login(LoginRequestDTO loginRequest) {
-        try {
-            // Añadir logs detallados para debugging
-            System.out.println("=== LOGIN DEBUG ===");
-            System.out.println("Username recibido: " + loginRequest.username());
-            System.out.println("Password recibido: " + (loginRequest.password() != null ? "[OCULTO]" : "null"));
+        Usuario usuario = usuarioRepository.findByEmail(loginRequest.username())
+            .orElseThrow(() -> new ValidationException("Usuario no encontrado"));
 
-            // Verificar si el usuario existe en la base de datos
-            Usuario usuarioExistente = usuarioRepository.findByEmail(loginRequest.username())
-                .orElse(null);
-            System.out.println("Usuario encontrado en BD: " + (usuarioExistente != null ? "SI" : "NO"));
-
-            if (usuarioExistente != null) {
-                System.out.println("Usuario ID: " + usuarioExistente.getId());
-                System.out.println("Usuario activo: " + usuarioExistente.isActivo());
-                System.out.println("Usuario rol: " + usuarioExistente.getRol());
-                System.out.println("Password almacenada: " + usuarioExistente.getPassword());
-            }
-
-            Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                    loginRequest.username(),
-                    loginRequest.password()
-                )
-            );
-            System.out.println("Autenticación exitosa");
-
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-
-            UsuarioPrincipal usuarioPrincipal = (UsuarioPrincipal) authentication.getPrincipal();
-            System.out.println("Usuario autenticado: " + usuarioPrincipal.getEmail());
-
-            // Obtener el usuario completo desde la base de datos
-            Usuario usuario = usuarioRepository.findByEmail(usuarioPrincipal.getEmail())
-                .orElseThrow(() -> new ValidationException("Usuario no encontrado"));
-
-            String token = jwtUtil.generateToken(usuario);
-            System.out.println("Token generado exitosamente");
-
-            return new AuthResponseDTO(
-                token,
-                usuario.getId(),
-                usuario.getNombre(),
-                usuario.getEmail(), // Cambiar de getUsername() a getEmail()
-                usuario.getRol()
-            );
-
-        } catch (Exception e) {
-            System.out.println("ERROR en login: " + e.getMessage());
-            e.printStackTrace();
-            throw new ValidationException("Credenciales inválidas: " + e.getMessage());
+        if (!usuario.isActivo()) {
+            throw new ValidationException("Usuario inactivo");
         }
+
+        // Comparación simple de contraseñas sin encriptar para desarrollo local
+        if (!usuario.getPassword().equals(loginRequest.password())) {
+            throw new ValidationException("Contraseña incorrecta");
+        }
+
+        // Retornar respuesta sin token JWT
+        return new AuthResponseDTO(
+            "no-token", // Sin token para desarrollo local
+            usuario.getId(),
+            usuario.getNombre(),
+            usuario.getEmail(),
+            usuario.getRol()
+        );
     }
 
     /**
@@ -104,8 +63,8 @@ public class AuthService {
         }
 
         Usuario usuario = Usuario.builder()
-                .email(createUsuario.username()) // Usar email como identificador
-                .password(passwordEncoder.encode(createUsuario.password()))
+                .email(createUsuario.username())
+                .password(createUsuario.password()) // Sin encriptar para desarrollo local
                 .rol(createUsuario.rol())
                 .activo(true)
                 .build();
@@ -113,14 +72,12 @@ public class AuthService {
 
         Usuario usuarioGuardado = usuarioRepository.save(usuario);
 
-        // Generar token automáticamente después del registro
-        String token = jwtUtil.generateToken(usuarioGuardado);
-
+        // Retornar respuesta sin token JWT
         return new AuthResponseDTO(
-            token,
+            "no-token", // Sin token para desarrollo local
             usuarioGuardado.getId(),
             usuarioGuardado.getNombre(),
-            usuarioGuardado.getEmail(), // Cambiar a getEmail()
+            usuarioGuardado.getEmail(),
             usuarioGuardado.getRol()
         );
     }
@@ -131,14 +88,8 @@ public class AuthService {
      */
     @Transactional(readOnly = true)
     public Usuario obtenerUsuarioActual() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new ValidationException("Usuario no autenticado");
-        }
-
-        String email = authentication.getName(); // Ahora el nombre es el email
-        return usuarioRepository.findByEmail(email)
+        // Para desarrollo local, retornar usuario admin por defecto
+        return usuarioRepository.findByEmail("admin@sistema-ventas.com")
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
     }
 
@@ -166,7 +117,7 @@ public class AuthService {
 
         // Solo actualizar contraseña si se proporciona
         if (createUsuario.password() != null && !createUsuario.password().trim().isEmpty()) {
-            usuarioActual.setPassword(passwordEncoder.encode(createUsuario.password()));
+            usuarioActual.setPassword(createUsuario.password()); // Sin encriptar para desarrollo local
         }
 
         return usuarioRepository.save(usuarioActual);
@@ -177,8 +128,7 @@ public class AuthService {
      * @return Nuevo token generado
      */
     public String refrescarToken() {
-        Usuario usuario = obtenerUsuarioActual();
-        return jwtUtil.generateToken(usuario);
+        return "no-token"; // Sin token para desarrollo local
     }
 
     /**

@@ -21,12 +21,10 @@ import { useAuth } from "@/hooks/use-auth";
 import { UserRole } from "@/lib/types/usuario";
 import { CreateProductData, UpdateProductData, Product } from "@/lib/types";
 import { createProduct, getProducts, updateProduct, deleteProduct } from "@/lib/services/producto-service";
-import { useAuthStore } from "@/store/auth-store";
 
 export default function ProductosPage() {
   const router = useRouter();
   const { user } = useAuth();
-  const { token, isAuthenticated } = useAuthStore();
   const isClient = user?.rol === UserRole.CLIENTE;
 
   const [productos, setProductos] = useState<Product[]>([]);

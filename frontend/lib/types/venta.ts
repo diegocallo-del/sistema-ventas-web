@@ -72,15 +72,14 @@ export interface CartItem {
 
 /**
  * Datos para crear una nueva venta
+ * Formato que espera el backend
  */
 export interface CreateSaleData {
-  cliente_id: number;
-  metodo_pago: PaymentMethod;
-  observaciones?: string;
+  clienteId?: number | null;
+  tipoPago: string;
   detalles: {
-    producto_id: number;
+    productoId: number;
     cantidad: number;
-    precio_unitario: number;
   }[];
 }
 

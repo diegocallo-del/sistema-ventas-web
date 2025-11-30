@@ -4,12 +4,12 @@ import React, { useEffect, useState } from "react";
 import { VentaForm } from "@/components/modules/ventas/venta-form";
 import { useVentas } from "@/hooks/use-ventas";
 import { useProductos } from "@/hooks/use-productos";
-import { useAuthStore } from "@/store/auth-store";
+import { useAuth } from "@/hooks/use-auth";
 import { useVentaStore } from "@/store/venta-store";
 import { Client, Product } from "@/lib/types";
 import { getClients } from "@/lib/services/cliente-service";
 export default function VentasPage() {
-  const { token, user } = useAuthStore();
+  const { user } = useAuth();
   const { createSale, isLoading: ventasCargando, error: ventasError } = useVentas();
   const { products, loadProducts } = useProductos();
   const { setCliente } = useVentaStore();
@@ -22,13 +22,8 @@ export default function VentasPage() {
   // Carga inicial: clientes y productos
   useEffect(() => {
     async function inicializar() {
-      if (!token) {
-        setInicializando(false);
-        return;
-      }
-
       try {
-        const respuestaClientes = await getClients({}, token);
+        const respuestaClientes = await getClients({});
         setClientes(respuestaClientes.items);
         await loadProducts();
       } catch (error) {
@@ -39,7 +34,7 @@ export default function VentasPage() {
     }
 
     inicializar();
-  }, [token, loadProducts]);
+  }, [loadProducts]);
 
   // Actualiza productos visibles cuando cambian los productos cargados
   useEffect(() => {

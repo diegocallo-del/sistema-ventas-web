@@ -3,7 +3,6 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { useAuthStore } from '@/store/auth-store';
 import {
   getProducts,
   getProductById,
@@ -22,7 +21,6 @@ import {
 } from '@/lib/types';
 
 export function useProductos() {
-  const { token } = useAuthStore();
   const [products, setProducts] = useState<Product[]>([]);
   const [pagination, setPagination] = useState<Omit<PaginatedResponse<Product>, 'items'>>({
     total: 0,
@@ -38,13 +36,11 @@ export function useProductos() {
    */
   const loadProducts = useCallback(
     async (options: QueryOptions = {}) => {
-      if (!token) return;
-      
       setIsLoading(true);
       setError(null);
       
       try {
-        const response = await getProducts(options, token);
+        const response = await getProducts(options);
         setProducts(response.items);
         setPagination({
           total: response.total,
@@ -58,7 +54,7 @@ export function useProductos() {
         setIsLoading(false);
       }
     },
-    [token]
+    []
   );
   
   /**
@@ -66,16 +62,14 @@ export function useProductos() {
    */
   const searchProductsByTerm = useCallback(
     async (query: string, filters: ProductFilters = {}) => {
-      if (!token) return [];
-      
       try {
-        return await searchProducts(query, filters, token);
+        return await searchProducts(query, filters);
       } catch (err: any) {
         setError(err.message || 'Error al buscar productos');
         return [];
       }
     },
-    [token]
+    []
   );
   
   /**
@@ -83,16 +77,14 @@ export function useProductos() {
    */
   const getProduct = useCallback(
     async (id: number) => {
-      if (!token) return null;
-      
       try {
-        return await getProductById(id, token);
+        return await getProductById(id);
       } catch (err: any) {
         setError(err.message || 'Error al obtener producto');
         return null;
       }
     },
-    [token]
+    []
   );
   
   /**
@@ -100,10 +92,8 @@ export function useProductos() {
    */
   const createNewProduct = useCallback(
     async (data: CreateProductData) => {
-      if (!token) return null;
-      
       try {
-        const newProduct = await createProduct(data, token);
+        const newProduct = await createProduct(data);
         await loadProducts();
         return newProduct;
       } catch (err: any) {
@@ -111,7 +101,7 @@ export function useProductos() {
         return null;
       }
     },
-    [token, loadProducts]
+    [loadProducts]
   );
   
   /**
@@ -119,10 +109,8 @@ export function useProductos() {
    */
   const updateExistingProduct = useCallback(
     async (id: number, data: UpdateProductData) => {
-      if (!token) return null;
-      
       try {
-        const updatedProduct = await updateProduct(id, data, token);
+        const updatedProduct = await updateProduct(id, data);
         await loadProducts();
         return updatedProduct;
       } catch (err: any) {
@@ -130,7 +118,7 @@ export function useProductos() {
         return null;
       }
     },
-    [token, loadProducts]
+    [loadProducts]
   );
   
   /**
@@ -138,10 +126,8 @@ export function useProductos() {
    */
   const deleteExistingProduct = useCallback(
     async (id: number) => {
-      if (!token) return false;
-      
       try {
-        await deleteProduct(id, token);
+        await deleteProduct(id);
         await loadProducts();
         return true;
       } catch (err: any) {
@@ -149,7 +135,7 @@ export function useProductos() {
         return false;
       }
     },
-    [token, loadProducts]
+    [loadProducts]
   );
   
   return {

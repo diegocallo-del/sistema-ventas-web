@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ClientesTable } from '@/components/modules/clientes/clientes-table';
 import { ClienteForm } from '@/components/modules/clientes/cliente-form';
-import { useAuthStore } from '@/store/auth-store';
 import { Client, CreateClientData, UpdateClientData } from '@/lib/types';
 import {
   getClients,
@@ -14,7 +13,6 @@ import {
 } from '@/lib/services/cliente-service';
 
 export default function ClientesPage() {
-  const { token, isAuthenticated } = useAuthStore();
 
   const [clientes, setClientes] = useState<Client[]>([]);
   const [loadingLista, setLoadingLista] = useState(false);

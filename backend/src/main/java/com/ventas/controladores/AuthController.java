@@ -6,13 +6,10 @@ import com.ventas.dto.LoginRequestDTO;
 import com.ventas.enums.RolUsuario;
 import com.ventas.modelos.Usuario;
 import com.ventas.repositorios.UsuarioRepository;
-import com.ventas.util.JwtUtil;
 import com.ventas.servicios.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,9 +29,7 @@ import java.util.Optional;
 public class AuthController {
 
     private final AuthService authService;
-    private final JwtUtil jwtUtil;
     private final UsuarioRepository usuarioRepository;
-    private final PasswordEncoder passwordEncoder;
 
     /**
      * Endpoint para el login de usuarios.
@@ -104,35 +99,6 @@ public class AuthController {
      * Endpoint TEMPORAL para convertir contraseñas a texto plano (desarrollo).
      * Elimina el hash BCrypt y deja contraseñas en texto plano.
      */
-    @PostMapping("/fix-passwords")
-    public ResponseEntity<String> fixPasswords() {
-        try {
-            java.util.List<Usuario> usuarios = usuarioRepository.findAll();
-            int fixed = 0;
-
-            for (Usuario usuario : usuarios) {
-                String passwordActual = usuario.getPassword();
-                // Si la contraseña está codificada con BCrypt (comienza con $2a$)
-                if (passwordActual != null && passwordActual.startsWith("$2a$")) {
-                    // Convertir contraseñas BCrypt conocidas a texto plano
-                    if (passwordEncoder.matches("admin123", passwordActual)) {
-                        usuario.setPassword("admin123");
-                        usuarioRepository.save(usuario);
-                        fixed++;
-                    } else if (passwordEncoder.matches("vendedor123", passwordActual)) {
-                        usuario.setPassword("vendedor123");
-                        usuarioRepository.save(usuario);
-                        fixed++;
-                    }
-                }
-            }
-
-            return ResponseEntity.ok("Contraseñas convertidas a texto plano: " + fixed + " usuarios actualizados");
-
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("Error al convertir contraseñas: " + e.getMessage());
-        }
-    }
 
 
 

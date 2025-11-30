@@ -72,7 +72,7 @@ export function useAuth() {
       });
       console.log('📡 Respuesta del backend:', response);
 
-      if (response.data && response.data.token) {
+      if (response.data) {
         console.log('✅ Usuario autenticado:', response.data.username);
 
       // Crear objeto de usuario desde respuesta del backend
@@ -89,8 +89,9 @@ export function useAuth() {
           ultimo_acceso: new Date().toISOString(),
         };
 
-        const token = response.data.token;
-        const refreshToken = ''; // El backend no retorna refresh token por ahora
+        // Sin token para desarrollo local
+        const token = "no-token";
+        const refreshToken = "no-token";
 
         storeLogin(user, token, refreshToken);
 

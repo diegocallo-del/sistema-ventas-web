@@ -3,7 +3,7 @@
  */
 
 import { useState, useCallback } from 'react';
-import { useAuthStore } from '@/store/auth-store';
+import { useAuth } from '@/hooks/use-auth';
 import { UserRole } from '@/lib/types/usuario';
 import { useVentaStore } from '@/store/venta-store';
 import {
@@ -23,7 +23,7 @@ import {
 } from '@/lib/types';
 
 export function useVentas() {
-  const { token, user } = useAuthStore();
+  const { user } = useAuth();
   const { items, clienteId, metodoPago, observaciones, clearCart } = useVentaStore();
   const [sales, setSales] = useState<Sale[]>([]);
   const [pagination, setPagination] = useState<Omit<PaginatedResponse<Sale>, 'items'>>({
@@ -40,13 +40,11 @@ export function useVentas() {
    */
   const loadSales = useCallback(
     async (options: QueryOptions = {}) => {
-      if (!token) return;
-      
       setIsLoading(true);
       setError(null);
       
       try {
-        const response = await getSales(options, token);
+        const response = await getSales(options);
         setSales(response.items);
         setPagination({
           total: response.total,
@@ -60,7 +58,7 @@ export function useVentas() {
         setIsLoading(false);
       }
     },
-    [token]
+    []
   );
   
   /**
@@ -68,16 +66,14 @@ export function useVentas() {
    */
   const getSale = useCallback(
     async (id: number) => {
-      if (!token) return null;
-      
       try {
-        return await getSaleById(id, token);
+        return await getSaleById(id);
       } catch (err: any) {
         setError(err.message || 'Error al obtener venta');
         return null;
       }
     },
-    [token]
+    []
   );
   
   /**
@@ -85,7 +81,7 @@ export function useVentas() {
    */
   const createNewSale = useCallback(
     async () => {
-      if (!token || items.length === 0) {
+      if (items.length === 0) {
         setError('Faltan datos para completar la venta');
         return null;
       }
@@ -103,17 +99,15 @@ export function useVentas() {
       
       try {
         const saleData: CreateSaleData = {
-          cliente_id: finalClienteId,
-          metodo_pago: metodoPago,
-          observaciones: observaciones || undefined,
+          clienteId: finalClienteId,
+          tipoPago: metodoPago,
           detalles: items.map((item) => ({
-            producto_id: item.producto.id,
+            productoId: item.producto.id,
             cantidad: item.cantidad,
-            precio_unitario: item.precio_unitario,
           })),
         };
         
-        const newSale = await createSale(saleData, token);
+        const newSale = await createSale(saleData);
         clearCart();
         await loadSales();
         return newSale;
@@ -122,7 +116,7 @@ export function useVentas() {
         return null;
       }
     },
-    [token, clienteId, metodoPago, observaciones, items, clearCart, loadSales]
+    [clienteId, metodoPago, observaciones, items, clearCart, loadSales, user]
   );
   
   /**
@@ -130,10 +124,8 @@ export function useVentas() {
    */
   const cancelExistingSale = useCallback(
     async (id: number, motivo: string) => {
-      if (!token) return null;
-      
       try {
-        const canceledSale = await cancelSale(id, motivo, token);
+        const canceledSale = await cancelSale(id, motivo);
         await loadSales();
         return canceledSale;
       } catch (err: any) {
@@ -141,7 +133,7 @@ export function useVentas() {
         return null;
       }
     },
-    [token, loadSales]
+    [loadSales]
   );
   
   /**
@@ -149,16 +141,14 @@ export function useVentas() {
    */
   const getSummary = useCallback(
     async (filters: SaleFilters = {}) => {
-      if (!token) return null;
-      
       try {
-        return await getSalesSummary(filters, token);
+        return await getSalesSummary(filters);
       } catch (err: any) {
         setError(err.message || 'Error al obtener resumen');
         return null;
       }
     },
-    [token]
+    []
   );
   
   return {

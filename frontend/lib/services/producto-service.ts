@@ -59,8 +59,7 @@ function mapProductoFromBackend(dto: ProductoDTOBackend): Product {
  * El backend devuelve una lista directa, no paginada
  */
 export async function getProducts(
-  options: QueryOptions = {},
-  token?: string
+  options: QueryOptions = {}
 ): Promise<PaginatedResponse<Product>> {
   const response = await axios.get<ProductoDTOBackend[]>(productEndpoints.base);
 
@@ -86,7 +85,7 @@ export async function getProducts(
 /**
  * Obtiene un producto por ID
  */
-export async function getProductById(id: number, token?: string): Promise<Product> {
+export async function getProductById(id: number): Promise<Product> {
   const response = await axios.get<ProductoDTOBackend>(productEndpoints.byId(id));
   return mapProductoFromBackend(response.data);
 }
@@ -94,7 +93,7 @@ export async function getProductById(id: number, token?: string): Promise<Produc
 /**
  * Obtiene el ID de una categoría por su nombre
  */
-async function getCategoriaIdByName(nombre: string, token?: string): Promise<number | null> {
+async function getCategoriaIdByName(nombre: string): Promise<number | null> {
   try {
     const response = await axios.get<any[]>(`${env.apiUrl}/api/categorias`);
     const categoria = response.data.find((c: any) => c.nombre === nombre);
@@ -108,7 +107,7 @@ async function getCategoriaIdByName(nombre: string, token?: string): Promise<num
  * Crea un nuevo producto
  * Convierte el nombre de categoría a ID si es necesario
  */
-export async function createProduct(data: CreateProductData, token?: string): Promise<Product> {
+export async function createProduct(data: CreateProductData): Promise<Product> {
   // Convertir nombre de categoría a ID si es necesario
   let categoriaId: number | null = null;
   if (data.categoria) {
@@ -118,7 +117,7 @@ export async function createProduct(data: CreateProductData, token?: string): Pr
       categoriaId = parsedId;
     } else {
       // Si es un string (nombre), buscar el ID
-      categoriaId = await getCategoriaIdByName(data.categoria, token);
+      categoriaId = await getCategoriaIdByName(data.categoria);
       if (!categoriaId) {
         throw new Error(`Categoría "${data.categoria}" no encontrada`);
       }
@@ -145,8 +144,7 @@ export async function createProduct(data: CreateProductData, token?: string): Pr
  */
 export async function updateProduct(
   id: number,
-  data: UpdateProductData,
-  token?: string
+  data: UpdateProductData
 ): Promise<Product> {
   // Convertir nombre de categoría a ID si es necesario
   let categoriaId: number | null | undefined = undefined;
@@ -184,7 +182,7 @@ export async function updateProduct(
 /**
  * Elimina un producto
  */
-export async function deleteProduct(id: number, token?: string): Promise<void> {
+export async function deleteProduct(id: number): Promise<void> {
   await axios.delete(productEndpoints.delete(id));
 }
 
@@ -194,8 +192,7 @@ export async function deleteProduct(id: number, token?: string): Promise<void> {
  */
 export async function searchProducts(
   query: string,
-  filters: ProductFilters = {},
-  token?: string
+  filters: ProductFilters = {}
 ): Promise<Product[]> {
   const response = await axios.get<ProductoDTOBackend[]>(`${productEndpoints.base}/buscar`, {
     params: {
@@ -209,13 +206,8 @@ export async function searchProducts(
 /**
  * Obtiene las categorias de productos disponibles
  */
-export async function getCategories(token: string): Promise<ProductCategory[]> {
-  const response = await axios.get<ProductCategory[]>(productEndpoints.categories, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
+export async function getCategories(): Promise<ProductCategory[]> {
+  const response = await axios.get<ProductCategory[]>(productEndpoints.categories);
   return response.data;
 }
 
@@ -224,8 +216,7 @@ export async function getCategories(token: string): Promise<ProductCategory[]> {
  */
 export async function checkProductCodeExists(
   codigo: string,
-  excludeId?: number,
-  token?: string
+  excludeId?: number
 ): Promise<boolean> {
   try {
     const response = await axios.get<{ exists: boolean }>(
@@ -235,9 +226,6 @@ export async function checkProductCodeExists(
           codigo,
           exclude_id: excludeId,
         },
-        headers: token ? {
-          Authorization: `Bearer ${token}`,
-        } : undefined,
       }
     );
 

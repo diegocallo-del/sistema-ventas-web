@@ -15,71 +15,112 @@ import {
 } from '../types';
 
 /**
- * Obtiene lista paginada de ventas
+ * Interfaz temporal para la respuesta del backend
+ */
+interface VentaDTOBackend {
+  id: number;
+  clienteId: number | null;
+  clienteNombre: string;
+  clienteDocumento: string | null;
+  usuarioId: number;
+  usuarioNombre: string;
+  total: number;
+  estadoVenta: string;
+  tipoPago: string;
+  fechaCreacion: string;
+  fechaActualizacion: string;
+  activo: boolean;
+  detalles: Array<{
+    id: number;
+    productoId: number;
+    productoNombre: string;
+    cantidad: number;
+    precioUnitario: number;
+    subtotal: number;
+  }>;
+}
+
+/**
+ * Mapea VentaDTO del backend a Sale del frontend
+ */
+function mapVentaFromBackend(dto: VentaDTOBackend): Sale {
+  return {
+    id: dto.id,
+    cliente_id: dto.clienteId,
+    cliente_nombre: dto.clienteNombre,
+    cliente_documento: dto.clienteDocumento,
+    usuario_id: dto.usuarioId,
+    usuario_nombre: dto.usuarioNombre,
+    total: Number(dto.total),
+    estado: dto.estadoVenta,
+    tipo_pago: dto.tipoPago,
+    fecha_creacion: dto.fechaCreacion,
+    fecha_actualizacion: dto.fechaActualizacion,
+    activo: dto.activo,
+    detalles: dto.detalles.map(d => ({
+      id: d.id,
+      producto_id: d.productoId,
+      producto_nombre: d.productoNombre,
+      cantidad: d.cantidad,
+      precio_unitario: Number(d.precioUnitario),
+      subtotal: Number(d.subtotal),
+    })),
+  };
+}
+
+/**
+ * Obtiene lista de ventas
+ * El backend devuelve una lista directa, no paginada
  */
 export async function getSales(
-  options: QueryOptions = {},
-  token: string
+  options: QueryOptions = {}
 ): Promise<PaginatedResponse<Sale>> {
-  const params = {
-    page: options.page || 1,
-    page_size: options.page_size || 10,
-    sort_by: options.sort_by,
-    sort_order: options.sort_order,
-    ...options.filters,
+  const response = await axios.get<VentaDTOBackend[]>(saleEndpoints.base);
+
+  // Mapear ventas del backend al formato del frontend
+  const items = response.data.map(mapVentaFromBackend);
+  
+  // Convertir lista a formato paginado para compatibilidad
+  const page = options.page || 1;
+  const pageSize = options.page_size || 10;
+  const start = (page - 1) * pageSize;
+  const end = start + pageSize;
+  const paginatedItems = items.slice(start, end);
+
+  return {
+    items: paginatedItems,
+    total: items.length,
+    page: page,
+    page_size: pageSize,
+    total_pages: Math.ceil(items.length / pageSize),
   };
-
-  const response = await axios.get<PaginatedResponse<Sale>>(saleEndpoints.base, {
-    params,
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  return response.data;
 }
 
 /**
  * Obtiene una venta por ID con sus detalles
  */
-export async function getSaleById(id: number, token: string): Promise<Sale> {
-  const response = await axios.get<Sale>(saleEndpoints.byId(id), {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  return response.data;
+export async function getSaleById(id: number): Promise<Sale> {
+  const response = await axios.get<VentaDTOBackend>(saleEndpoints.byId(id));
+  return mapVentaFromBackend(response.data);
 }
 
 /**
  * Crea una nueva venta
  */
-export async function createSale(data: CreateSaleData, token: string): Promise<Sale> {
-  const response = await axios.post<Sale>(saleEndpoints.create, data, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  return response.data;
+export async function createSale(data: CreateSaleData): Promise<Sale> {
+  const response = await axios.post<VentaDTOBackend>(saleEndpoints.create, data);
+  return mapVentaFromBackend(response.data);
 }
 
 /**
  * Cancela una venta existente
  */
-export async function cancelSale(id: number, motivo: string, token: string): Promise<Sale> {
-  const response = await axios.post<Sale>(
+export async function cancelSale(id: number, motivo: string): Promise<Sale> {
+  const response = await axios.post<VentaDTOBackend>(
     saleEndpoints.cancel(id),
-    { motivo },
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
+    { motivo }
   );
-
-  return response.data;
+  return mapVentaFromBackend(response.data);
 }
 
 /**
@@ -87,48 +128,45 @@ export async function cancelSale(id: number, motivo: string, token: string): Pro
  */
 export async function getSalesByDateRange(
   fechaInicio: string,
-  fechaFin: string,
-  token: string
+  fechaFin: string
 ): Promise<Sale[]> {
-  const response = await axios.get<Sale[]>(saleEndpoints.byDate, {
+  const response = await axios.get<VentaDTOBackend[]>(saleEndpoints.byDate, {
     params: {
       fecha_inicio: fechaInicio,
       fecha_fin: fechaFin,
     },
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
   });
-
-  return response.data;
+  return response.data.map(mapVentaFromBackend);
 }
 
 /**
  * Obtiene ventas de un cliente especifico
  */
-export async function getSalesByClient(clientId: number, token: string): Promise<Sale[]> {
-  const response = await axios.get<Sale[]>(saleEndpoints.byClient(clientId), {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  return response.data;
+export async function getSalesByClient(clientId: number): Promise<Sale[]> {
+  const response = await axios.get<VentaDTOBackend[]>(saleEndpoints.byClient(clientId));
+  return response.data.map(mapVentaFromBackend);
 }
 
 /**
  * Obtiene resumen de ventas segun filtros
  */
 export async function getSalesSummary(
-  filters: SaleFilters = {},
-  token: string
+  filters: SaleFilters = {}
 ): Promise<SaleSummary> {
-  const response = await axios.get<SaleSummary>(`${saleEndpoints.base}/summary`, {
-    params: filters,
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  return response.data;
+  try {
+    const response = await axios.get<SaleSummary>(`${saleEndpoints.base}/summary`, {
+      params: filters,
+    });
+    return response.data;
+  } catch {
+    // Si no existe el endpoint, calcular desde todas las ventas
+    const ventas = await getSales();
+    const total = ventas.items.reduce((sum, v) => sum + v.total, 0);
+    const cantidad = ventas.items.length;
+    return {
+      total_ventas: cantidad,
+      total_ingresos: total,
+      promedio_venta: cantidad > 0 ? total / cantidad : 0,
+    };
+  }
 }

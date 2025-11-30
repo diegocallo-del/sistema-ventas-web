@@ -92,11 +92,15 @@ public class JwtUtil {
             Date now = Date.from(Instant.now());
             Date expiryDate = new Date(now.getTime() + expirationMs);
 
-            // Crear claims básicos (seguiré un esquema simple)
-            String username = "user"; // Necesito acceder al username
-            if (claims.toString().contains("username")) {
-                username = extractUsernameFromUser(claims);
+            // Extraer username del objeto Usuario
+            String username = extractUsernameFromUser(claims);
+            
+            if (username == null || username.isEmpty()) {
+                log.error("No se pudo extraer username del objeto de usuario");
+                throw new RuntimeException("No se pudo extraer username para generar token");
             }
+
+            log.debug("Generando token JWT para usuario: {}", username);
 
             JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                     .subject(username)
@@ -109,9 +113,11 @@ public class JwtUtil {
 
             signedJWT.sign(signer);
 
-            return signedJWT.serialize();
+            String token = signedJWT.serialize();
+            log.debug("Token JWT generado exitosamente para: {}", username);
+            return token;
         } catch (JOSEException e) {
-            log.error("Error al crear token JWT: {}", e.getMessage());
+            log.error("Error al crear token JWT: {}", e.getMessage(), e);
             throw new RuntimeException("Error al generar token JWT", e);
         }
     }
@@ -156,11 +162,15 @@ public class JwtUtil {
      * @return Nombre de usuario
      */
     private String extractUsernameFromUser(Object userDetails) {
-        // Para este ejemplo simple, asumo que es un objeto Usuario o similar
-        // En implementación real, debe accederse correctamente al username/email
         if (userDetails instanceof com.ventas.modelos.Usuario usuario) {
-            return usuario.getEmail(); // Cambiar a getEmail()
+            String email = usuario.getEmail();
+            if (email == null || email.isEmpty()) {
+                log.warn("Usuario sin email, usando ID como fallback");
+                return usuario.getId() != null ? usuario.getId().toString() : null;
+            }
+            return email;
         }
-        return "user";
+        log.warn("Objeto de usuario no es instancia de Usuario: {}", userDetails.getClass().getName());
+        return null;
     }
 }

@@ -10,6 +10,7 @@ import com.ventas.servicios.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,6 +31,7 @@ public class AuthController {
 
     private final AuthService authService;
     private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
 
     /**
      * Endpoint para el login de usuarios.
@@ -82,7 +84,8 @@ public class AuthController {
 
             admin.setNombre("Administrador");
             admin.setEmail("admin@sistema-ventas.com");
-            admin.setPassword("admin123"); // Contraseña en texto plano para desarrollo
+            // Encriptar contraseña con BCrypt
+            admin.setPassword(passwordEncoder.encode("admin123"));
             admin.setRol(RolUsuario.ADMIN);
             admin.setActivo(true);
 

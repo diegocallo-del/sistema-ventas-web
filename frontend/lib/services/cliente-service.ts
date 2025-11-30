@@ -3,7 +3,7 @@
  * Maneja todas las operaciones CRUD de clientes
  */
 
-import axios from 'axios';
+import { api } from '../api';
 import { clientEndpoints } from '../config/endpoints';
 import {
   Client,
@@ -57,7 +57,7 @@ function mapClienteFromBackend(dto: ClienteDTOBackend): Client {
 export async function getClients(
   options: QueryOptions = {}
 ): Promise<PaginatedResponse<Client>> {
-  const response = await axios.get<ClienteDTOBackend[]>(clientEndpoints.base);
+  const response = await api.get<ClienteDTOBackend[]>(clientEndpoints.base);
 
   // Mapear clientes del backend al formato del frontend
   const items = response.data.map(mapClienteFromBackend);
@@ -82,7 +82,7 @@ export async function getClients(
  * Obtiene un cliente por ID
  */
 export async function getClientById(id: number): Promise<Client> {
-  const response = await axios.get<ClienteDTOBackend>(clientEndpoints.byId(id));
+  const response = await api.get<ClienteDTOBackend>(clientEndpoints.byId(id));
   return mapClienteFromBackend(response.data);
 }
 
@@ -102,7 +102,7 @@ export async function createClient(data: CreateClientData): Promise<Client> {
     numeroDocumento: data.numero_documento || null,
   };
 
-  const response = await axios.post<ClienteDTOBackend>(clientEndpoints.create, backendData);
+  const response = await api.post<ClienteDTOBackend>(clientEndpoints.create, backendData);
 
   return mapClienteFromBackend(response.data);
 }
@@ -129,7 +129,7 @@ export async function updateClient(
   if (data.direccion !== undefined) backendData.direccion = data.direccion || null;
   if (data.numero_documento !== undefined) backendData.numeroDocumento = data.numero_documento || null;
 
-  const response = await axios.put<ClienteDTOBackend>(clientEndpoints.update(id), backendData);
+  const response = await api.put<ClienteDTOBackend>(clientEndpoints.update(id), backendData);
 
   return mapClienteFromBackend(response.data);
 }
@@ -138,7 +138,7 @@ export async function updateClient(
  * Elimina un cliente
  */
 export async function deleteClient(id: number): Promise<void> {
-  await axios.delete(clientEndpoints.delete(id));
+  await api.delete(clientEndpoints.delete(id));
 }
 
 /**
@@ -149,7 +149,7 @@ export async function searchClients(
   query: string,
   filters: ClientFilters = {}
 ): Promise<Client[]> {
-  const response = await axios.get<ClienteDTOBackend[]>(`${clientEndpoints.base}/buscar`, {
+  const response = await api.get<ClienteDTOBackend[]>(`${clientEndpoints.base}/buscar`, {
     params: {
       nombre: query,
     },
@@ -165,7 +165,7 @@ export async function getClientByDocument(
   numeroDocumento: string
 ): Promise<Client | null> {
   try {
-    const response = await axios.get<Client>(`${clientEndpoints.base}/by-document`, {
+    const response = await api.get<Client>(`${clientEndpoints.base}/by-document`, {
       params: {
         numero_documento: numeroDocumento,
       },
@@ -173,7 +173,7 @@ export async function getClientByDocument(
 
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response?.status === 404) {
+    if (error && typeof error === 'object' && 'response' in error && error.response && typeof error.response === 'object' && 'status' in error.response && error.response.status === 404) {
       return null;
     }
     throw error;

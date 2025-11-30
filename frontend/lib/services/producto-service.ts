@@ -3,7 +3,6 @@
  * Maneja todas las operaciones CRUD de productos
  */
 
-import axios from 'axios';
 import { api } from '../api';
 import { productEndpoints } from '../config/endpoints';
 import { env } from '../config/env';
@@ -61,7 +60,7 @@ function mapProductoFromBackend(dto: ProductoDTOBackend): Product {
 export async function getProducts(
   options: QueryOptions = {}
 ): Promise<PaginatedResponse<Product>> {
-  const response = await axios.get<ProductoDTOBackend[]>(productEndpoints.base);
+  const response = await api.get<ProductoDTOBackend[]>(productEndpoints.base);
 
   // Mapear productos del backend al formato del frontend
   const items = response.data.map(mapProductoFromBackend);
@@ -86,7 +85,7 @@ export async function getProducts(
  * Obtiene un producto por ID
  */
 export async function getProductById(id: number): Promise<Product> {
-  const response = await axios.get<ProductoDTOBackend>(productEndpoints.byId(id));
+  const response = await api.get<ProductoDTOBackend>(productEndpoints.byId(id));
   return mapProductoFromBackend(response.data);
 }
 
@@ -95,7 +94,7 @@ export async function getProductById(id: number): Promise<Product> {
  */
 async function getCategoriaIdByName(nombre: string): Promise<number | null> {
   try {
-    const response = await axios.get<any[]>(`${env.apiUrl}/api/categorias`);
+    const response = await api.get<any[]>(`${env.apiUrl}/api/categorias`);
     const categoria = response.data.find((c: any) => c.nombre === nombre);
     return categoria ? categoria.id : null;
   } catch {
@@ -133,7 +132,7 @@ export async function createProduct(data: CreateProductData): Promise<Product> {
     categoriaId: categoriaId,
   };
 
-  const response = await axios.post<ProductoDTOBackend>(productEndpoints.create, backendData);
+  const response = await api.post<ProductoDTOBackend>(productEndpoints.create, backendData);
 
   return mapProductoFromBackend(response.data);
 }
@@ -174,7 +173,7 @@ export async function updateProduct(
   if (data.stock !== undefined) backendData.stock = data.stock;
   if (categoriaId !== undefined) backendData.categoriaId = categoriaId;
 
-  const response = await axios.put<ProductoDTOBackend>(productEndpoints.update(id), backendData);
+  const response = await api.put<ProductoDTOBackend>(productEndpoints.update(id), backendData);
 
   return mapProductoFromBackend(response.data);
 }
@@ -183,7 +182,7 @@ export async function updateProduct(
  * Elimina un producto
  */
 export async function deleteProduct(id: number): Promise<void> {
-  await axios.delete(productEndpoints.delete(id));
+  await api.delete(productEndpoints.delete(id));
 }
 
 /**
@@ -194,7 +193,7 @@ export async function searchProducts(
   query: string,
   filters: ProductFilters = {}
 ): Promise<Product[]> {
-  const response = await axios.get<ProductoDTOBackend[]>(`${productEndpoints.base}/buscar`, {
+  const response = await api.get<ProductoDTOBackend[]>(`${productEndpoints.base}/buscar`, {
     params: {
       nombre: query,
     },
@@ -207,7 +206,7 @@ export async function searchProducts(
  * Obtiene las categorias de productos disponibles
  */
 export async function getCategories(): Promise<ProductCategory[]> {
-  const response = await axios.get<ProductCategory[]>(productEndpoints.categories);
+  const response = await api.get<ProductCategory[]>(productEndpoints.categories);
   return response.data;
 }
 
@@ -219,7 +218,7 @@ export async function checkProductCodeExists(
   excludeId?: number
 ): Promise<boolean> {
   try {
-    const response = await axios.get<{ exists: boolean }>(
+    const response = await api.get<{ exists: boolean }>(
       `${productEndpoints.base}/check-codigo`,
       {
         params: {

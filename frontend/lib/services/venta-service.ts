@@ -3,7 +3,7 @@
  * Maneja todas las operaciones relacionadas con ventas
  */
 
-import axios from 'axios';
+import { api } from '../api';
 import { saleEndpoints } from '../config/endpoints';
 import {
   Sale,
@@ -75,7 +75,7 @@ function mapVentaFromBackend(dto: VentaDTOBackend): Sale {
 export async function getSales(
   options: QueryOptions = {}
 ): Promise<PaginatedResponse<Sale>> {
-  const response = await axios.get<VentaDTOBackend[]>(saleEndpoints.base);
+  const response = await api.get<VentaDTOBackend[]>(saleEndpoints.base);
 
   // Mapear ventas del backend al formato del frontend
   const items = response.data.map(mapVentaFromBackend);
@@ -108,7 +108,7 @@ export async function getSaleById(id: number): Promise<Sale> {
  * Crea una nueva venta
  */
 export async function createSale(data: CreateSaleData): Promise<Sale> {
-  const response = await axios.post<VentaDTOBackend>(saleEndpoints.create, data);
+  const response = await api.post<VentaDTOBackend>(saleEndpoints.create, data);
   return mapVentaFromBackend(response.data);
 }
 
@@ -116,7 +116,7 @@ export async function createSale(data: CreateSaleData): Promise<Sale> {
  * Cancela una venta existente
  */
 export async function cancelSale(id: number, motivo: string): Promise<Sale> {
-  const response = await axios.post<VentaDTOBackend>(
+  const response = await api.post<VentaDTOBackend>(
     saleEndpoints.cancel(id),
     { motivo }
   );
@@ -130,7 +130,7 @@ export async function getSalesByDateRange(
   fechaInicio: string,
   fechaFin: string
 ): Promise<Sale[]> {
-  const response = await axios.get<VentaDTOBackend[]>(saleEndpoints.byDate, {
+  const response = await api.get<VentaDTOBackend[]>(saleEndpoints.byDate, {
     params: {
       fecha_inicio: fechaInicio,
       fecha_fin: fechaFin,
@@ -143,7 +143,7 @@ export async function getSalesByDateRange(
  * Obtiene ventas de un cliente especifico
  */
 export async function getSalesByClient(clientId: number): Promise<Sale[]> {
-  const response = await axios.get<VentaDTOBackend[]>(saleEndpoints.byClient(clientId));
+  const response = await api.get<VentaDTOBackend[]>(saleEndpoints.byClient(clientId));
   return response.data.map(mapVentaFromBackend);
 }
 
@@ -154,7 +154,7 @@ export async function getSalesSummary(
   filters: SaleFilters = {}
 ): Promise<SaleSummary> {
   try {
-    const response = await axios.get<SaleSummary>(`${saleEndpoints.base}/summary`, {
+    const response = await api.get<SaleSummary>(`${saleEndpoints.base}/summary`, {
       params: filters,
     });
     return response.data;

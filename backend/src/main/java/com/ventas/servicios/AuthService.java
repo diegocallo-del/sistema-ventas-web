@@ -7,7 +7,11 @@ import com.ventas.excepciones.ResourceNotFoundException;
 import com.ventas.excepciones.ValidationException;
 import com.ventas.modelos.Usuario;
 import com.ventas.repositorios.UsuarioRepository;
+import com.ventas.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthService {
 
     private final UsuarioRepository usuarioRepository;
+    private final JwtUtil jwtUtil;
+    private final PasswordEncoder passwordEncoder;
 
     /**
      * Realiza el proceso de login y genera un token JWT.
@@ -29,20 +35,22 @@ public class AuthService {
      */
     public AuthResponseDTO login(LoginRequestDTO loginRequest) {
         Usuario usuario = usuarioRepository.findByEmail(loginRequest.username())
-            .orElseThrow(() -> new ValidationException("Usuario no encontrado"));
+            .orElseThrow(() -> new ValidationException("Credenciales inválidas"));
 
         if (!usuario.isActivo()) {
             throw new ValidationException("Usuario inactivo");
         }
 
-        // Comparación simple de contraseñas sin encriptar para desarrollo local
-        if (!usuario.getPassword().equals(loginRequest.password())) {
-            throw new ValidationException("Contraseña incorrecta");
+        // Validar contraseña con BCrypt
+        if (!passwordEncoder.matches(loginRequest.password(), usuario.getPassword())) {
+            throw new ValidationException("Credenciales inválidas");
         }
 
-        // Retornar respuesta sin token JWT
+        // Generar token JWT
+        String token = jwtUtil.generateToken(usuario);
+
         return new AuthResponseDTO(
-            "no-token", // Sin token para desarrollo local
+            token,
             usuario.getId(),
             usuario.getNombre(),
             usuario.getEmail(),
@@ -62,9 +70,12 @@ public class AuthService {
             throw new ValidationException("El email ya está en uso");
         }
 
+        // Encriptar contraseña con BCrypt
+        String passwordEncriptada = passwordEncoder.encode(createUsuario.password());
+
         Usuario usuario = Usuario.builder()
                 .email(createUsuario.username())
-                .password(createUsuario.password()) // Sin encriptar para desarrollo local
+                .password(passwordEncriptada)
                 .rol(createUsuario.rol())
                 .activo(true)
                 .build();
@@ -72,9 +83,11 @@ public class AuthService {
 
         Usuario usuarioGuardado = usuarioRepository.save(usuario);
 
-        // Retornar respuesta sin token JWT
+        // Generar token JWT
+        String token = jwtUtil.generateToken(usuarioGuardado);
+
         return new AuthResponseDTO(
-            "no-token", // Sin token para desarrollo local
+            token,
             usuarioGuardado.getId(),
             usuarioGuardado.getNombre(),
             usuarioGuardado.getEmail(),
@@ -88,8 +101,14 @@ public class AuthService {
      */
     @Transactional(readOnly = true)
     public Usuario obtenerUsuarioActual() {
-        // Para desarrollo local, retornar usuario admin por defecto
-        return usuarioRepository.findByEmail("admin@sistema-ventas.com")
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new ValidationException("Usuario no autenticado");
+        }
+
+        String email = authentication.getName();
+        return usuarioRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
     }
 
@@ -117,7 +136,8 @@ public class AuthService {
 
         // Solo actualizar contraseña si se proporciona
         if (createUsuario.password() != null && !createUsuario.password().trim().isEmpty()) {
-            usuarioActual.setPassword(createUsuario.password()); // Sin encriptar para desarrollo local
+            // Encriptar nueva contraseña con BCrypt
+            usuarioActual.setPassword(passwordEncoder.encode(createUsuario.password()));
         }
 
         return usuarioRepository.save(usuarioActual);
@@ -128,20 +148,8 @@ public class AuthService {
      * @return Nuevo token generado
      */
     public String refrescarToken() {
-        return "no-token"; // Sin token para desarrollo local
-    }
-
-    /**
-     * Valida que el rol sea válido.
-     * @param rol Rol a validar
-     * @return true si es válido
-     */
-    private boolean esRolValido(String rol) {
-        return rol != null && (
-            rol.equals("ADMIN") ||
-            rol.equals("SUPERVISOR") ||
-            rol.equals("VENDEDOR")
-        );
+        Usuario usuario = obtenerUsuarioActual();
+        return jwtUtil.generateToken(usuario);
     }
 
     /**

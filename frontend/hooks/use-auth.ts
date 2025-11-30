@@ -89,9 +89,9 @@ export function useAuth() {
           ultimo_acceso: new Date().toISOString(),
         };
 
-        // Sin token para desarrollo local
-        const token = "no-token";
-        const refreshToken = "no-token";
+        // Usar tokens reales del backend
+        const token = response.data.token || response.data.access_token || "";
+        const refreshToken = response.data.refresh_token || token; // Usar token como refresh si no hay refresh token
 
         storeLogin(user, token, refreshToken);
 

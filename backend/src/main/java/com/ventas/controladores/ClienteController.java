@@ -6,6 +6,7 @@ import com.ventas.servicios.ClienteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,6 +30,7 @@ public class ClienteController {
      * @return Lista de clientes activos
      */
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR', 'VENDEDOR')")
     public ResponseEntity<List<ClienteDTO>> obtenerTodosLosClientes() {
         List<ClienteDTO> clientes = clienteService.obtenerTodosLosClientes();
         return ResponseEntity.ok(clientes);
@@ -94,6 +96,7 @@ public class ClienteController {
      * @return Cliente creado
      */
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR', 'VENDEDOR')")
     public ResponseEntity<ClienteDTO> crearCliente(@Valid @RequestBody CreateClienteDTO createDTO) {
         ClienteDTO cliente = clienteService.crearCliente(createDTO);
         return new ResponseEntity<>(cliente, HttpStatus.CREATED);
@@ -119,6 +122,7 @@ public class ClienteController {
      * @return Respuesta sin contenido
      */
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> eliminarCliente(@PathVariable Long id) {
         clienteService.eliminarCliente(id);
         return ResponseEntity.noContent().build();

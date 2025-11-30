@@ -27,13 +27,11 @@ export default function ClientesPage() {
 
   // ----------------------- Carga la lista de clientes -----------------------
   async function cargarClientes() {
-    if (!token || !isAuthenticated) return;
-
     setLoadingLista(true);
     setError(null);
 
     try {
-      const response = await getClients({}, token);
+      const response = await getClients({});
       setClientes(response.items);
     } catch (err: any) {
       console.warn('Error al cargar clientes', err);
@@ -44,11 +42,8 @@ export default function ClientesPage() {
   }
 
   useEffect(() => {
-    if (isAuthenticated && token) {
-      void cargarClientes();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthenticated, token]);
+    void cargarClientes();
+  }, []);
 
   // ----------------------- Acciones de formulario -----------------------
   function handleNuevoCliente() {
@@ -62,7 +57,6 @@ export default function ClientesPage() {
   }
 
   async function handleEliminarCliente(cliente: Client) {
-    if (!token) return;
     const confirmar = window.confirm(
       `¿Seguro que deseas eliminar al cliente "${cliente.nombre} ${cliente.apellido ?? ''}"?`
     );
@@ -72,7 +66,7 @@ export default function ClientesPage() {
     setError(null);
 
     try {
-      await deleteClient(cliente.id, token);
+      await deleteClient(cliente.id);
       await cargarClientes();
     } catch (err: any) {
       console.warn('Error al eliminar cliente', err);
@@ -85,16 +79,14 @@ export default function ClientesPage() {
   async function handleSubmitFormulario(
     data: CreateClientData | UpdateClientData
   ): Promise<void> {
-    if (!token) return;
-
     setSaving(true);
     setError(null);
 
     try {
       if (clienteEditando) {
-        await updateClient(clienteEditando.id, data as UpdateClientData, token);
+        await updateClient(clienteEditando.id, data as UpdateClientData);
       } else {
-        await createClient(data as CreateClientData, token);
+        await createClient(data as CreateClientData);
       }
 
       setShowForm(false);

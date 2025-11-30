@@ -7,7 +7,6 @@ import com.ventas.servicios.VentaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,7 +30,6 @@ public class VentaController {
      * @return Lista de ventas activas
      */
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR', 'VENDEDOR')")
     public ResponseEntity<List<VentaDTO>> obtenerTodasLasVentas() {
         List<VentaDTO> ventas = ventaService.obtenerTodasLasVentas();
         return ResponseEntity.ok(ventas);
@@ -43,7 +41,6 @@ public class VentaController {
      * @return Venta completa con detalles
      */
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR', 'VENDEDOR')")
     public ResponseEntity<VentaDTO> obtenerVentaPorId(@PathVariable Long id) {
         VentaDTO venta = ventaService.obtenerVentaPorId(id);
         return ResponseEntity.ok(venta);
@@ -55,7 +52,6 @@ public class VentaController {
      * @return Lista de ventas del cliente
      */
     @GetMapping("/cliente/{clienteId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR', 'VENDEDOR')")
     public ResponseEntity<List<VentaDTO>> obtenerVentasPorCliente(@PathVariable Long clienteId) {
         List<VentaDTO> ventas = ventaService.obtenerVentasPorCliente(clienteId);
         return ResponseEntity.ok(ventas);
@@ -67,7 +63,6 @@ public class VentaController {
      * @return Venta creada con detalles
      */
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR', 'VENDEDOR')")
     public ResponseEntity<VentaDTO> crearVenta(@Valid @RequestBody CreateVentaDTO createDTO) {
         VentaDTO venta = ventaService.crearVenta(createDTO);
         return new ResponseEntity<>(venta, HttpStatus.CREATED);
@@ -80,7 +75,6 @@ public class VentaController {
      * @return Venta con estado actualizado
      */
     @PatchMapping("/{id}/estado")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR')")
     public ResponseEntity<VentaDTO> actualizarEstadoVenta(
             @PathVariable Long id,
             @RequestParam EstadoVenta nuevoEstado) {
@@ -95,7 +89,6 @@ public class VentaController {
      * @return Respuesta sin contenido
      */
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> eliminarVenta(@PathVariable Long id) {
         ventaService.eliminarVenta(id);
         return ResponseEntity.noContent().build();

@@ -56,13 +56,9 @@ function mapClienteFromBackend(dto: ClienteDTOBackend): Client {
  */
 export async function getClients(
   options: QueryOptions = {},
-  token: string
+  token?: string
 ): Promise<PaginatedResponse<Client>> {
-  const response = await axios.get<ClienteDTOBackend[]>(clientEndpoints.base, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  const response = await axios.get<ClienteDTOBackend[]>(clientEndpoints.base);
 
   // Mapear clientes del backend al formato del frontend
   const items = response.data.map(mapClienteFromBackend);
@@ -86,13 +82,8 @@ export async function getClients(
 /**
  * Obtiene un cliente por ID
  */
-export async function getClientById(id: number, token: string): Promise<Client> {
-  const response = await axios.get<ClienteDTOBackend>(clientEndpoints.byId(id), {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
+export async function getClientById(id: number, token?: string): Promise<Client> {
+  const response = await axios.get<ClienteDTOBackend>(clientEndpoints.byId(id));
   return mapClienteFromBackend(response.data);
 }
 
@@ -100,7 +91,7 @@ export async function getClientById(id: number, token: string): Promise<Client> 
  * Crea un nuevo cliente
  * Convierte los datos del frontend al formato del backend
  */
-export async function createClient(data: CreateClientData, token: string): Promise<Client> {
+export async function createClient(data: CreateClientData, token?: string): Promise<Client> {
   // Combinar nombre y apellido para el backend
   const nombreCompleto = data.apellido ? `${data.nombre} ${data.apellido}` : data.nombre;
 
@@ -112,11 +103,7 @@ export async function createClient(data: CreateClientData, token: string): Promi
     numeroDocumento: data.numero_documento || null,
   };
 
-  const response = await axios.post<ClienteDTOBackend>(clientEndpoints.create, backendData, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  const response = await axios.post<ClienteDTOBackend>(clientEndpoints.create, backendData);
 
   return mapClienteFromBackend(response.data);
 }
@@ -128,7 +115,7 @@ export async function createClient(data: CreateClientData, token: string): Promi
 export async function updateClient(
   id: number,
   data: UpdateClientData,
-  token: string
+  token?: string
 ): Promise<Client> {
   const backendData: any = {};
   
@@ -144,11 +131,7 @@ export async function updateClient(
   if (data.direccion !== undefined) backendData.direccion = data.direccion || null;
   if (data.numero_documento !== undefined) backendData.numeroDocumento = data.numero_documento || null;
 
-  const response = await axios.put<ClienteDTOBackend>(clientEndpoints.update(id), backendData, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  const response = await axios.put<ClienteDTOBackend>(clientEndpoints.update(id), backendData);
 
   return mapClienteFromBackend(response.data);
 }
@@ -156,12 +139,8 @@ export async function updateClient(
 /**
  * Elimina un cliente
  */
-export async function deleteClient(id: number, token: string): Promise<void> {
-  await axios.delete(clientEndpoints.delete(id), {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+export async function deleteClient(id: number, token?: string): Promise<void> {
+  await axios.delete(clientEndpoints.delete(id));
 }
 
 /**
@@ -171,14 +150,11 @@ export async function deleteClient(id: number, token: string): Promise<void> {
 export async function searchClients(
   query: string,
   filters: ClientFilters = {},
-  token: string
+  token?: string
 ): Promise<Client[]> {
   const response = await axios.get<ClienteDTOBackend[]>(`${clientEndpoints.base}/buscar`, {
     params: {
       nombre: query,
-    },
-    headers: {
-      Authorization: `Bearer ${token}`,
     },
   });
 

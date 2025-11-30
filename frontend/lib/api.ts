@@ -26,16 +26,13 @@ type RetryableRequest = InternalAxiosRequestConfig & { _retry?: boolean };
  * 1. Interceptor de Petición (REQUEST)
  * Se ejecuta ANTES de que cada petición sea enviada.
  */
+// Interceptor simplificado - sin autenticación JWT para desarrollo local
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    const token = getAuthToken();
-    if (token) {
-      config.headers.set('Authorization', `Bearer ${token}`);
-    }
+    // Sin token - todas las peticiones permitidas
     return config;
   },
   (error: any) => {
-    // Maneja errores que ocurren al configurar la petición
     return Promise.reject(error);
   }
 );

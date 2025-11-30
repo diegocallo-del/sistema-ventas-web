@@ -141,7 +141,6 @@ public class AuthController {
      * @return Nuevo token JWT generado
      */
     @PostMapping("/refresh")
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<String> refrescarToken() {
         String token = authService.refrescarToken();
         return ResponseEntity.ok(token);
@@ -152,7 +151,6 @@ public class AuthController {
      * @return Informacion del usuario autenticado
      */
     @GetMapping("/mi-perfil")
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<String> obtenerMiPerfil() {
         // Por simplicidad, retorna un mensaje básico
         // En implementación real, retornaría información completa del usuario

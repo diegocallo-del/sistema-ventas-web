@@ -42,13 +42,11 @@ export default function ProductosPage() {
 
   // Cargar productos del backend
   async function cargarProductos() {
-    if (!token || !isAuthenticated) return;
-
     setLoadingLista(true);
     setError(null);
 
     try {
-      const response = await getProducts({}, token);
+      const response = await getProducts({});
       setProductos(response.items);
     } catch (err: any) {
       console.warn('Error al cargar productos', err);
@@ -59,10 +57,8 @@ export default function ProductosPage() {
   }
 
   useEffect(() => {
-    if (isAuthenticated && token) {
-      void cargarProductos();
-    }
-  }, [isAuthenticated, token]);
+    void cargarProductos();
+  }, []);
 
   // Filtrar productos localmente
   const productosFiltrados = productos.filter((p) => {
@@ -78,7 +74,6 @@ export default function ProductosPage() {
   }
 
   async function handleEliminarProducto(producto: Product) {
-    if (!token) return;
     const confirmar = window.confirm(
       `¿Seguro que deseas eliminar el producto "${producto.nombre}"?`
     );
@@ -88,7 +83,7 @@ export default function ProductosPage() {
     setError(null);
 
     try {
-      await deleteProduct(producto.id, token);
+      await deleteProduct(producto.id);
       await cargarProductos();
     } catch (err: any) {
       console.warn('Error al eliminar producto', err);
@@ -249,18 +244,13 @@ export default function ProductosPage() {
           <ProductoForm
             producto={productoEditando}
             onSubmit={async (data: CreateProductData | UpdateProductData) => {
-              if (!token) {
-                console.error('No hay token de autenticación');
-                return;
-              }
-              
               setIsSaving(true);
               setError(null);
               try {
                 if (productoEditando) {
-                  await updateProduct(productoEditando.id, data as UpdateProductData, token);
+                  await updateProduct(productoEditando.id, data as UpdateProductData);
                 } else {
-                  await createProduct(data as CreateProductData, token);
+                  await createProduct(data as CreateProductData);
                 }
                 setIsAdminModalOpen(false);
                 setProductoEditando(null);

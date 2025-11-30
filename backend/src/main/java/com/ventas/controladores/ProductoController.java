@@ -6,7 +6,6 @@ import com.ventas.servicios.ProductoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,7 +29,6 @@ public class ProductoController {
      * @return Lista de productos activos
      */
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR', 'VENDEDOR')")
     public ResponseEntity<List<ProductoDTO>> obtenerTodosLosProductos() {
         List<ProductoDTO> productos = productoService.obtenerTodosLosProductos();
         return ResponseEntity.ok(productos);
@@ -42,7 +40,6 @@ public class ProductoController {
      * @return Producto encontrado
      */
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR', 'VENDEDOR')")
     public ResponseEntity<ProductoDTO> obtenerProductoPorId(@PathVariable Long id) {
         ProductoDTO producto = productoService.obtenerProductoPorId(id);
         return ResponseEntity.ok(producto);
@@ -54,7 +51,6 @@ public class ProductoController {
      * @return Lista de productos que coinciden
      */
     @GetMapping("/buscar")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR', 'VENDEDOR')")
     public ResponseEntity<List<ProductoDTO>> buscarProductosPorNombre(@RequestParam String nombre) {
         List<ProductoDTO> productos = productoService.buscarProductosPorNombre(nombre);
         return ResponseEntity.ok(productos);
@@ -66,7 +62,6 @@ public class ProductoController {
      * @return Lista de productos con stock bajo
      */
     @GetMapping("/stock-bajo")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR')")
     public ResponseEntity<List<ProductoDTO>> obtenerProductosConStockBajo(
             @RequestParam(defaultValue = "10") Integer stockMinimo) {
         List<ProductoDTO> productos = productoService.obtenerProductosConStockBajo(stockMinimo);
@@ -79,7 +74,6 @@ public class ProductoController {
      * @return Producto creado
      */
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ProductoDTO> crearProducto(@Valid @RequestBody CreateProductoDTO createDTO) {
         ProductoDTO producto = productoService.crearProducto(createDTO);
         return new ResponseEntity<>(producto, HttpStatus.CREATED);
@@ -92,7 +86,6 @@ public class ProductoController {
      * @return Producto actualizado
      */
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ProductoDTO> actualizarProducto(
             @PathVariable Long id,
             @Valid @RequestBody CreateProductoDTO createDTO) {
@@ -107,7 +100,6 @@ public class ProductoController {
      * @return Producto con stock actualizado
      */
     @PatchMapping("/{id}/stock")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR')")
     public ResponseEntity<ProductoDTO> actualizarStock(
             @PathVariable Long id,
             @RequestParam Integer nuevoStock) {
@@ -121,7 +113,6 @@ public class ProductoController {
      * @return Respuesta sin contenido
      */
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> eliminarProducto(@PathVariable Long id) {
         productoService.eliminarProducto(id);
         return ResponseEntity.noContent().build();

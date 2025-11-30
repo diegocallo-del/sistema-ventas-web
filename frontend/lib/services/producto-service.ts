@@ -60,13 +60,9 @@ function mapProductoFromBackend(dto: ProductoDTOBackend): Product {
  */
 export async function getProducts(
   options: QueryOptions = {},
-  token: string
+  token?: string
 ): Promise<PaginatedResponse<Product>> {
-  const response = await axios.get<ProductoDTOBackend[]>(productEndpoints.base, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  const response = await axios.get<ProductoDTOBackend[]>(productEndpoints.base);
 
   // Mapear productos del backend al formato del frontend
   const items = response.data.map(mapProductoFromBackend);
@@ -90,26 +86,17 @@ export async function getProducts(
 /**
  * Obtiene un producto por ID
  */
-export async function getProductById(id: number, token: string): Promise<Product> {
-  const response = await axios.get<ProductoDTOBackend>(productEndpoints.byId(id), {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
+export async function getProductById(id: number, token?: string): Promise<Product> {
+  const response = await axios.get<ProductoDTOBackend>(productEndpoints.byId(id));
   return mapProductoFromBackend(response.data);
 }
 
 /**
  * Obtiene el ID de una categoría por su nombre
  */
-async function getCategoriaIdByName(nombre: string, token: string): Promise<number | null> {
+async function getCategoriaIdByName(nombre: string, token?: string): Promise<number | null> {
   try {
-    const response = await axios.get<any[]>(`${env.apiUrl}/api/categorias`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axios.get<any[]>(`${env.apiUrl}/api/categorias`);
     const categoria = response.data.find((c: any) => c.nombre === nombre);
     return categoria ? categoria.id : null;
   } catch {
@@ -121,7 +108,7 @@ async function getCategoriaIdByName(nombre: string, token: string): Promise<numb
  * Crea un nuevo producto
  * Convierte el nombre de categoría a ID si es necesario
  */
-export async function createProduct(data: CreateProductData, token: string): Promise<Product> {
+export async function createProduct(data: CreateProductData, token?: string): Promise<Product> {
   // Convertir nombre de categoría a ID si es necesario
   let categoriaId: number | null = null;
   if (data.categoria) {
@@ -147,12 +134,7 @@ export async function createProduct(data: CreateProductData, token: string): Pro
     categoriaId: categoriaId,
   };
 
-  const response = await axios.post<ProductoDTOBackend>(productEndpoints.create, backendData, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
-  });
+  const response = await axios.post<ProductoDTOBackend>(productEndpoints.create, backendData);
 
   return mapProductoFromBackend(response.data);
 }
@@ -164,7 +146,7 @@ export async function createProduct(data: CreateProductData, token: string): Pro
 export async function updateProduct(
   id: number,
   data: UpdateProductData,
-  token: string
+  token?: string
 ): Promise<Product> {
   // Convertir nombre de categoría a ID si es necesario
   let categoriaId: number | null | undefined = undefined;
@@ -178,7 +160,7 @@ export async function updateProduct(
         categoriaId = parsedId;
       } else {
         // Si es un string (nombre), buscar el ID
-        categoriaId = await getCategoriaIdByName(data.categoria, token);
+        categoriaId = await getCategoriaIdByName(data.categoria);
         if (categoriaId === null) {
           throw new Error(`Categoría "${data.categoria}" no encontrada`);
         }
@@ -194,12 +176,7 @@ export async function updateProduct(
   if (data.stock !== undefined) backendData.stock = data.stock;
   if (categoriaId !== undefined) backendData.categoriaId = categoriaId;
 
-  const response = await axios.put<ProductoDTOBackend>(productEndpoints.update(id), backendData, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
-  });
+  const response = await axios.put<ProductoDTOBackend>(productEndpoints.update(id), backendData);
 
   return mapProductoFromBackend(response.data);
 }
@@ -207,12 +184,8 @@ export async function updateProduct(
 /**
  * Elimina un producto
  */
-export async function deleteProduct(id: number, token: string): Promise<void> {
-  await axios.delete(productEndpoints.delete(id), {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+export async function deleteProduct(id: number, token?: string): Promise<void> {
+  await axios.delete(productEndpoints.delete(id));
 }
 
 /**
@@ -222,14 +195,11 @@ export async function deleteProduct(id: number, token: string): Promise<void> {
 export async function searchProducts(
   query: string,
   filters: ProductFilters = {},
-  token: string
+  token?: string
 ): Promise<Product[]> {
   const response = await axios.get<ProductoDTOBackend[]>(`${productEndpoints.base}/buscar`, {
     params: {
       nombre: query,
-    },
-    headers: {
-      Authorization: `Bearer ${token}`,
     },
   });
 

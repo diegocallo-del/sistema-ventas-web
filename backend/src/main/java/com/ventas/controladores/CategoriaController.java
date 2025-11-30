@@ -6,7 +6,6 @@ import com.ventas.servicios.CategoriaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,7 +29,6 @@ public class CategoriaController {
      * @return Lista de categorías activas
      */
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR', 'VENDEDOR')")
     public ResponseEntity<List<CategoriaDTO>> obtenerTodasLasCategorias() {
         List<CategoriaDTO> categorias = categoriaService.obtenerTodasLasCategorias();
         return ResponseEntity.ok(categorias);
@@ -42,7 +40,6 @@ public class CategoriaController {
      * @return Categoría encontrada
      */
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR', 'VENDEDOR')")
     public ResponseEntity<CategoriaDTO> obtenerCategoriaPorId(@PathVariable Long id) {
         CategoriaDTO categoria = categoriaService.obtenerCategoriaPorId(id);
         return ResponseEntity.ok(categoria);
@@ -54,7 +51,6 @@ public class CategoriaController {
      * @return Lista de categorías que coinciden
      */
     @GetMapping("/buscar")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR', 'VENDEDOR')")
     public ResponseEntity<List<CategoriaDTO>> buscarCategoriasPorNombre(@RequestParam String nombre) {
         List<CategoriaDTO> categorias = categoriaService.buscarCategoriasPorNombre(nombre);
         return ResponseEntity.ok(categorias);
@@ -65,7 +61,6 @@ public class CategoriaController {
      * @return Lista de categorías con productos
      */
     @GetMapping("/con-productos")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR', 'VENDEDOR')")
     public ResponseEntity<List<CategoriaDTO>> obtenerCategoriasConProductos() {
         List<CategoriaDTO> categorias = categoriaService.obtenerCategoriasConProductos();
         return ResponseEntity.ok(categorias);
@@ -77,7 +72,6 @@ public class CategoriaController {
      * @return Categoría creada
      */
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CategoriaDTO> crearCategoria(@Valid @RequestBody CreateCategoriaDTO createDTO) {
         CategoriaDTO categoria = categoriaService.crearCategoria(createDTO);
         return new ResponseEntity<>(categoria, HttpStatus.CREATED);
@@ -90,7 +84,6 @@ public class CategoriaController {
      * @return Categoría actualizada
      */
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CategoriaDTO> actualizarCategoria(
             @PathVariable Long id,
             @Valid @RequestBody CreateCategoriaDTO createDTO) {
@@ -104,7 +97,6 @@ public class CategoriaController {
      * @return Respuesta sin contenido
      */
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> eliminarCategoria(@PathVariable Long id) {
         categoriaService.eliminarCategoria(id);
         return ResponseEntity.noContent().build();

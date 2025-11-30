@@ -1,19 +1,11 @@
 
 package com.ventas.config;
 
-import com.ventas.seguridad.JwtAuthFilter;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -21,53 +13,26 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
 
 /**
- * Configuración de Seguridad y CORS consolidada con JWT.
+ * Configuración de Seguridad simplificada para desarrollo local.
+ * Sin JWT, todas las rutas permitidas.
  */
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
-
-    @Value("${cors.allowed-origins:http://localhost:3000}")
-    private String allowedOrigins;
-
-    private final JwtAuthFilter jwtAuthFilter;
-
-    public SecurityConfig(JwtAuthFilter jwtAuthFilter) {
-        this.jwtAuthFilter = jwtAuthFilter;
-    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            // 1. Primero deshabilita CSRF - IMPORTANTE HACERLO ANTES
+            // Deshabilitar CSRF
             .csrf(csrf -> csrf.disable())
-
-            // 2. Configura CORS antes que cualquier otra cosa
+            
+            // Configurar CORS
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-
-            // 3. Rutas públicas - especificar UNA POR UNA para asegurar prioridad
+            
+            // Permitir todas las peticiones sin autenticación
             .authorizeHttpRequests(authz -> authz
-                // Permitir endpoints específicos PRIMERO
-                .requestMatchers("/actuator/health").permitAll()
-                .requestMatchers("/actuator/**").permitAll()
-                .requestMatchers("/api/auth/login").permitAll()
-                .requestMatchers("/api/auth/register").permitAll()
-                .requestMatchers("/api/auth/test").permitAll() // NUEVO
-                .requestMatchers("/api/auth/bootstrap").permitAll() // TEMPORAL PARA CREAR PRIMER USUARIO
-                .requestMatchers("/api/auth/fix-passwords").permitAll() // TEMPORAL PARA RECODIFICAR CONTRASEÑAS
-                .requestMatchers("/swagger-ui/**").permitAll()
-                .requestMatchers("/v3/api-docs/**").permitAll()
-
-                // TODAS LAS DEMÁS rutas requieren autenticación
-                .anyRequest().authenticated()
-            )
-
-            // 4. Agregamos el filtro JWT DESPUÉS de configurar las rutas
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-
-            // 5. Configura el manejo de sesiones para que sea SIN ESTADO (stateless).
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+                .anyRequest().permitAll()
+            );
 
         return http.build();
     }
@@ -109,24 +74,4 @@ public class SecurityConfig {
         return source;
     }
 
-    /**
-     * Configura el codificador de contraseñas - NO ENCODER PARA DESARROLLO.
-     * @return PasswordEncoder sin encriptación (desarrollo únicamente)
-     */
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        // Para desarrollo simple - NO usar en producción
-        return org.springframework.security.crypto.password.NoOpPasswordEncoder.getInstance();
-    }
-
-    /**
-     * Configura el AuthenticationManager para inyección de dependencias.
-     * @param config Configuración de autenticación
-     * @return AuthenticationManager configurado
-     * @throws Exception Si hay errores en la configuración
-     */
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
-    }
 }

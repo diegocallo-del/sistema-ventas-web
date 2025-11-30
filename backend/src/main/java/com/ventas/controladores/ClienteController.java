@@ -6,7 +6,6 @@ import com.ventas.servicios.ClienteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,7 +29,6 @@ public class ClienteController {
      * @return Lista de clientes activos
      */
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR', 'VENDEDOR')")
     public ResponseEntity<List<ClienteDTO>> obtenerTodosLosClientes() {
         List<ClienteDTO> clientes = clienteService.obtenerTodosLosClientes();
         return ResponseEntity.ok(clientes);
@@ -42,7 +40,6 @@ public class ClienteController {
      * @return Cliente encontrado
      */
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR', 'VENDEDOR')")
     public ResponseEntity<ClienteDTO> obtenerClientePorId(@PathVariable Long id) {
         ClienteDTO cliente = clienteService.obtenerClientePorId(id);
         return ResponseEntity.ok(cliente);
@@ -54,7 +51,6 @@ public class ClienteController {
      * @return Lista de clientes que coinciden
      */
     @GetMapping("/buscar")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR', 'VENDEDOR')")
     public ResponseEntity<List<ClienteDTO>> buscarClientesPorNombre(@RequestParam String nombre) {
         List<ClienteDTO> clientes = clienteService.buscarClientesPorNombre(nombre);
         return ResponseEntity.ok(clientes);
@@ -66,7 +62,6 @@ public class ClienteController {
      * @return Cliente encontrado
      */
     @GetMapping("/documento/{documento}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR', 'VENDEDOR')")
     public ResponseEntity<ClienteDTO> buscarClientePorDocumento(@PathVariable String documento) {
         ClienteDTO cliente = clienteService.buscarClientePorDocumento(documento);
         return ResponseEntity.ok(cliente);
@@ -78,7 +73,6 @@ public class ClienteController {
      * @return Cliente encontrado
      */
     @GetMapping("/email")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR')")
     public ResponseEntity<ClienteDTO> buscarClientePorEmail(@RequestParam String email) {
         ClienteDTO cliente = clienteService.buscarClientePorEmail(email);
         return ResponseEntity.ok(cliente);
@@ -89,7 +83,6 @@ public class ClienteController {
      * @return Número de clientes activos
      */
     @GetMapping("/count")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR')")
     public ResponseEntity<Long> contarClientesActivos() {
         long count = clienteService.contarClientesActivos();
         return ResponseEntity.ok(count);
@@ -101,7 +94,6 @@ public class ClienteController {
      * @return Cliente creado
      */
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR', 'VENDEDOR')")
     public ResponseEntity<ClienteDTO> crearCliente(@Valid @RequestBody CreateClienteDTO createDTO) {
         ClienteDTO cliente = clienteService.crearCliente(createDTO);
         return new ResponseEntity<>(cliente, HttpStatus.CREATED);
@@ -114,7 +106,6 @@ public class ClienteController {
      * @return Cliente actualizado
      */
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR')")
     public ResponseEntity<ClienteDTO> actualizarCliente(
             @PathVariable Long id,
             @Valid @RequestBody CreateClienteDTO createDTO) {
@@ -128,7 +119,6 @@ public class ClienteController {
      * @return Respuesta sin contenido
      */
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> eliminarCliente(@PathVariable Long id) {
         clienteService.eliminarCliente(id);
         return ResponseEntity.noContent().build();

@@ -4,7 +4,6 @@ import com.ventas.dto.AnalisisIARequestDTO;
 import com.ventas.dto.AnalisisIAResponseDTO;
 import com.ventas.servicios.AnalisisIAService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,7 +20,6 @@ public class AnalisisIAController {
     }
 
     @PostMapping("/procesar")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR')")
     public ResponseEntity<AnalisisIAResponseDTO> analizarDatos(
             @RequestBody AnalisisIARequestDTO request) {
         // Aquí se llamaría al servicio para procesar la petición

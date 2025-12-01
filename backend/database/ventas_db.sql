@@ -116,3 +116,4 @@ INSERT INTO ventas (cliente_id, usuario_id, total, estado, metodo_pago) VALUES
 INSERT INTO detalle_venta (venta_id, producto_id, cantidad, precio_unitario, subtotal) VALUES
 (1, 1, 1, 2500.00, 2500.00),
 (1, 5, 2, 35.00, 70.00);
+

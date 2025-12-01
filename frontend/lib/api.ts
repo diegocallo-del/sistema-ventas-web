@@ -1,89 +1,145 @@
 /**
- * Configuracion y utilidades para llamadas a la API
+ * Configuracion y utilidades para llamadas a la API usando fetch nativo
  */
 
-import axios, { AxiosError, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { env, timeouts } from './config/env';
 import { ApiError } from './types';
 
-/**
- * Instancia configurada de axios
- */
-export const api = axios.create({
+// Configuración base
+export const API_CONFIG = {
   baseURL: env.apiUrl,
   timeout: timeouts.api,
-  headers: {
+  defaultHeaders: {
     'Content-Type': 'application/json',
   },
-});
+};
 
-// --- INTERCEPTORES DE AXIOS ---
-
-// Definimos una interfaz para poder añadir una propiedad custom `_retry`
-type RetryableRequest = InternalAxiosRequestConfig & { _retry?: boolean };
-
-/**
- * 1. Interceptor de Petición (REQUEST)
- * Se ejecuta ANTES de que cada petición sea enviada.
- */
-api.interceptors.request.use(
-  (config: InternalAxiosRequestConfig) => {
-    // Agregar token JWT si está disponible
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('auth_token');
-      if (token && config.headers) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-    }
-    return config;
-  },
-  (error: any) => {
-    return Promise.reject(error);
+// Funciones helper para manejo de URL y headers
+function buildUrl(url: string): string {
+  if (url.startsWith('http')) {
+    return url;
   }
-);
+  return `${API_CONFIG.baseURL}${url.startsWith('/') ? url : `/${url}`}`;
+}
 
-/**
- * 2. Interceptor de Respuesta (RESPONSE)
- * Se ejecuta DESPUÉS de recibir una respuesta (exitosa o con error).
- */
-api.interceptors.response.use(
-  (response: AxiosResponse) => {
-    // Para respuestas exitosas (status 2xx), simplemente las devuelve.
-    return response;
-  },
-  async (error: AxiosError) => {
-    // Aseguramos que el error es de axios
-    if (!axios.isAxiosError(error)) {
-      return Promise.reject(error);
+function getAuthHeaders(): Record<string, string> {
+  const headers: Record<string, string> = { ...API_CONFIG.defaultHeaders };
+
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+  }
+  return headers;
+}
+
+// Interfaz para requests con retry
+interface RetryableRequest {
+  method: string;
+  headers: Record<string, string>;
+  body?: any;
+  _retry?: boolean;
+}
+
+// Función principal de HTTP con funcionalidad similar a axios
+async function httpRequest<T>(
+  method: string,
+  url: string,
+  data?: any,
+  customHeaders?: Record<string, string>
+): Promise<T> {
+  const request: RetryableRequest = {
+    method,
+    headers: { ...getAuthHeaders(), ...customHeaders },
+  };
+
+  if (data) {
+    request.body = JSON.stringify(data);
+  }
+
+  // Interceptor de petición (equivalente al axios interceptor)
+  return await makeRequest(buildUrl(url), request);
+}
+
+// Función que maneja la petición real con fetch
+async function makeRequest<T>(fullUrl: string, request: RetryableRequest): Promise<T> {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), API_CONFIG.timeout);
+
+    const fetchOptions: RequestInit = {
+      method: request.method,
+      headers: request.headers,
+      signal: controller.signal,
+    };
+
+    if (request.body) {
+      fetchOptions.body = request.body;
     }
 
-    const originalRequest = error.config as RetryableRequest | undefined;
+    const response = await fetch(fullUrl, fetchOptions);
 
-    // Si el error es 401 (No Autorizado) y es una petición que no hemos reintentado ya...
-    if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
-      originalRequest._retry = true; // Marcamos para no reintentar infinitamente
+    clearTimeout(timeoutId);
+
+    // Interceptor de respuesta - manejo de 401 y refresh token
+    if (response.status === 401 && !request._retry) {
+      request._retry = true;
 
       try {
         const refreshed = await tryRefreshToken();
         if (refreshed) {
-          // Si el token se refrescó, reintentamos la petición original.
-          // Usamos `as any` aquí como un 'escape hatch' necesario. Esta es la solución
-          // estándar y pragmática para un problema de tipos conocido en axios.
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          return api(originalRequest as any);
+          // Reintentar la petición original con el nuevo token
+          request.headers.Authorization = `Bearer ${localStorage.getItem('auth_token')}`;
+          return await makeRequest(fullUrl, request);
         }
       } catch (refreshError) {
-        // Si el refresco del token falla, la sesión es inválida.
         handleUnauthorized();
-        return Promise.reject(refreshError);
+        throw refreshError;
       }
     }
 
-    // Para todos los demás errores, los parseamos a nuestro formato y los devolvemos.
-    const apiError = parseApiError(error);
-    return Promise.reject(apiError);
+    if (response.ok) {
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const data = await response.json();
+        return data;
+      }
+      return null as T;
+    } else {
+      // Parsear error y lanzar como ApiError
+      const apiError = await parseFetchError(response);
+      throw apiError;
+    }
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.name === 'AbortError') {
+        throw { message: 'Request timeout', status: 0 } as ApiError;
+      }
+      if ((error as ApiError).status !== undefined) {
+        throw error;
+      }
+    }
+    throw { message: 'Network error', status: 0 } as ApiError;
   }
-);
+}
+
+// Parsear errores de fetch
+async function parseFetchError(response: Response): Promise<ApiError> {
+  try {
+    const data = await response.json().catch(() => ({})) as any;
+    return {
+      message: data.message || data.detail || `HTTP ${response.status}: ${response.statusText}`,
+      status: response.status,
+      errors: data.errors
+    };
+  } catch {
+    return {
+      message: `HTTP ${response.status}: ${response.statusText}`,
+      status: response.status
+    };
+  }
+}
 
 // --- FUNCIONES HELPERS DE AUTENTICACIÓN ---
 
@@ -97,9 +153,17 @@ async function tryRefreshToken(): Promise<boolean> {
     const refreshToken = localStorage.getItem('refresh_token');
     if (!refreshToken) return false;
 
-    const response = await axios.post(`${env.apiUrl}/auth/refresh`, { refresh_token: refreshToken });
+    // Usar fetch directamente para evitar el interceptor
+    const response = await fetch(`${env.apiUrl}/auth/refresh`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refresh_token: refreshToken }),
+    });
 
-    const { access_token, refresh_token: newRefreshToken } = response.data;
+    if (!response.ok) return false;
+
+    const data = await response.json();
+    const { access_token, refresh_token: newRefreshToken } = data;
     localStorage.setItem('auth_token', access_token);
     if (newRefreshToken) {
         localStorage.setItem('refresh_token', newRefreshToken);
@@ -119,37 +183,43 @@ function handleUnauthorized(): void {
   window.location.replace('/login');
 }
 
-function parseApiError(error: AxiosError): ApiError {
-  if (error.response) {
-    const data = error.response.data as any;
-    return { message: data.message || data.detail || 'Error en la petición', errors: data.errors, status: error.response.status };
-  }
-  if (error.request) {
-    return { message: 'No se pudo conectar con el servidor', status: 0 };
-  }
-  return { message: error.message || 'Error desconocido' };
-}
-
 // --- FUNCIONES DE PETICIÓN PÚBLICAS (GET, POST, etc.) ---
 
-export async function get<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
-  const response = await api.get<T>(url, config);
-  return response.data;
+export interface FetchConfig {
+  headers?: Record<string, string>;
 }
 
-export async function post<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
-  const response = await api.post<T>(url, data, config);
-  return response.data;
+// Expone la función httpRequest para uso directo si es necesario
+export const api = {
+  request: httpRequest,
+  get<T>(url: string, config?: FetchConfig): Promise<T> {
+    return httpRequest<T>('GET', url, undefined, config?.headers);
+  },
+  post<T>(url: string, data?: any, config?: FetchConfig): Promise<T> {
+    return httpRequest<T>('POST', url, data, config?.headers);
+  },
+  put<T>(url: string, data?: any, config?: FetchConfig): Promise<T> {
+    return httpRequest<T>('PUT', url, data, config?.headers);
+  },
+  delete<T>(url: string, config?: FetchConfig): Promise<T> {
+    return httpRequest<T>('DELETE', url, undefined, config?.headers);
+  }
+};
+
+export async function get<T>(url: string, config?: FetchConfig): Promise<T> {
+  return httpRequest<T>('GET', url, undefined, config?.headers);
 }
 
-export async function put<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
-  const response = await api.put<T>(url, data, config);
-  return response.data;
+export async function post<T>(url: string, data?: any, config?: FetchConfig): Promise<T> {
+  return httpRequest<T>('POST', url, data, config?.headers);
 }
 
-export async function del<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
-  const response = await api.delete<T>(url, config);
-  return response.data;
+export async function put<T>(url: string, data?: any, config?: FetchConfig): Promise<T> {
+  return httpRequest<T>('PUT', url, data, config?.headers);
+}
+
+export async function del<T>(url: string, config?: FetchConfig): Promise<T> {
+  return httpRequest<T>('DELETE', url, undefined, config?.headers);
 }
 
 /**

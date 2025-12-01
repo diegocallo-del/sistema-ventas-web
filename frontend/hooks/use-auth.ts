@@ -1,8 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import axios from 'axios';
-import { api } from '@/lib/api';
+import { api, API_CONFIG } from '@/lib/api';
 import { signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider } from '@/lib/config/firebase';
 import { User, LoginCredentials, UserRole } from '../lib/types/usuario';
@@ -12,6 +11,37 @@ import { hasPermission as checkPermission } from '@/lib/roles/role-checker';
 import { debugUsers } from '@/lib/config/test-users';
 import { authEndpoints, userEndpoints } from '@/lib/config/endpoints';
 import { env } from '@/lib/config/env';
+import { ApiError } from '../lib/types';
+
+// Función helper para peticiones directas sin interceptores (para endpoints públicos)
+async function directRequest<T>(
+  method: string,
+  url: string,
+  data?: any,
+  headers: Record<string, string> = {}
+): Promise<T> {
+  const fullUrl = url.startsWith('http') ? url : `${API_CONFIG.baseURL}${url.startsWith('/') ? url : `/${url}`}`;
+
+  const response = await fetch(fullUrl, {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      ...headers,
+    },
+    body: data ? JSON.stringify(data) : undefined,
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw { message: errorData.message || 'Error en la petición', status: response.status } as ApiError;
+  }
+
+  const contentType = response.headers.get('content-type');
+  if (contentType && contentType.includes('application/json')) {
+    return response.json();
+  }
+  return null as T;
+}
 
 type RegisterPayload = {
   username: string;
@@ -60,38 +90,37 @@ export function useAuth() {
       console.log('📤 Enviando al backend:', loginData);
 
       // Enviar credenciales de login al backend SIN INTERCEPTOR (evita 403)
-      const response = await axios.post(authEndpoints.login, loginData, {
-        baseURL: undefined, // Reset baseURL para usar URL completa
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await directRequest<{ id: number; username: string; nombre: string; rol: string; token: string; refresh_token: string }>(
+        'POST',
+        authEndpoints.login,
+        loginData,
+        {
           'Accept': 'application/json',
           // NO incluir Authorization header para endpoint público
-        },
-        withCredentials: false, // Importante: deshabilitar credenciales para CORS
-        timeout: 15000, // 15 segundos timeout
-      });
+        }
+      );
       console.log('📡 Respuesta del backend:', response);
 
-      if (response.data) {
-        console.log('✅ Usuario autenticado:', response.data.username);
+      if (response) {
+        console.log('✅ Usuario autenticado:', response.username);
 
-      // Crear objeto de usuario desde respuesta del backend
+        // Crear objeto de usuario desde respuesta del backend
         const usernameUsed = 'email' in credentials ? credentials.email : credentials.username;
         const user = {
-          id: response.data.id,
+          id: response.id,
           username: usernameUsed, // El username original usado para login
-          email: response.data.username, // El backend retorna username pero es el email
-          nombre: response.data.nombre,
+          email: response.username, // El backend retorna username pero es el email
+          nombre: response.nombre,
           apellido: '', // No viene del backend, dejar vacío
-          rol: response.data.rol.toLowerCase() as UserRole, // Convertir a minúsculas para coincidir con enum
+          rol: response.rol.toLowerCase() as UserRole, // Convertir a minúsculas para coincidir con enum
           activo: true,
           fecha_creacion: new Date().toISOString(),
           ultimo_acceso: new Date().toISOString(),
         };
 
         // Usar tokens reales del backend
-        const token = response.data.token || response.data.access_token || "";
-        const refreshToken = response.data.refresh_token || token; // Usar token como refresh si no hay refresh token
+        const token = response.token || "";
+        const refreshToken = response.refresh_token || token; // Usar token como refresh si no hay refresh token
 
         storeLogin(user, token, refreshToken);
 
@@ -109,19 +138,19 @@ export function useAuth() {
 
       let message = 'Error interno del sistema';
 
-      if (axios.isAxiosError(error)) {
-        const responseData = error.response?.data as any;
-        const responseMessage =
-          responseData?.message ?? responseData?.error ?? responseData?.detail;
-
-        if (typeof responseMessage === 'string') {
-          message = responseMessage;
+      // Manejar errores de fetch
+      if (error instanceof Error && 'status' in error) {
+        const apiError = error as ApiError;
+        if (apiError.message) {
+          message = apiError.message;
         }
 
         // Si es error 401/403, credenciales incorrectas
-        if (error.response?.status === 401 || error.response?.status === 403) {
+        if (apiError.status === 401 || apiError.status === 403) {
           message = 'Usuario o contraseña incorrectos';
         }
+      } else if (error instanceof Error) {
+        message = error.message;
       }
 
       return {

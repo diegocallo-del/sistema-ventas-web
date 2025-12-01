@@ -7,11 +7,11 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/hooks/use-auth';
-import { User, Lock, Mail, AlertCircle, Eye, EyeOff, Chrome, TestTube } from 'lucide-react';
+import { User, Lock, Mail, AlertCircle, Eye, EyeOff, Chrome, TestTube, CheckCircle } from 'lucide-react';
 
 export function RegisterForm() {
   const router = useRouter();
-  const { register, loginWithGoogle, testConnection } = useAuth();
+  const { register, loginWithGoogle } = useAuth();
 
   const [formData, setFormData] = useState({
     username: '',
@@ -27,6 +27,7 @@ export function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [showPassword2, setShowPassword2] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -53,7 +54,9 @@ export function RegisterForm() {
     }
 
     setIsLoading(true);
+    setError(null);
 
+    // Enviar registro al backend
     const result = await register({
       username: formData.username,
       nombre: formData.nombre,
@@ -66,7 +69,14 @@ export function RegisterForm() {
       setError(result.error || 'Error al registrarse');
       setIsLoading(false);
     } else {
-      router.push('/'); // Redirige al login
+      // Registro exitoso - mostrar mensaje y redirigir
+      setRegistrationSuccess(true);
+      setIsLoading(false);
+
+      // Redirigir al login después de 2 segundos
+      setTimeout(() => {
+        router.push('/');
+      }, 2000);
     }
   };
 
@@ -110,15 +120,24 @@ export function RegisterForm() {
         </CardHeader>
 
         <CardContent className="p-6 sm:p-8">
-          <form onSubmit={handleSubmit} className="space-y-6">
-
-            {error && (
-              <div className="flex items-center gap-2 p-3 rounded-xl 
-                bg-red-900/20 border border-red-400/30 text-red-300 text-sm animate-slide-up shadow-[0_0_10px_rgba(239,68,68,0.2)]">
-                <AlertCircle className="w-5 h-5" />
-                <span>{error}</span>
+          {registrationSuccess ? (
+            <div className="text-center space-y-6 py-8">
+              <div className="flex items-center justify-center gap-2 p-3 rounded-xl
+                bg-green-900/20 border border-green-400/30 text-green-300 text-sm animate-slide-up shadow-[0_0_10px_rgba(34,197,94,0.2)]">
+                <CheckCircle className="w-5 h-5" />
+                <span>¡Registro exitoso! Redirigiendo al login...</span>
               </div>
-            )}
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-6">
+
+              {error && (
+                <div className="flex items-center gap-2 p-3 rounded-xl
+                  bg-red-900/20 border border-red-400/30 text-red-300 text-sm animate-slide-up shadow-[0_0_10px_rgba(239,68,68,0.2)]">
+                  <AlertCircle className="w-5 h-5" />
+                  <span>{error}</span>
+                </div>
+              )}
 
             {/* Nombre */}
             <div className="relative">
@@ -212,25 +231,6 @@ export function RegisterForm() {
               Registrarse
             </Button>
 
-            {/* Botón de prueba CORS */}
-            <Button
-              type="button"
-              onClick={async () => {
-                const result = await testConnection();
-                setError(result.success
-                  ? `✅ Comunicación exitosa: ${result.error?.substring(0, 100)}...`
-                  : `❌ Error CORS: ${result.error}`
-                );
-              }}
-              className="w-full py-2 rounded-xl text-white font-medium text-sm
-                bg-green-600/40 hover:bg-green-600/50 border border-green-400/30
-                shadow-[0_0_10px_rgba(34,197,94,0.2)] hover:shadow-[0_0_15px_rgba(34,197,94,0.3)]
-                transition-all duration-300"
-            >
-              <TestTube className="w-4 h-4 mr-2" />
-              Testear Comunicación CORS
-            </Button>
-
             <div className="flex items-center my-4">
               <div className="flex-1 border-t border-slate-600"></div>
               <span className="px-3 text-slate-400 text-sm">o</span>
@@ -262,7 +262,8 @@ export function RegisterForm() {
               </Link>
             </p>
 
-          </form>
+            </form>
+          )}
         </CardContent>
 
       </Card>

@@ -37,6 +37,7 @@ export interface SaleDetail {
   cantidad: number;
   precio_unitario: number;
   subtotal: number;
+  producto_nombre: string;
 }
 
 /**
@@ -45,15 +46,19 @@ export interface SaleDetail {
 export interface Sale {
   id: number;
   fecha: string;
-  cliente_id: number;
+  cliente_id: number | null;
+  cliente_nombre: string;
+  cliente_documento: string | null;
   cliente?: Client;
   usuario_id: number;
+  usuario_nombre: string;
   usuario?: User;
   subtotal: number;
   igv: number;
   total: number;
   metodo_pago: PaymentMethod;
   estado: SaleStatus;
+  activo: boolean;
   observaciones: string | null;
   detalles: SaleDetail[];
   fecha_creacion: string;
@@ -102,7 +107,7 @@ export interface SaleFilters {
  */
 export interface SaleSummary {
   total_ventas: number;
-  total_monto: number;
+  total_ingresos: number;
   promedio_venta: number;
   ventas_por_metodo: Record<PaymentMethod, number>;
 }

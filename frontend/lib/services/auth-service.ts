@@ -3,29 +3,60 @@
  * Maneja todas las operaciones relacionadas con autenticacion de usuarios
  */
 
-import axios from 'axios';
 import { authEndpoints } from '../config/endpoints';
 import { LoginCredentials, AuthResponse, User } from '../types/usuario';
+import { API_CONFIG } from '../api';
+import { ApiError } from '../types';
+
+/**
+ * Función helper para hacer peticiones con fetch sin interceptores
+ */
+async function directRequest<T>(
+  method: string,
+  url: string,
+  data?: any,
+  headers: Record<string, string> = {}
+): Promise<T> {
+  const fullUrl = url.startsWith('http') ? url : `${API_CONFIG.baseURL}${url.startsWith('/') ? url : `/${url}`}`;
+
+  const response = await fetch(fullUrl, {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      ...headers,
+    },
+    body: data ? JSON.stringify(data) : undefined,
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw { message: errorData.message || 'Error en la petición', status: response.status } as ApiError;
+  }
+
+  const contentType = response.headers.get('content-type');
+  if (contentType && contentType.includes('application/json')) {
+    return response.json();
+  }
+  return null as T;
+}
 
 /**
  * Inicia sesion con credenciales
  */
 export async function login(credentials: LoginCredentials): Promise<AuthResponse> {
-  const response = await axios.post<AuthResponse>(authEndpoints.login, credentials);
-  return response.data;
+  return directRequest<AuthResponse>('POST', authEndpoints.login, credentials);
 }
 
 /**
  * Cierra sesion del usuario actual
  */
 export async function logout(token: string): Promise<void> {
-  await axios.post(
+  await directRequest(
+    'POST',
     authEndpoints.logout,
     {},
     {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      Authorization: `Bearer ${token}`,
     }
   );
 }
@@ -34,22 +65,23 @@ export async function logout(token: string): Promise<void> {
  * Obtiene los datos del usuario autenticado actual
  */
 export async function getCurrentUser(token: string): Promise<User> {
-  const response = await axios.get<User>(authEndpoints.me, {
-    headers: {
+  return directRequest<User>(
+    'GET',
+    authEndpoints.me,
+    undefined,
+    {
       Authorization: `Bearer ${token}`,
-    },
-  });
-  return response.data;
+    }
+  );
 }
 
 /**
  * Refresca el token de acceso usando el refresh token
  */
 export async function refreshToken(refreshToken: string): Promise<AuthResponse> {
-  const response = await axios.post<AuthResponse>(authEndpoints.refresh, {
+  return directRequest<AuthResponse>('POST', authEndpoints.refresh, {
     refresh_token: refreshToken,
   });
-  return response.data;
 }
 
 /**
@@ -57,11 +89,14 @@ export async function refreshToken(refreshToken: string): Promise<AuthResponse> 
  */
 export async function verifyToken(token: string): Promise<boolean> {
   try {
-    await axios.get(authEndpoints.verify, {
-      headers: {
+    await directRequest(
+      'GET',
+      authEndpoints.verify,
+      undefined,
+      {
         Authorization: `Bearer ${token}`,
-      },
-    });
+      }
+    );
     return true;
   } catch {
     return false;

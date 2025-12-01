@@ -1,7 +1,3 @@
-/**
- * Exportacion centralizada de todos los tipos
- */
-
 export * from './usuario';
 export * from './producto';
 export * from './cliente';

@@ -12,6 +12,8 @@ import {
   SaleSummary,
   PaginatedResponse,
   QueryOptions,
+  PaymentMethod,
+  SaleStatus,
 } from '../types';
 
 /**
@@ -44,21 +46,29 @@ interface VentaDTOBackend {
  * Mapea VentaDTO del backend a Sale del frontend
  */
 function mapVentaFromBackend(dto: VentaDTOBackend): Sale {
+  const subtotal = dto.detalles.reduce((sum, d) => sum + Number(d.subtotal), 0);
+  const igv = Number(dto.total) - subtotal;
+
   return {
     id: dto.id,
-    cliente_id: dto.clienteId,
+    fecha: dto.fechaCreacion,
+    cliente_id: dto.clienteId !== null ? Number(dto.clienteId) : null,
     cliente_nombre: dto.clienteNombre,
     cliente_documento: dto.clienteDocumento,
     usuario_id: dto.usuarioId,
     usuario_nombre: dto.usuarioNombre,
+    subtotal: subtotal,
+    igv: igv,
     total: Number(dto.total),
-    estado: dto.estadoVenta,
-    tipo_pago: dto.tipoPago,
+    metodo_pago: dto.tipoPago as PaymentMethod,
+    estado: dto.estadoVenta as SaleStatus,
+    observaciones: null,
+    activo: dto.activo,
     fecha_creacion: dto.fechaCreacion,
     fecha_actualizacion: dto.fechaActualizacion,
-    activo: dto.activo,
     detalles: dto.detalles.map(d => ({
       id: d.id,
+      venta_id: dto.id,
       producto_id: d.productoId,
       producto_nombre: d.productoNombre,
       cantidad: d.cantidad,
@@ -100,7 +110,7 @@ export async function getSales(
  * Obtiene una venta por ID con sus detalles
  */
 export async function getSaleById(id: number): Promise<Sale> {
-  const response = await axios.get<VentaDTOBackend>(saleEndpoints.byId(id));
+  const response = await api.get<VentaDTOBackend>(saleEndpoints.byId(id));
   return mapVentaFromBackend(response.data);
 }
 
@@ -163,10 +173,17 @@ export async function getSalesSummary(
     const ventas = await getSales();
     const total = ventas.items.reduce((sum, v) => sum + v.total, 0);
     const cantidad = ventas.items.length;
+    const ventasPorMetodo: Record<PaymentMethod, number> = ventas.items.reduce((acc, v) => {
+      const metodo = v.metodo_pago as PaymentMethod;
+      acc[metodo] = (acc[metodo] || 0) + v.total;
+      return acc;
+    }, {} as Record<PaymentMethod, number>);
+
     return {
       total_ventas: cantidad,
       total_ingresos: total,
       promedio_venta: cantidad > 0 ? total / cantidad : 0,
+      ventas_por_metodo: ventasPorMetodo,
     };
   }
 }

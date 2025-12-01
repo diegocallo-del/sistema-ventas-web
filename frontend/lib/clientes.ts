@@ -31,14 +31,14 @@ export async function fetchClientes(
   options: QueryOptions = {},
   token: string,
 ): Promise<PaginatedResponse<Client>> {
-  return getClients(options, token);
+  return getClients(options, );
 }
 
 /**
  * Obtiene un cliente por ID.
  */
 export async function fetchClienteById(id: number, token: string): Promise<Client> {
-  return getClientById(id, token);
+  return getClientById(id, );
 }
 
 /**
@@ -48,7 +48,7 @@ export async function crearCliente(
   data: CreateClientData,
   token: string,
 ): Promise<Client> {
-  return createClient(data, token);
+  return createClient(data, );
 }
 
 /**
@@ -59,14 +59,14 @@ export async function actualizarCliente(
   data: UpdateClientData,
   token: string,
 ): Promise<Client> {
-  return updateClient(id, data, token);
+  return updateClient(id, data, );
 }
 
 /**
  * Elimina un cliente.
  */
 export async function eliminarCliente(id: number, token: string): Promise<void> {
-  return deleteClient(id, token);
+  return deleteClient(id, );
 }
 
 /**
@@ -77,7 +77,7 @@ export async function buscarClientes(
   filters: ClientFilters = {},
   token: string,
 ): Promise<Client[]> {
-  return searchClients(query, filters, token);
+  return searchClients(query, filters,);
 }
 
 /**
@@ -87,5 +87,5 @@ export async function fetchClientePorDocumento(
   numeroDocumento: string,
   token: string,
 ): Promise<Client | null> {
-  return getClientByDocument(numeroDocumento, token);
+  return getClientByDocument(numeroDocumento,);
 }

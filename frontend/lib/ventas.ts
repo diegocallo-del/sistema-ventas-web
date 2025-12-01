@@ -31,14 +31,14 @@ export async function fetchVentas(
   options: QueryOptions = {},
   token: string,
 ): Promise<PaginatedResponse<Sale>> {
-  return getSales(options, token);
+  return getSales(options,);
 }
 
 /**
  * Obtiene una venta por ID (incluyendo sus detalles).
  */
 export async function fetchVentaById(id: number, token: string): Promise<Sale> {
-  return getSaleById(id, token);
+  return getSaleById(id, );
 }
 
 /**
@@ -48,7 +48,7 @@ export async function createNuevaVenta(
   data: CreateSaleData,
   token: string,
 ): Promise<Sale> {
-  return createSale(data, token);
+  return createSale(data,);
 }
 
 /**
@@ -59,7 +59,7 @@ export async function cancelarVenta(
   motivo: string,
   token: string,
 ): Promise<Sale> {
-  return cancelSale(id, motivo, token);
+  return cancelSale(id, motivo,);
 }
 
 /**
@@ -70,7 +70,7 @@ export async function fetchVentasPorRangoFechas(
   fechaFin: string,
   token: string,
 ): Promise<Sale[]> {
-  return getSalesByDateRange(fechaInicio, fechaFin, token);
+  return getSalesByDateRange(fechaInicio, fechaFin,);
 }
 
 /**
@@ -80,7 +80,7 @@ export async function fetchVentasPorCliente(
   clientId: number,
   token: string,
 ): Promise<Sale[]> {
-  return getSalesByClient(clientId, token);
+  return getSalesByClient(clientId,);
 }
 
 /**
@@ -90,5 +90,5 @@ export async function fetchResumenVentas(
   filters: SaleFilters = {},
   token: string,
 ): Promise<SaleSummary> {
-  return getSalesSummary(filters, token);
+  return getSalesSummary(filters,);
 }

@@ -1,8 +1,8 @@
 package com.ventas.modelos;
 
-import com.ventas.abstractas.EntidadBase;
+import com.ventas.abstractas.CategoriaBase;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
+
 import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,12 +15,15 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @EqualsAndHashCode(callSuper = true)
-public class Categoria extends EntidadBase {
-
-    @NotBlank(message = "El nombre de la categoría es obligatorio")
-    @Column(name = "nombre", unique = true, length = 50)
-    private String nombre;
+public class Categoria extends CategoriaBase {
 
     @OneToMany(mappedBy = "categoria", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Producto> productos = new ArrayList<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "categoria_padre")
+    private Categoria categoriaPadre;
+
+    @OneToMany(mappedBy = "categoriaPadre", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Categoria> hijos = new ArrayList<>();
 }

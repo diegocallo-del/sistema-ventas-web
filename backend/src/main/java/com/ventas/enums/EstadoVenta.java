@@ -2,6 +2,8 @@ package com.ventas.enums;
 
 public enum EstadoVenta {
     PENDIENTE,
-    COMPLETADA,
+    PAGADA,
+    ENVIADA,
+    ENTREGADA,
     CANCELADA
 }

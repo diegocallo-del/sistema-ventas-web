@@ -56,9 +56,8 @@ public class CategoriaService {
     public CategoriaDTO crearCategoria(CreateCategoriaDTO createDTO) {
         validarCategoriaUnica(createDTO.nombre());
 
-        Categoria categoria = Categoria.builder()
-                .nombre(createDTO.nombre())
-                .build();
+        Categoria categoria = new Categoria();
+        categoria.setNombre(createDTO.nombre());
         categoria.setActivo(true);
 
         Categoria categoriaGuardada = categoriaRepository.save(categoria);

@@ -1,10 +1,14 @@
 package com.ventas.abstractas;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import com.ventas.interfaces.Identificable;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -12,7 +16,10 @@ import java.time.LocalDateTime;
 @MappedSuperclass
 @Getter
 @Setter
-public abstract class EntidadBase implements Serializable {
+@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
+public abstract class EntidadBase implements Serializable, Identificable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

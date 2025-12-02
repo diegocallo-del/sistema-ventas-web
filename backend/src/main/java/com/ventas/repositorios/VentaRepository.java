@@ -21,8 +21,8 @@ public interface VentaRepository extends JpaRepository<Venta, Long> {
      * @param clienteId El ID del cliente
      * @return Lista de ventas del cliente ordenadas por fecha descendente
      */
-    @Query("SELECT v FROM Venta v WHERE v.cliente.id = :clienteId ORDER BY v.fechaVenta DESC")
-    List<Venta> findByClienteIdOrderByFechaVentaDesc(@Param("clienteId") Long clienteId);
+    @Query("SELECT v FROM Venta v WHERE v.cliente.id = :clienteId ORDER BY v.fechaCreacion DESC")
+    List<Venta> findByClienteIdOrderByFechaCreacionDesc(@Param("clienteId") Long clienteId);
 
     /**
      * Busca ventas dentro de un rango de fechas.
@@ -30,7 +30,7 @@ public interface VentaRepository extends JpaRepository<Venta, Long> {
      * @param fin Fecha de fin del rango
      * @return Lista de ventas en el rango especificado
      */
-    @Query("SELECT v FROM Venta v WHERE v.fechaVenta BETWEEN :inicio AND :fin ORDER BY v.fechaVenta DESC")
+    @Query("SELECT v FROM Venta v WHERE v.fechaCreacion BETWEEN :inicio AND :fin ORDER BY v.fechaCreacion DESC")
     List<Venta> findVentasEntreFechas(@Param("inicio") LocalDateTime inicio, @Param("fin") LocalDateTime fin);
 
     /**
@@ -47,8 +47,8 @@ public interface VentaRepository extends JpaRepository<Venta, Long> {
      * @param fin Fecha de fin
      * @return Lista de ventas filtradas
      */
-    @Query("SELECT v FROM Venta v WHERE v.estadoVenta = :estado AND v.fechaVenta BETWEEN :inicio AND :fin")
-    List<Venta> findByEstadoVentaAndFechaVentaBetween(
+    @Query("SELECT v FROM Venta v WHERE v.estadoVenta = :estado AND v.fechaCreacion BETWEEN :inicio AND :fin")
+    List<Venta> findByEstadoVentaAndFechaCreacionBetween(
         @Param("estado") com.ventas.enums.EstadoVenta estado,
         @Param("inicio") LocalDateTime inicio,
         @Param("fin") LocalDateTime fin
@@ -60,7 +60,7 @@ public interface VentaRepository extends JpaRepository<Venta, Long> {
      * @param fin Fecha de fin
      * @return El total de ventas en el período
      */
-    @Query("SELECT SUM(v.total) FROM Venta v WHERE v.fechaVenta BETWEEN :inicio AND :fin AND v.estadoVenta = 'COMPLETADA'")
+    @Query("SELECT SUM(v.total) FROM Venta v WHERE v.fechaCreacion BETWEEN :inicio AND :fin AND v.estadoVenta = 'PAGADA'")
     Double calcularTotalVentasEntreFechas(@Param("inicio") LocalDateTime inicio, @Param("fin") LocalDateTime fin);
 
     /**
@@ -68,7 +68,7 @@ public interface VentaRepository extends JpaRepository<Venta, Long> {
      * @param limite Número máximo de ventas a retornar
      * @return Lista de las ventas más recientes
      */
-    @Query("SELECT v FROM Venta v ORDER BY v.fechaVenta DESC")
+    @Query("SELECT v FROM Venta v ORDER BY v.fechaCreacion DESC")
     List<Venta> findUltimasVentas(@Param("limite") int limite);
 
     /**
@@ -82,6 +82,6 @@ public interface VentaRepository extends JpaRepository<Venta, Long> {
      * Busca ventas con detalles de productos incluidos.
      * @return Lista de ventas con fetch de detalles
      */
-    @Query("SELECT DISTINCT v FROM Venta v LEFT JOIN FETCH v.detalles WHERE v.estadoVenta = 'COMPLETADA'")
+    @Query("SELECT DISTINCT v FROM Venta v LEFT JOIN FETCH v.detalles WHERE v.estadoVenta = 'PAGADA'")
     List<Venta> findVentasCompletadasConDetalles();
 }

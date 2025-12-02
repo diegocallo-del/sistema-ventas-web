@@ -1,18 +1,14 @@
 
 package com.ventas.config;
 
-import com.ventas.seguridad.JwtAuthFilter;
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -21,43 +17,31 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Configuración de Seguridad para producción.
- * JWT + Roles + BCrypt
+ * Configuración simple sin seguridad para desarrollo.
+ * Permite acceso a todos los endpoints.
  */
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity(prePostEnabled = true)
-@RequiredArgsConstructor
 public class SecurityConfig {
-
-    private final JwtAuthFilter jwtAuthFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            // Deshabilitar CSRF (JWT lo maneja)
+            // Deshabilitar CSRF
             .csrf(csrf -> csrf.disable())
-            
+
             // Configurar CORS
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            
-            // Política de sesión stateless (JWT)
+
+            // Política de sesión stateless
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
-            
-            // Configurar autorización
+
+            // Permitir todos los requests
             .authorizeHttpRequests(authz -> authz
-                // Rutas públicas
-                .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/actuator/**").permitAll()
-                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                // Todas las demás requieren autenticación
-                .anyRequest().authenticated()
-            )
-            
-            // Agregar filtro JWT antes del filtro de autenticación
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .anyRequest().permitAll()
+            );
 
         return http.build();
     }

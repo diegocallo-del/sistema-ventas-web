@@ -20,7 +20,7 @@ public interface DetalleVentaRepository extends JpaRepository<DetalleVenta, Long
      * @param ventaId El ID de la venta
      * @return Lista de detalles de esa venta
      */
-    @Query("SELECT d FROM DetalleVenta d WHERE d.venta.id = :ventaId ORDER BY d.id")
+    @Query("SELECT d FROM DetalleVenta d WHERE d.orden.id = :ventaId ORDER BY d.id")
     List<DetalleVenta> findByVentaId(@Param("ventaId") Long ventaId);
 
     /**
@@ -28,7 +28,7 @@ public interface DetalleVentaRepository extends JpaRepository<DetalleVenta, Long
      * @param productoId El ID del producto
      * @return Lista de todos los detalles donde aparece ese producto
      */
-    @Query("SELECT d FROM DetalleVenta d WHERE d.producto.id = :productoId ORDER BY d.venta.fechaVenta DESC")
+    @Query("SELECT d FROM DetalleVenta d WHERE d.producto.id = :productoId ORDER BY d.orden.fechaCreacion DESC")
     List<DetalleVenta> findByProductoId(@Param("productoId") Long productoId);
 
     /**
@@ -55,7 +55,7 @@ public interface DetalleVentaRepository extends JpaRepository<DetalleVenta, Long
      * @param productoId El ID del producto
      * @return Ingresos totales generados por el producto
      */
-    @Query("SELECT SUM(d.subtotal) FROM DetalleVenta d WHERE d.producto.id = :productoId")
+    @Query("SELECT SUM(d.precio * d.cantidad) FROM DetalleVenta d WHERE d.producto.id = :productoId")
     Double calcularIngresosPorProducto(@Param("productoId") Long productoId);
 
     /**
@@ -65,8 +65,8 @@ public interface DetalleVentaRepository extends JpaRepository<DetalleVenta, Long
      * @param fin Fecha de fin
      * @return Estadísticas de venta (cantidad total, ingresos totales)
      */
-    @Query("SELECT SUM(d.cantidad), SUM(d.subtotal) FROM DetalleVenta d " +
-           "WHERE d.producto.id = :productoId AND d.venta.fechaVenta BETWEEN :inicio AND :fin")
+    @Query("SELECT SUM(d.cantidad), SUM(d.precio * d.cantidad) FROM DetalleVenta d " +
+           "WHERE d.producto.id = :productoId AND d.orden.fechaCreacion BETWEEN :inicio AND :fin")
     Object[] obtenerEstadisticasProductoEnRango(
         @Param("productoId") Long productoId,
         @Param("inicio") java.time.LocalDateTime inicio,
@@ -80,8 +80,8 @@ public interface DetalleVentaRepository extends JpaRepository<DetalleVenta, Long
      */
     @Query("SELECT d FROM DetalleVenta d " +
            "JOIN FETCH d.producto p " +
-           "JOIN FETCH d.venta v " +
-           "WHERE d.venta.id = :ventaId " +
+           "JOIN FETCH d.orden v " +
+           "WHERE d.orden.id = :ventaId " +
            "ORDER BY d.id")
     List<DetalleVenta> findByVentaIdConProducto(@Param("ventaId") Long ventaId);
 }

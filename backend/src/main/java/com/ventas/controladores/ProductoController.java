@@ -30,7 +30,6 @@ public class ProductoController {
      * @return Lista de productos activos
      */
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR', 'VENDEDOR', 'CLIENTE')")
     public ResponseEntity<List<ProductoDTO>> obtenerTodosLosProductos() {
         List<ProductoDTO> productos = productoService.obtenerTodosLosProductos();
         return ResponseEntity.ok(productos);
@@ -76,7 +75,6 @@ public class ProductoController {
      * @return Producto creado
      */
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR')")
     public ResponseEntity<ProductoDTO> crearProducto(@Valid @RequestBody CreateProductoDTO createDTO) {
         ProductoDTO producto = productoService.crearProducto(createDTO);
         return new ResponseEntity<>(producto, HttpStatus.CREATED);

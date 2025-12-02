@@ -7,12 +7,11 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "ventas")
+@Table(name = "ordenes")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -22,27 +21,24 @@ import java.util.List;
 public class Venta extends EntidadBase {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cliente_id")
-    private Cliente cliente;
-
-    @Column(name = "fecha_venta", nullable = false)
-    private LocalDateTime fechaVenta;
+    @JoinColumn(name = "comprador_id")
+    private Usuario cliente;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "usuario_id")
-    private Usuario usuario;
+    @JoinColumn(name = "direccion_envio_id")
+    private Direccion direccionEnvio;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "tipo_pago", length = 20)
-    private TipoPago tipoPago;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "estado_venta", length = 20)
-    private EstadoVenta estadoVenta;
-
-    @Column(name = "total", precision = 10, scale = 2)
+    @Column(name = "total", precision = 12, scale = 2, nullable = false)
     private BigDecimal total;
 
-    @OneToMany(mappedBy = "venta", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado", length = 20, nullable = false)
+    private EstadoVenta estadoVenta;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "metodo_pago", length = 50)
+    private TipoPago tipoPago;
+
+    @OneToMany(mappedBy = "orden", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DetalleVenta> detalles = new ArrayList<>();
 }

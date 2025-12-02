@@ -7,7 +7,7 @@ import lombok.*;
 import java.math.BigDecimal;
 
 @Entity
-@Table(name = "detalle_venta")
+@Table(name = "orden_items")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -17,19 +17,16 @@ import java.math.BigDecimal;
 public class DetalleVenta extends EntidadBase {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "venta_id", nullable = false)
-    private Venta venta;
+    @JoinColumn(name = "orden_id", nullable = false)
+    private Venta orden;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "producto_id", nullable = false)
+    @JoinColumn(name = "variante_id", nullable = false)
     private Producto producto;
 
-    @Column(name = "cantidad")
+    @Column(name = "cantidad", nullable = false)
     private int cantidad;
 
-    @Column(name = "precio_unitario", precision = 10, scale = 2)
-    private BigDecimal precioUnitario;
-
-    @Column(name = "subtotal", precision = 10, scale = 2)
-    private BigDecimal subtotal;
+    @Column(name = "precio", precision = 10, scale = 2, nullable = false)
+    private BigDecimal precio;
 }

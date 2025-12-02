@@ -4,6 +4,7 @@ import com.ventas.dto.CreateVentaDTO;
 import com.ventas.dto.DetalleVentaDTO;
 import com.ventas.dto.VentaDTO;
 import com.ventas.enums.EstadoVenta;
+import com.ventas.enums.TipoPago;
 import com.ventas.excepciones.ResourceNotFoundException;
 import com.ventas.excepciones.ValidationException;
 import com.ventas.modelos.*;
@@ -66,10 +67,10 @@ public class VentaService {
             throw new ValidationException("La venta debe tener al menos un detalle");
         }
 
-        Cliente cliente = null;
+        Usuario cliente = null;
         if (createDTO.clienteId() != null) {
             cliente = clienteRepository.findById(createDTO.clienteId())
-                    .filter(Cliente::isActivo)
+                    .filter(u -> u.isActivo() && "CLIENTE".equals(u.getRol()))
                     .orElse(null);
         }
 
@@ -90,10 +91,9 @@ public class VentaService {
         // Crear venta
         Venta venta = new Venta();
         venta.setCliente(cliente);
-        venta.setUsuario(getUsuarioTemporal());
         venta.setTotal(total);
-        venta.setEstadoVenta(EstadoVenta.COMPLETADA);
-        venta.setTipoPago(createDTO.tipoPago());
+        venta.setEstadoVenta(EstadoVenta.PAGADA); // assuming completed as paid
+        venta.setTipoPago(createDTO.tipoPago()); // assuming TipoPago enum
         venta.setActivo(true);
 
         Venta ventaGuardada = ventaRepository.save(venta);
@@ -103,11 +103,10 @@ public class VentaService {
             Producto producto = productoRepository.findById(detalleDTO.productoId()).get();
 
             DetalleVenta detalle = new DetalleVenta();
-            detalle.setVenta(ventaGuardada);
+            detalle.setOrden(ventaGuardada);
             detalle.setProducto(producto);
             detalle.setCantidad(detalleDTO.cantidad());
-            detalle.setPrecioUnitario(producto.getPrecio());
-            detalle.setSubtotal(producto.getPrecio().multiply(BigDecimal.valueOf(detalleDTO.cantidad())));
+            detalle.setPrecio(producto.getPrecio());
             detalle.setActivo(true);
 
             detalleVentaRepository.save(detalle);
@@ -153,7 +152,7 @@ public class VentaService {
      */
     public List<VentaDTO> obtenerVentasPorCliente(Long clienteId) {
         clienteRepository.findById(clienteId)
-                .filter(Cliente::isActivo)
+                .filter(u -> u.isActivo() && "CLIENTE".equals(u.getRol()))
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado con ID: " + clienteId));
 
         return ventaRepository.findAll().stream()
@@ -198,18 +197,19 @@ public class VentaService {
                         d.getProducto().getId(),
                         d.getProducto().getNombre(),
                         d.getCantidad(),
-                        d.getPrecioUnitario(),
-                        d.getSubtotal()
+                        d.getPrecio(),
+                        d.getPrecio().multiply(BigDecimal.valueOf(d.getCantidad()))
                 ))
                 .collect(Collectors.toList());
 
+        Usuario comprador = venta.getCliente();
         return new VentaDTO(
                 venta.getId(),
-                venta.getCliente() != null ? venta.getCliente().getId() : null,
-                venta.getCliente() != null ? venta.getCliente().getNombre() : "Cliente Contado",
-                venta.getCliente() != null ? venta.getCliente().getNumeroDocumento() : null,
-                venta.getUsuario().getId(),
-                venta.getUsuario().getNombre(),
+                comprador != null ? comprador.getId() : null,
+                comprador != null ? comprador.getNombre() : "Cliente Contado",
+                comprador != null && comprador instanceof Cliente ? ((Cliente) comprador).getNumeroDocumento() : null,
+                null, // sin usuario vendedor
+                null,
                 venta.getTotal(),
                 venta.getEstadoVenta(),
                 venta.getTipoPago(),

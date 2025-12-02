@@ -3,25 +3,23 @@ package com.ventas.controladores;
 import com.ventas.dto.AuthResponseDTO;
 import com.ventas.dto.CreateUsuarioDTO;
 import com.ventas.dto.LoginRequestDTO;
-import com.ventas.enums.RolUsuario;
+import com.ventas.servicios.AuthService;
 import com.ventas.modelos.Usuario;
 import com.ventas.repositorios.UsuarioRepository;
-import com.ventas.servicios.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
- * Controlador REST para la gestión de autenticación y usuarios.
- * Proporciona endpoints para login, registro y gestión de perfil de usuario.
+ * Controlador REST simple para autenticación básica.
  */
 @RestController
 @RequestMapping("/api/auth")
@@ -29,15 +27,12 @@ import java.util.Optional;
 @Validated
 public class AuthController {
 
-    private final AuthService authService;
     private final UsuarioRepository usuarioRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final AuthService authService;
 
     /**
-     * Endpoint para el login de usuarios.
-     * Recibe credenciales y retorna un token JWT.
-     * @param loginRequest Credenciales del usuario
-     * @return Token JWT con información del usuario
+     * Endpoint para login simple.
+     * Verifica si usuario existe y contraseña coincide.
      */
     @PostMapping("/login")
     public ResponseEntity<AuthResponseDTO> login(@Valid @RequestBody LoginRequestDTO loginRequest) {
@@ -46,21 +41,17 @@ public class AuthController {
     }
 
     /**
-     * Endpoint para registro de nuevos usuarios.
-     * Solo accesible para administradores o usuarios registrados.
-     * @param createUsuario Datos del nuevo usuario
-     * @return Token JWT del usuario registrado
+     * Endpoint para registro simple.
+     * Guarda usuario en BD con contraseña en texto plano.
      */
     @PostMapping("/register")
-    public ResponseEntity<AuthResponseDTO> registrarUsuario(
-            @Valid @RequestBody CreateUsuarioDTO createUsuario) {
+    public ResponseEntity<AuthResponseDTO> registrarUsuario(@Valid @RequestBody CreateUsuarioDTO createUsuario) {
         AuthResponseDTO response = authService.registrarUsuario(createUsuario);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     /**
-     * Endpoint de prueba para verificar comunicación básica.
-     * NO requiere autenticación - usado para debugging.
+     * Endpoint de prueba.
      */
     @PostMapping("/test")
     public ResponseEntity<Map<String, Object>> testEndpoint(@RequestBody Map<String, Object> data) {
@@ -68,61 +59,31 @@ public class AuthController {
         response.put("success", true);
         response.put("timestamp", System.currentTimeMillis());
         response.put("received", data);
-        response.put("message", "Test endpoint working! Time: " + System.currentTimeMillis());
+        response.put("message", "Test endpoint working!");
         return ResponseEntity.ok(response);
     }
 
     /**
-     * Endpoint TEMPORAL para inicializar el primer usuario admin.
-     * SOBRESCRIBE el usuario admin existente.
+     * Inicializar admin simple.
      */
     @PostMapping("/bootstrap")
     public ResponseEntity<String> bootstrapAdmin() {
         try {
-            // Buscar usuario admin existente o crear uno nuevo
-            Usuario admin = usuarioRepository.findByEmail("admin@sistema-ventas.com").orElse(new Usuario());
+            if (usuarioRepository.findByEmail("admin@sistema-ventas.com").isEmpty()) {
+                Usuario admin = Usuario.builder()
+                        .nombre("Administrador")
+                        .email("admin@sistema-ventas.com")
+                        .password("admin123") // Plano para desarrollo
+                        .activo(true)
+                        .build();
 
-            admin.setNombre("Administrador");
-            admin.setEmail("admin@sistema-ventas.com");
-            // Encriptar contraseña con BCrypt
-            admin.setPassword(passwordEncoder.encode("admin123"));
-            admin.setRol(RolUsuario.ADMIN);
-            admin.setActivo(true);
-
-            usuarioRepository.save(admin);
-
-            return ResponseEntity.ok("Usuario admin creado/actualizado exitosamente. Usuario: admin@sistema-ventas.com, Clave: admin123");
-
+                usuarioRepository.save(admin);
+                return ResponseEntity.ok("Admin creado: admin@sistema-ventas.com / admin123");
+            } else {
+                return ResponseEntity.ok("Admin ya existe: admin@sistema-ventas.com / admin123");
+            }
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("Error al inicializar: " + e.getMessage());
+            return ResponseEntity.internalServerError().body("Error creando admin: " + e.getMessage());
         }
-    }
-
-    /**
-     * Endpoint TEMPORAL para convertir contraseñas a texto plano (desarrollo).
-     * Elimina el hash BCrypt y deja contraseñas en texto plano.
-     */
-
-
-
-    /**
-     * Endpoint para refrescar el token JWT.
-     * @return Nuevo token JWT generado
-     */
-    @PostMapping("/refresh")
-    public ResponseEntity<String> refrescarToken() {
-        String token = authService.refrescarToken();
-        return ResponseEntity.ok(token);
-    }
-
-    /**
-     * Endpoint para obtener informacion del usuario actual.
-     * @return Informacion del usuario autenticado
-     */
-    @GetMapping("/mi-perfil")
-    public ResponseEntity<String> obtenerMiPerfil() {
-        // Por simplicidad, retorna un mensaje básico
-        // En implementación real, retornaría información completa del usuario
-        return ResponseEntity.ok("Perfil cargado exitosamente");
     }
 }

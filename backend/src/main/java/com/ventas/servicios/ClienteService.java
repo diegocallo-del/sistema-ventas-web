@@ -5,6 +5,7 @@ import com.ventas.dto.CreateClienteDTO;
 import com.ventas.excepciones.ResourceNotFoundException;
 import com.ventas.excepciones.ValidationException;
 import com.ventas.modelos.Cliente;
+import com.ventas.modelos.Usuario;
 import com.ventas.repositorios.ClienteRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,8 +45,8 @@ public class ClienteService {
      */
     @Transactional(readOnly = true)
     public ClienteDTO obtenerClientePorId(Long id) {
-        Cliente cliente = clienteRepository.findById(id)
-                .filter(Cliente::isActivo)
+        Usuario cliente = clienteRepository.findById(id)
+                .filter(Usuario::isActivo)
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado con ID: " + id));
         return convertirADTO(cliente);
     }
@@ -66,16 +67,16 @@ public class ClienteService {
             throw new ValidationException("Ya existe un cliente con ese email");
         }
 
-        Cliente cliente = Cliente.builder()
-                .numeroDocumento(createDTO.numeroDocumento())
-                .build();
+        Usuario cliente = new Usuario();
         cliente.setNombre(createDTO.nombre());
+        cliente.setNumeroDocumento(createDTO.numeroDocumento());
         cliente.setEmail(createDTO.email());
         cliente.setTelefono(createDTO.telefono());
         cliente.setDireccion(createDTO.direccion());
+        cliente.setRol(com.ventas.enums.RolUsuario.CLIENTE);
         cliente.setActivo(true);
 
-        Cliente clienteGuardado = clienteRepository.save(cliente);
+        Usuario clienteGuardado = clienteRepository.save(cliente);
         return convertirADTO(clienteGuardado);
     }
 
@@ -88,8 +89,8 @@ public class ClienteService {
     public ClienteDTO actualizarCliente(Long id, CreateClienteDTO createDTO) {
         validarDatosCliente(createDTO);
 
-        Cliente cliente = clienteRepository.findById(id)
-                .filter(Cliente::isActivo)
+        Usuario cliente = clienteRepository.findById(id)
+                .filter(Usuario::isActivo)
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado con ID: " + id));
 
         // Verificar unicidad del email si cambió
@@ -99,7 +100,7 @@ public class ClienteService {
 
         // Verificar unicidad del número de documento
         if (createDTO.numeroDocumento() != null &&
-            !createDTO.numeroDocumento().equals(cliente.getNumeroDocumento()) &&
+            !cliente.getNumeroDocumento().equals(createDTO.numeroDocumento()) &&
             clienteRepository.existsByNumeroDocumento(createDTO.numeroDocumento())) {
             throw new ValidationException("Ya existe un cliente con ese número de documento");
         }
@@ -110,7 +111,7 @@ public class ClienteService {
         cliente.setDireccion(createDTO.direccion());
         cliente.setNumeroDocumento(createDTO.numeroDocumento());
 
-        Cliente clienteActualizado = clienteRepository.save(cliente);
+        Usuario clienteActualizado = clienteRepository.save(cliente);
         return convertirADTO(clienteActualizado);
     }
 
@@ -119,8 +120,8 @@ public class ClienteService {
      * @param id ID del cliente a eliminar
      */
     public void eliminarCliente(Long id) {
-        Cliente cliente = clienteRepository.findById(id)
-                .filter(Cliente::isActivo)
+        Usuario cliente = clienteRepository.findById(id)
+                .filter(Usuario::isActivo)
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado con ID: " + id));
 
         cliente.setActivo(false);
@@ -134,9 +135,8 @@ public class ClienteService {
      */
     @Transactional(readOnly = true)
     public List<ClienteDTO> buscarClientesPorNombre(String nombre) {
-        return clienteRepository.findAll().stream()
-                .filter(cliente -> cliente.isActivo() &&
-                        cliente.getNombre().toLowerCase().contains(nombre.toLowerCase()))
+        return clienteRepository.findClienteActivos().stream()
+                .filter(cliente -> cliente.getNombre().toLowerCase().contains(nombre.toLowerCase()))
                 .map(this::convertirADTO)
                 .collect(Collectors.toList());
     }
@@ -148,8 +148,8 @@ public class ClienteService {
      */
     @Transactional(readOnly = true)
     public ClienteDTO buscarClientePorDocumento(String numeroDocumento) {
-        Cliente cliente = clienteRepository.findByNumeroDocumento(numeroDocumento)
-                .filter(Cliente::isActivo)
+        Usuario cliente = clienteRepository.findByNumeroDocumento(numeroDocumento)
+                .filter(Usuario::isActivo)
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado con documento: " + numeroDocumento));
         return convertirADTO(cliente);
     }
@@ -161,8 +161,8 @@ public class ClienteService {
      */
     @Transactional(readOnly = true)
     public ClienteDTO buscarClientePorEmail(String email) {
-        Cliente cliente = clienteRepository.findByEmail(email)
-                .filter(Cliente::isActivo)
+        Usuario cliente = clienteRepository.findByEmail(email)
+                .filter(Usuario::isActivo)
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado con email: " + email));
         return convertirADTO(cliente);
     }
@@ -173,9 +173,7 @@ public class ClienteService {
      */
     @Transactional(readOnly = true)
     public long contarClientesActivos() {
-        return clienteRepository.findAll().stream()
-                .filter(Cliente::isActivo)
-                .count();
+        return clienteRepository.findClienteActivos().size();
     }
 
     /**
@@ -197,7 +195,7 @@ public class ClienteService {
      * @param cliente Entidad Cliente
      * @return Cliente como DTO
      */
-    private ClienteDTO convertirADTO(Cliente cliente) {
+    private ClienteDTO convertirADTO(Usuario cliente) {
         return new ClienteDTO(
                 cliente.getId(),
                 cliente.getNombre(),

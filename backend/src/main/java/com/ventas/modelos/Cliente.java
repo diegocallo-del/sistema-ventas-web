@@ -1,21 +1,25 @@
 package com.ventas.modelos;
 
 import com.ventas.abstractas.PersonaBase;
+import com.ventas.enums.RolUsuario;
 import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.DiscriminatorValue;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
-@Entity
-@Table(name = "clientes")
-@Getter
-@Setter
+@Data
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @EqualsAndHashCode(callSuper = true)
-public class Cliente extends PersonaBase {
+@DiscriminatorValue("CLIENTE")
+public class Cliente extends Usuario {
 
     @Column(name = "numero_documento", unique = true, length = 20)
     private String numeroDocumento;
+
+    @Override
+    public String getTipoPersona() {
+        return "CLIENTE";
+    }
 }

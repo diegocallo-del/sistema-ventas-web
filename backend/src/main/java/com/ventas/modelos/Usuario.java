@@ -1,30 +1,24 @@
 package com.ventas.modelos;
 
-import com.ventas.abstractas.EntidadBase;
+import com.ventas.abstractas.PersonaBase;
 import com.ventas.enums.RolUsuario;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Table(name = "usuarios")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "rol")
+@DiscriminatorValue("USUARIO")
 @Data
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @EqualsAndHashCode(callSuper = true)
-public class Usuario extends EntidadBase {
-
-    @NotBlank(message = "El nombre es obligatorio")
-    @Size(min = 3, max = 100, message = "El nombre debe tener entre 3 y 100 caracteres")
-    @Column(name = "nombre", length = 100, nullable = false)
-    private String nombre;
-
-    @Email(message = "El formato del email no es válido")
-    @Column(name = "email", unique = true, length = 100, nullable = false)
-    private String email;
+public class Usuario extends PersonaBase {
 
     @NotBlank(message = "La contraseña es obligatoria")
     @Size(min = 8, message = "La contraseña debe tener al menos 8 caracteres")
@@ -32,9 +26,14 @@ public class Usuario extends EntidadBase {
     private String password;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "rol", nullable = false, length = 20)
+    @Column(name = "rol", length = 20, nullable = false, insertable = false, updatable = false)
     private RolUsuario rol;
 
-    @Column(name = "activo", nullable = false)
-    private boolean activo;
+    @Column(name = "numero_documento", unique = true, length = 20)
+    private String numeroDocumento;
+
+    @Override
+    public String getTipoPersona() {
+        return "USUARIO";
+    }
 }

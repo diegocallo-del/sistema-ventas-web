@@ -88,7 +88,7 @@ export async function getSales(
   const response = await api.get<VentaDTOBackend[]>(saleEndpoints.base);
 
   // Mapear ventas del backend al formato del frontend
-  const items = response.data.map(mapVentaFromBackend);
+  const items = response.map(mapVentaFromBackend);
   
   // Convertir lista a formato paginado para compatibilidad
   const page = options.page || 1;
@@ -111,7 +111,7 @@ export async function getSales(
  */
 export async function getSaleById(id: number): Promise<Sale> {
   const response = await api.get<VentaDTOBackend>(saleEndpoints.byId(id));
-  return mapVentaFromBackend(response.data);
+  return mapVentaFromBackend(response);
 }
 
 /**
@@ -119,7 +119,7 @@ export async function getSaleById(id: number): Promise<Sale> {
  */
 export async function createSale(data: CreateSaleData): Promise<Sale> {
   const response = await api.post<VentaDTOBackend>(saleEndpoints.create, data);
-  return mapVentaFromBackend(response.data);
+  return mapVentaFromBackend(response);
 }
 
 /**
@@ -130,7 +130,7 @@ export async function cancelSale(id: number, motivo: string): Promise<Sale> {
     saleEndpoints.cancel(id),
     { motivo }
   );
-  return mapVentaFromBackend(response.data);
+  return mapVentaFromBackend(response);
 }
 
 /**
@@ -140,13 +140,10 @@ export async function getSalesByDateRange(
   fechaInicio: string,
   fechaFin: string
 ): Promise<Sale[]> {
-  const response = await api.get<VentaDTOBackend[]>(saleEndpoints.byDate, {
-    params: {
-      fecha_inicio: fechaInicio,
-      fecha_fin: fechaFin,
-    },
-  });
-  return response.data.map(mapVentaFromBackend);
+  const response = await api.get<VentaDTOBackend[]>(
+    `${saleEndpoints.byDate}?fecha_inicio=${encodeURIComponent(fechaInicio)}&fecha_fin=${encodeURIComponent(fechaFin)}`
+  );
+  return response.map(mapVentaFromBackend);
 }
 
 /**
@@ -154,7 +151,7 @@ export async function getSalesByDateRange(
  */
 export async function getSalesByClient(clientId: number): Promise<Sale[]> {
   const response = await api.get<VentaDTOBackend[]>(saleEndpoints.byClient(clientId));
-  return response.data.map(mapVentaFromBackend);
+  return response.map(mapVentaFromBackend);
 }
 
 /**
@@ -164,10 +161,14 @@ export async function getSalesSummary(
   filters: SaleFilters = {}
 ): Promise<SaleSummary> {
   try {
-    const response = await api.get<SaleSummary>(`${saleEndpoints.base}/summary`, {
-      params: filters,
-    });
-    return response.data;
+    const queryParams = Object.keys(filters)
+      .filter(key => filters[key as keyof SaleFilters] !== undefined && filters[key as keyof SaleFilters] !== null)
+      .map(key => `${key}=${encodeURIComponent(String(filters[key as keyof SaleFilters]))}`)
+      .join('&');
+
+    const url = queryParams ? `${saleEndpoints.base}/summary?${queryParams}` : `${saleEndpoints.base}/summary`;
+    const response = await api.get<SaleSummary>(url);
+    return response;
   } catch {
     // Si no existe el endpoint, calcular desde todas las ventas
     const ventas = await getSales();

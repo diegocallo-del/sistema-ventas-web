@@ -5,6 +5,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { User } from '@/lib/types/usuario';
+import { rolePermissions } from '@/lib/roles/role-config';
 
 interface AuthState {
   // Estado
@@ -13,7 +14,8 @@ interface AuthState {
   refreshToken: string | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  
+  isInitialized: boolean;
+
   // Acciones
   login: (user: User, token: string, refreshToken: string) => void;
   logout: () => void;
@@ -33,6 +35,7 @@ export const useAuthStore = create<AuthState>()(
       refreshToken: null,
       isLoading: true,
       isAuthenticated: false,
+      isInitialized: false,
 
       /**
        * Inicia sesion con usuario y tokens
@@ -44,6 +47,12 @@ export const useAuthStore = create<AuthState>()(
           refreshToken: refreshToken.substring(0, 10) + '...'
         });
         
+        // Hidratar permisos basados en el rol
+        if (user.rol && rolePermissions[user.rol]) {
+          user.permisos = rolePermissions[user.rol];
+          console.log(`🔐 Store: Permisos hidratados para rol ${user.rol}: ${user.permisos.length} permisos`);
+        }
+
         // Guardar en localStorage y cookie para que proxy.ts pueda leer el token
         if (typeof window !== 'undefined') {
           localStorage.setItem('user_data', JSON.stringify(user));
@@ -98,7 +107,7 @@ export const useAuthStore = create<AuthState>()(
         console.log('🔄 Store: Inicializando desde localStorage...');
         
         if (typeof window === 'undefined') {
-          set({ isLoading: false });
+          set({ isLoading: false, isInitialized: true });
           return;
         }
 
@@ -106,8 +115,8 @@ export const useAuthStore = create<AuthState>()(
           const userData = localStorage.getItem('user_data');
           const token = localStorage.getItem('auth_token');
           const refreshToken = localStorage.getItem('refresh_token');
-          
-          console.log('📦 Store.initialize(): Datos encontrados:', { 
+
+          console.log('📦 Store.initialize(): Datos encontrados:', {
             userData: userData ? '✅' : '❌',
             token: token ? '✅' : '❌',
             refreshToken: refreshToken ? '✅' : '❌'
@@ -115,26 +124,35 @@ export const useAuthStore = create<AuthState>()(
 
           if (userData && token) {
             const user = JSON.parse(userData) as User;
+
+            // Re-hidratar permisos al cargar de disco por si acaso
+            if (user.rol && (!user.permisos || user.permisos.length === 0) && rolePermissions[user.rol]) {
+              user.permisos = rolePermissions[user.rol];
+            }
+
             set({
               user,
               token,
               refreshToken,
               isAuthenticated: true,
               isLoading: false,
+              isInitialized: true,
             });
             console.log('✅ Store: Usuario autenticado cargado:', user.username);
           } else {
-            set({ 
+            set({
               isLoading: false,
-              isAuthenticated: false 
+              isAuthenticated: false,
+              isInitialized: true,
             });
             console.log('❌ Store: No hay usuario autenticado en localStorage');
           }
         } catch (error) {
           console.error('💥 Store: Error en initialize():', error);
-          set({ 
+          set({
             isLoading: false,
-            isAuthenticated: false 
+            isAuthenticated: false,
+            isInitialized: true,
           });
         }
       },
@@ -154,6 +172,7 @@ export const useAuthStore = create<AuthState>()(
         token: state.token,
         refreshToken: state.refreshToken,
         isAuthenticated: state.isAuthenticated,
+        isInitialized: true, // Reset to true on hydration
       }),
     }
   )

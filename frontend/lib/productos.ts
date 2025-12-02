@@ -25,7 +25,7 @@ export type ProductoDto = {
  */
 export async function fetchProductos(): Promise<ProductoDto[]> {
   const r = await api.get<ProductoDto[]>("/productos");
-  return r.data;
+  return r;
 }
 
 /**
@@ -33,7 +33,7 @@ export async function fetchProductos(): Promise<ProductoDto[]> {
  */
 export async function fetchProductoById(id: number): Promise<ProductoDto> {
   const r = await api.get<ProductoDto>(`/productos/${id}`);
-  return r.data;
+  return r;
 }
 
 /**
@@ -71,7 +71,7 @@ export async function createProducto(payload: Omit<ProductoDto, "id"> & { imagen
     response = await api.post<ProductoDto>("/productos", jsonPayload);
   }
 
-  return response.data;
+  return response;
 }
 
 /**
@@ -114,7 +114,7 @@ export async function updateProducto(id: number, payload: Partial<ProductoDto> &
     response = await api.put<ProductoDto>(`/productos/${id}`, jsonPayload);
   }
 
-  return response.data;
+
 }
 
 /**
@@ -122,5 +122,5 @@ export async function updateProducto(id: number, payload: Partial<ProductoDto> &
  */
 export async function deleteProducto(id: number) {
   const r = await api.delete<void>(`/productos/${id}`);
-  return r.data;
+  return r;
 }

@@ -60,7 +60,7 @@ export async function getClients(
   const response = await api.get<ClienteDTOBackend[]>(clientEndpoints.base);
 
   // Mapear clientes del backend al formato del frontend
-  const items = response.data.map(mapClienteFromBackend);
+  const items = response.map(mapClienteFromBackend);
   
   // Convertir lista a formato paginado para compatibilidad
   const page = options.page || 1;
@@ -83,7 +83,7 @@ export async function getClients(
  */
 export async function getClientById(id: number): Promise<Client> {
   const response = await api.get<ClienteDTOBackend>(clientEndpoints.byId(id));
-  return mapClienteFromBackend(response.data);
+  return mapClienteFromBackend(response);
 }
 
 /**
@@ -104,7 +104,7 @@ export async function createClient(data: CreateClientData): Promise<Client> {
 
   const response = await api.post<ClienteDTOBackend>(clientEndpoints.create, backendData);
 
-  return mapClienteFromBackend(response.data);
+  return mapClienteFromBackend(response);
 }
 
 /**
@@ -116,14 +116,14 @@ export async function updateClient(
   data: UpdateClientData
 ): Promise<Client> {
   const backendData: any = {};
-  
+
   // Combinar nombre y apellido si están presentes
   if (data.nombre !== undefined || data.apellido !== undefined) {
     const nombre = data.nombre || '';
     const apellido = data.apellido || '';
     backendData.nombre = apellido ? `${nombre} ${apellido}`.trim() : nombre;
   }
-  
+
   if (data.email !== undefined) backendData.email = data.email || '';
   if (data.telefono !== undefined) backendData.telefono = data.telefono || null;
   if (data.direccion !== undefined) backendData.direccion = data.direccion || null;
@@ -131,7 +131,7 @@ export async function updateClient(
 
   const response = await api.put<ClienteDTOBackend>(clientEndpoints.update(id), backendData);
 
-  return mapClienteFromBackend(response.data);
+  return mapClienteFromBackend(response);
 }
 
 /**
@@ -149,13 +149,9 @@ export async function searchClients(
   query: string,
   filters: ClientFilters = {}
 ): Promise<Client[]> {
-  const response = await api.get<ClienteDTOBackend[]>(`${clientEndpoints.base}/buscar`, {
-    params: {
-      nombre: query,
-    },
-  });
+  const response = await api.get<ClienteDTOBackend[]>(`${clientEndpoints.base}/buscar?nombre=${encodeURIComponent(query)}`);
 
-  return response.data.map(mapClienteFromBackend);
+  return response.map(mapClienteFromBackend);
 }
 
 /**
@@ -165,13 +161,9 @@ export async function getClientByDocument(
   numeroDocumento: string
 ): Promise<Client | null> {
   try {
-    const response = await api.get<Client>(`${clientEndpoints.base}/by-document`, {
-      params: {
-        numero_documento: numeroDocumento,
-      },
-    });
+    const response = await api.get<Client>(`${clientEndpoints.base}/by-document?numero_documento=${encodeURIComponent(numeroDocumento)}`);
 
-    return response.data;
+    return response;
   } catch (error) {
     if (error && typeof error === 'object' && 'response' in error && error.response && typeof error.response === 'object' && 'status' in error.response && error.response.status === 404) {
       return null;

@@ -59,21 +59,25 @@ SelectTrigger.displayName = 'SelectTrigger';
 export const SelectItem = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Item>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item>
->(({ className, children, ...props }, ref) => (
-  <SelectPrimitive.Item
-    ref={ref}
-      className={cn(
-        "relative flex items-center px-3 py-2 text-white rounded-xl cursor-pointer select-none focus:bg-blue-600/40 hover:bg-blue-600/30 transition-colors duration-200",
-        className
-      )}
-    {...props}
-  >
+>(({ className, children, value, ...props }, ref) => {
+  if (!value) return null;
+  return (
+    <SelectPrimitive.Item
+      ref={ref}
+        className={cn(
+          "relative flex items-center px-3 py-2 text-white rounded-xl cursor-pointer select-none focus:bg-blue-600/40 hover:bg-blue-600/30 transition-colors duration-200",
+          className
+        )}
+      value={value}
+      {...props}
+    >
     <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
     <SelectPrimitive.ItemIndicator className="absolute left-1 inline-flex items-center">
       <Check className="w-4 h-4" />
     </SelectPrimitive.ItemIndicator>
   </SelectPrimitive.Item>
-));
+);
+});
 
 SelectItem.displayName = 'SelectItem';
 

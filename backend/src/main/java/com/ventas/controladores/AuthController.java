@@ -9,14 +9,14 @@ import com.ventas.repositorios.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
+
 
 /**
  * Controlador REST simple para autenticación básica.
@@ -29,6 +29,7 @@ public class AuthController {
 
     private final UsuarioRepository usuarioRepository;
     private final AuthService authService;
+    private final PasswordEncoder passwordEncoder;
 
     /**
      * Endpoint para login simple.
@@ -73,7 +74,7 @@ public class AuthController {
                 Usuario admin = Usuario.builder()
                         .nombre("Administrador")
                         .email("admin@sistema-ventas.com")
-                        .password("admin123") // Plano para desarrollo
+                        .password(passwordEncoder.encode("admin123"))
                         .activo(true)
                         .build();
 

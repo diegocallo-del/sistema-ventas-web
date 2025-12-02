@@ -1,285 +1,233 @@
 'use client';
 
-import VentasChart from '@/components/dashboard/VentasChart';
-import ProductosChart from '@/components/dashboard/ProductosChart';
-import CategoriasChart from '@/components/dashboard/CategoriasChart';
+import { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { useState, useEffect } from 'react';
-import { api } from '@/lib/api';
-import { reportEndpoints } from '@/lib/config/endpoints';
-import { AnalisisIA } from '@/components/modules/ia/AnalisisIA';
-import { isSupervisorOrAbove } from '@/lib/roles/role-checker';
-import { useAuth } from '@/hooks/use-auth';
-import { getSales } from '@/lib/services/venta-service';
-import { getClients } from '@/lib/services/cliente-service';
-
-function UltimasVentasTable() {
-  const [ventas, setVentas] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function cargarVentas() {
-      try {
-        const respuesta = await getSales({ page: 1, page_size: 5 });
-        setVentas(respuesta.items);
-      } catch (error) {
-        console.error('Error cargando ventas:', error);
-        setVentas([]);
-      } finally {
-        setLoading(false);
-      }
-    }
-    cargarVentas();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="bg-slate-900/60 backdrop-blur-xl p-6 rounded-2xl border border-blue-400/30 shadow-[0_0_15px_rgba(59,130,246,0.1)]">
-        <h3 className="text-lg font-semibold mb-4 tracking-tight text-white">Últimas Ventas</h3>
-        <div className="text-slate-300">Cargando...</div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="bg-slate-900/60 backdrop-blur-xl p-6 rounded-2xl border border-blue-400/30 shadow-[0_0_15px_rgba(59,130,246,0.1)] animate-slide-up delay-600">
-      <h3 className="text-lg font-semibold mb-4 tracking-tight text-white">Últimas Ventas</h3>
-
-      {ventas.length === 0 ? (
-        <div className="text-slate-300">No hay ventas registradas</div>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-blue-400/20 text-sm">
-            <thead className="bg-slate-800/50 backdrop-blur">
-              <tr>
-                {['Fecha', 'Cliente', 'Productos', 'Total', 'Estado'].map((th) => (
-                  <th
-                    key={th}
-                    className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wide"
-                  >
-                    {th}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-
-            <tbody className="bg-slate-800/30 divide-y divide-blue-400/20">
-              {ventas.map((venta) => (
-                <tr key={venta.id} className="hover:bg-slate-800/50 transition-colors duration-200">
-                  <td className="px-6 py-4 text-slate-300">
-                    {new Date(venta.fecha_creacion).toLocaleDateString('es-PE')}
-                  </td>
-                  <td className="px-6 py-4 font-medium text-white">
-                    {venta.cliente_nombre || 'Cliente Contado'}
-                  </td>
-                  <td className="px-6 py-4 text-slate-300">
-                    {venta.detalles.length} producto{venta.detalles.length !== 1 ? 's' : ''}
-                  </td>
-                  <td className="px-6 py-4 font-semibold text-white">
-                    S/ {venta.total.toFixed(2)}
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="px-3 py-1 text-xs rounded-full bg-emerald-900/40 text-emerald-300 font-medium border border-emerald-400/30">
-                      {venta.estado}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </div>
-  );
-}
+import { Badge } from '@/components/ui/badge';
+import {
+  Download,
+  FileText,
+  BarChart3,
+  Users,
+  Package,
+  TrendingUp,
+  Loader2,
+  AlertCircle,
+  CheckCircle
+} from 'lucide-react';
+import { useExportacion } from '@/lib/services/export-service';
 
 export default function ReportesPage() {
-  const { user } = useAuth();
-  const [isExportingPdf, setIsExportingPdf] = useState(false);
-  const [isExportingExcel, setIsExportingExcel] = useState(false);
-  const [stats, setStats] = useState({
-    ventasTotales: 0,
-    productosVendidos: 0,
-    clientesNuevos: 0,
-    ticketPromedio: 0,
-  });
-  const [loadingStats, setLoadingStats] = useState(true);
+  const {
+    exportando,
+    error,
+    exportarProductos,
+    exportarVentas,
+    exportarClientes,
+    exportarReporteCompleto
+  } = useExportacion();
 
-  useEffect(() => {
-    async function cargarStats() {
-      try {
-        const [ventas, clientes] = await Promise.all([
-          getSales({ page_size: 1000 }),
-          getClients({ page_size: 1000 })
-        ]);
-
-        const totalVentas = ventas.items.reduce((sum, v) => sum + v.total, 0);
-        const cantidadVentas = ventas.items.length;
-        const productosVendidos = ventas.items.reduce((sum, v) => 
-          sum + v.detalles.reduce((s, d) => s + d.cantidad, 0), 0
-        );
-
-        setStats({
-          ventasTotales: totalVentas,
-          productosVendidos: productosVendidos,
-          clientesNuevos: clientes.items.length,
-          ticketPromedio: cantidadVentas > 0 ? totalVentas / cantidadVentas : 0,
-        });
-      } catch (error) {
-        console.error('Error cargando estadísticas:', error);
-      } finally {
-        setLoadingStats(false);
-      }
+  const reportesDisponibles = [
+    {
+      id: 'productos',
+      titulo: 'Productos',
+      descripcion: 'Lista completa de productos con precios, stock y estado',
+      icon: Package,
+      funcion: exportarProductos,
+      campos: ['ID', 'Nombre', 'Código', 'Precio', 'Stock'],
+      color: 'emerald'
+    },
+    {
+      id: 'ventas',
+      titulo: 'Ventas',
+      descripcion: 'Historial completo de ventas con fechas, clientes y totales',
+      icon: TrendingUp,
+      funcion: exportarVentas,
+      campos: ['ID', 'Fecha', 'Cliente', 'Total', 'Estado', 'Método Pago'],
+      color: 'blue'
+    },
+    {
+      id: 'clientes',
+      titulo: 'Clientes',
+      descripcion: 'Base de datos de clientes activos con información de contacto',
+      icon: Users,
+      funcion: exportarClientes,
+      campos: ['ID', 'Nombre', 'DNI', 'Email', 'Teléfono', 'Dirección'],
+      color: 'purple'
+    },
+    {
+      id: 'completo',
+      titulo: 'Reporte Completo',
+      descripcion: 'Resumen ejecutivo con estadísticas generales del sistema',
+      icon: BarChart3,
+      funcion: exportarReporteCompleto,
+      campos: ['Estadísticas generales', 'KPIs principales', 'Resumen del período'],
+      color: 'orange'
     }
-    cargarStats();
-  }, []);
+  ];
 
-  const handleExport = async (format: 'pdf' | 'excel') => {
-    const isPdf = format === 'pdf';
-
-    try {
-      if (isPdf) {
-        setIsExportingPdf(true);
-      } else {
-        setIsExportingExcel(true);
-      }
-
-      const response = await api.get<Blob>(reportEndpoints.export, {
-        responseType: 'blob',
-        params: { format },
-      });
-
-      const mimeType =
-        format === 'pdf'
-          ? 'application/pdf'
-          : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-
-      const blob = new Blob([response.data], { type: mimeType });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      const extension = format === 'pdf' ? 'pdf' : 'xlsx';
-
-      link.href = url;
-      link.download = `reporte-ventas.${extension}`;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error('Error al exportar reporte', error);
-    } finally {
-      if (isPdf) {
-        setIsExportingPdf(false);
-      } else {
-        setIsExportingExcel(false);
-      }
-    }
+  const getColorClasses = (color: string) => {
+    const colors = {
+      emerald: 'border-emerald-400/30 bg-emerald-900/20 hover:bg-emerald-900/30',
+      blue: 'border-blue-400/30 bg-blue-900/20 hover:bg-blue-900/30',
+      purple: 'border-purple-400/30 bg-purple-900/20 hover:bg-purple-900/30',
+      orange: 'border-orange-400/30 bg-orange-900/20 hover:bg-orange-900/30'
+    };
+    return colors[color as keyof typeof colors] || colors.emerald;
   };
 
   return (
-    <div className="min-h-screen animate-fade-in space-y-10 px-4 py-6 sm:p-6 lg:p-8">
-
+    <div className="space-y-8">
       {/* HEADER */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between animate-slide-down">
-        <div>
-          <h1 className="text-4xl font-semibold tracking-tight text-white">
-            Reportes y Estadísticas
-          </h1>
-          <p className="text-slate-300 mt-1">Análisis actualizado de ventas y actividad del sistema.</p>
-        </div>
-
-        <div className="flex flex-wrap gap-3">
-          <Button
-            className="rounded-xl bg-blue-600/40 hover:bg-blue-600/50 border border-blue-400/30 px-5 py-2.5 text-white shadow-[0_0_15px_rgba(59,130,246,0.2)] hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:scale-105 transition-all duration-300"
-            onClick={() => handleExport('pdf')}
-            disabled={isExportingPdf}
-          >
-            {isExportingPdf ? 'Exportando PDF...' : 'Exportar PDF'}
-          </Button>
-          <Button
-            className="rounded-xl bg-blue-600/40 hover:bg-blue-600/50 border border-blue-400/30 px-5 py-2.5 text-white shadow-[0_0_15px_rgba(59,130,246,0.2)] hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:scale-105 transition-all duration-300"
-            onClick={() => handleExport('excel')}
-            disabled={isExportingExcel}
-          >
-            {isExportingExcel ? 'Exportando Excel...' : 'Exportar Excel'}
-          </Button>
-        </div>
-      </div>
-
-      {/* CARDS RESUMEN */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        {[
-          { 
-            title: 'Ventas Totales', 
-            value: loadingStats ? '...' : `S/ ${stats.ventasTotales.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, 
-            trend: '', 
-            color: 'from-blue-900/40 via-blue-800/30 to-indigo-900/40', 
-            border: 'border-blue-400/30' 
-          },
-          { 
-            title: 'Productos Vendidos', 
-            value: loadingStats ? '...' : stats.productosVendidos.toString(), 
-            trend: '', 
-            color: 'from-emerald-900/40 via-green-800/30 to-teal-900/40', 
-            border: 'border-emerald-400/30' 
-          },
-          { 
-            title: 'Total Clientes', 
-            value: loadingStats ? '...' : stats.clientesNuevos.toString(), 
-            trend: '', 
-            color: 'from-purple-900/40 via-violet-800/30 to-fuchsia-900/40', 
-            border: 'border-purple-400/30' 
-          },
-          { 
-            title: 'Ticket Promedio', 
-            value: loadingStats ? '...' : `S/ ${stats.ticketPromedio.toFixed(2)}`, 
-            trend: '', 
-            color: 'from-amber-900/40 via-yellow-800/30 to-orange-900/40', 
-            border: 'border-amber-400/30' 
-          },
-        ].map((card, index) => (
-          <div
-            key={index}
-            className={`p-6 rounded-2xl bg-gradient-to-br ${card.color} backdrop-blur-xl text-white border ${card.border} shadow-[0_0_15px_rgba(59,130,246,0.12)] hover:shadow-[0_0_20px_rgba(59,130,246,0.2)] transition-all duration-300 hover:scale-105 animate-slide-up`}
-            style={{ animationDelay: `${(index + 1) * 100}ms` }}
-          >
-            <p className="text-sm text-slate-300">{card.title}</p>
-            <p className="text-4xl font-bold mt-2 text-white">{card.value}</p>
-            {card.trend && <p className="text-sm mt-2 text-slate-300">{card.trend}</p>}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <FileText className="w-8 h-8 text-blue-400" />
+          <div>
+            <h1 className="text-3xl font-bold text-white">Reportes y Exportaciones</h1>
+            <p className="text-slate-400">Descarga informes detallados y análisis del sistema</p>
           </div>
-        ))}
+        </div>
       </div>
 
-      {/* SECCIÓN DE ANÁLISIS CON IA */}
-      {isSupervisorOrAbove(user) && (
-        <div className="animate-slide-up delay-300">
-          <AnalisisIA
-            contexto="reporte_ventas"
-            titulo="Asistente de Análisis con IA"
-            descripcion="Haz una pregunta en lenguaje natural sobre los datos de ventas y la IA te dará un resumen."
-          />
-        </div>
+      {/* INFORMACIÓN IMPORTANTE */}
+      <Card className="border-yellow-400/30 bg-yellow-900/10">
+        <CardContent className="pt-6">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-yellow-400 mt-0.5 flex-shrink-0" />
+            <div>
+              <h3 className="font-medium text-yellow-200 mb-1">Información de Exportación</h3>
+              <ul className="text-sm text-yellow-200/80 space-y-1">
+                <li>• Los reportes se generan en formato CSV compatible con Excel</li>
+                <li>• Las fechas están en formato YYYY-MM-DD</li>
+                <li>• Solo los administradores pueden acceder a estas funciones</li>
+                <li>• Los campos con caracteres especiales se escapan automáticamente</li>
+              </ul>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* ERRORES */}
+      {error && (
+        <Card className="border-red-400/30 bg-red-900/20">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <AlertCircle className="w-5 h-5 text-red-400" />
+              <span className="text-red-300">{error}</span>
+            </div>
+          </CardContent>
+        </Card>
       )}
 
-      {/* GRAFICO PRINCIPAL */}
-      <div className="grid grid-cols-1 gap-6">
-        <div className="bg-slate-900/60 backdrop-blur-xl rounded-2xl p-6 border border-blue-400/30 shadow-[0_0_15px_rgba(59,130,246,0.1)] animate-slide-up delay-300">
-          <VentasChart />
-        </div>
+      {/* REPORTES DISPONIBLES */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {reportesDisponibles.map((reporte) => {
+          const Icon = reporte.icon;
+          const estaExportando = exportando === reporte.id;
+
+          return (
+            <Card key={reporte.id} className={`transition-all duration-300 ${getColorClasses(reporte.color)}`}>
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className={`p-2 rounded-lg bg-${reporte.color}-500/20`}>
+                      <Icon className={`w-5 h-5 text-${reporte.color}-400`} />
+                    </div>
+                    <div>
+                      <CardTitle className="text-white text-lg">{reporte.titulo}</CardTitle>
+                      <p className="text-slate-400 text-sm mt-1">{reporte.descripcion}</p>
+                    </div>
+                  </div>
+                </div>
+              </CardHeader>
+
+              <CardContent className="space-y-4">
+                {/* CAMPOS INCLUIDOS */}
+                <div>
+                  <h4 className="text-xs font-medium text-slate-400 uppercase tracking-wide mb-2">
+                    Campos incluidos
+                  </h4>
+                  <div className="flex flex-wrap gap-1">
+                    {reporte.campos.map((campo) => (
+                      <Badge key={campo} variant="outline" className="text-xs">
+                        {campo}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+
+                {/* BOTÓN DE EXPORTACIÓN */}
+                <Button
+                  onClick={reporte.funcion}
+                  disabled={!!exportando}
+                  className="w-full"
+                  variant="secondary"
+                >
+                  {estaExportando ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Generando reporte...
+                    </>
+                  ) : (
+                    <>
+                      <Download className="w-4 h-4 mr-2" />
+                      Descargar CSV
+                    </>
+                  )}
+                </Button>
+
+                {/* INDICADOR DE ÉXITO */}
+                {exportando && exportando === reporte.id && (
+                  <div className="flex items-center gap-2 text-green-400 text-sm">
+                    <CheckCircle className="w-4 h-4" />
+                    Reporte generado correctamente
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
-      {/* GRAFICOS SECUNDARIOS */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-slate-900/60 backdrop-blur-xl rounded-2xl p-6 border border-blue-400/30 shadow-[0_0_15px_rgba(59,130,246,0.1)] animate-slide-up delay-400">
-          <ProductosChart />
-        </div>
-        <div className="bg-slate-900/60 backdrop-blur-xl rounded-2xl p-6 border border-blue-400/30 shadow-[0_0_15px_rgba(59,130,246,0.1)] animate-slide-up delay-500">
-          <CategoriasChart />
-        </div>
-      </div>
+      {/* FORMATO DE ARCHIVOS */}
+      <Card className="border-slate-700 bg-slate-900/50">
+        <CardHeader>
+          <CardTitle className="text-white">Especificaciones Técnicas</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h4 className="font-medium text-white mb-2">Formato CSV</h4>
+              <ul className="text-sm text-slate-300 space-y-1">
+                <li>• Separador: coma (,)</li>
+                <li>• Codificación: UTF-8</li>
+                <li>• Primera fila: encabezados</li>
+                <li>• Campos escapados: comillas dobles</li>
+              </ul>
+            </div>
 
-      {/* TABLA DE ÚLTIMAS VENTAS */}
-      <UltimasVentasTable />
+            <div>
+              <h4 className="font-medium text-white mb-2">Compatibilidad</h4>
+              <ul className="text-sm text-slate-300 space-y-1">
+                <li>• Microsoft Excel</li>
+                <li>• Google Sheets</li>
+                <li>• LibreOffice Calc</li>
+                <li>• Cualquier editor CSV</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="mt-6 p-4 bg-slate-800/50 rounded-lg">
+            <h4 className="font-medium text-white mb-2">Ejemplo de contenido CSV:</h4>
+            <div className="text-xs font-mono text-slate-400 bg-slate-900 p-2 rounded overflow-x-auto">
+              ID,Nombre,Código,Precio,Stock<br/>
+              1,"Teclado Mecánico","TCL-001",299.99,15<br/>
+              2,"Mouse Óptico","MSE-002",89.50,8<br/>
+              3,"Monitor LED 24""","MON-003",599.00,5
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

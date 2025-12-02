@@ -63,8 +63,8 @@ export async function getProducts(
   const response = await api.get<ProductoDTOBackend[]>(productEndpoints.base);
 
   // Mapear productos del backend al formato del frontend
-  const items = response.data.map(mapProductoFromBackend);
-  
+  const items = response.map(mapProductoFromBackend);
+
   // Convertir lista a formato paginado para compatibilidad
   const page = options.page || 1;
   const pageSize = options.page_size || 10;
@@ -86,7 +86,7 @@ export async function getProducts(
  */
 export async function getProductById(id: number): Promise<Product> {
   const response = await api.get<ProductoDTOBackend>(productEndpoints.byId(id));
-  return mapProductoFromBackend(response.data);
+  return mapProductoFromBackend(response);
 }
 
 /**
@@ -95,7 +95,7 @@ export async function getProductById(id: number): Promise<Product> {
 async function getCategoriaIdByName(nombre: string): Promise<number | null> {
   try {
     const response = await api.get<any[]>(`${env.apiUrl}/api/categorias`);
-    const categoria = response.data.find((c: any) => c.nombre === nombre);
+    const categoria = response.find((c: any) => c.nombre === nombre);
     return categoria ? categoria.id : null;
   } catch {
     return null;
@@ -134,7 +134,7 @@ export async function createProduct(data: CreateProductData): Promise<Product> {
 
   const response = await api.post<ProductoDTOBackend>(productEndpoints.create, backendData);
 
-  return mapProductoFromBackend(response.data);
+  return mapProductoFromBackend(response);
 }
 
 /**
@@ -175,7 +175,7 @@ export async function updateProduct(
 
   const response = await api.put<ProductoDTOBackend>(productEndpoints.update(id), backendData);
 
-  return mapProductoFromBackend(response.data);
+  return mapProductoFromBackend(response);
 }
 
 /**
@@ -193,13 +193,9 @@ export async function searchProducts(
   query: string,
   filters: ProductFilters = {}
 ): Promise<Product[]> {
-  const response = await api.get<ProductoDTOBackend[]>(`${productEndpoints.base}/buscar`, {
-    params: {
-      nombre: query,
-    },
-  });
+  const response = await api.get<ProductoDTOBackend[]>(`${productEndpoints.base}/buscar?nombre=${encodeURIComponent(query)}`);
 
-  return response.data.map(mapProductoFromBackend);
+  return response.map(mapProductoFromBackend);
 }
 
 /**
@@ -207,7 +203,7 @@ export async function searchProducts(
  */
 export async function getCategories(): Promise<ProductCategory[]> {
   const response = await api.get<ProductCategory[]>(productEndpoints.categories);
-  return response.data;
+  return response;
 }
 
 /**
@@ -218,18 +214,19 @@ export async function checkProductCodeExists(
   excludeId?: number
 ): Promise<boolean> {
   try {
-    const response = await api.get<{ exists: boolean }>(
-      `${productEndpoints.base}/check-codigo`,
-      {
-        params: {
-          codigo,
-          exclude_id: excludeId,
-        },
-      }
-    );
+    const params = `codigo=${encodeURIComponent(codigo)}${excludeId ? `&exclude_id=${excludeId}` : ''}`;
+    const response = await api.get<{ exists: boolean }>(`${productEndpoints.base}/check-codigo?${params}`);
 
-    return response.data.exists;
+    return response.exists;
   } catch {
     return false;
   }
+}
+
+/**
+ * Obtiene todos los productos de forma directa (sin paginación)
+ */
+export async function fetchProductos(): Promise<ProductoDTOBackend[]> {
+  const r = await api.get<ProductoDTOBackend[]>("/productos");
+  return r;
 }

@@ -6,61 +6,36 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, Users, UserPlus, Edit, Trash2 } from 'lucide-react';
-import { getUsuarios, UsuarioDTO } from '@/lib/services/user-service';
-import { UserRole } from '@/lib/types/usuario';
+import { Loader2, Layers, Plus, Edit, Trash2 } from 'lucide-react';
+import { getCategorias, CategoriaDTO } from '@/lib/services/categoria-service';
 
-const roleLabels: Record<string, string> = {
-  ADMIN: 'Administrador',
-  SUPERVISOR: 'Supervisor',
-  VENDEDOR: 'Vendedor',
-  CAJERO: 'Cajero',
-  CLIENTE: 'Cliente',
-};
-
-const roleColors: Record<string, string> = {
-  ADMIN: 'bg-red-500/20 text-red-300 border-red-400/30',
-  SUPERVISOR: 'bg-purple-500/20 text-purple-300 border-purple-400/30',
-  VENDEDOR: 'bg-blue-500/20 text-blue-300 border-blue-400/30',
-  CAJERO: 'bg-green-500/20 text-green-300 border-green-400/30',
-  CLIENTE: 'bg-gray-500/20 text-gray-300 border-gray-400/30',
-};
-
-export default function UsuariosPage() {
-  const [usuarios, setUsuarios] = useState<UsuarioDTO[]>([]);
+export default function CategoriasPage() {
+  const [categorias, setCategorias] = useState<CategoriaDTO[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    loadUsuarios();
+    loadCategorias();
   }, []);
 
-  const loadUsuarios = async () => {
+  const loadCategorias = async () => {
     try {
       setIsLoading(true);
       setError(null);
-      const data = await getUsuarios();
-      setUsuarios(data);
+      const data = await getCategorias();
+      setCategorias(data);
     } catch (err) {
-      setError('Error al cargar los usuarios');
+      setError('Error al cargar las categorías');
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const formatRole = (rol: string) => {
-    return roleLabels[rol.toUpperCase()] || rol;
-  };
-
-  const getRoleColor = (rol: string) => {
-    return roleColors[rol.toUpperCase()] || roleColors.CLIENTE;
   };
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-96">
         <Loader2 className="w-8 h-8 animate-spin text-blue-400" />
-        <span className="ml-2 text-slate-300">Cargando usuarios...</span>
+        <span className="ml-2 text-slate-300">Cargando categorías...</span>
       </div>
     );
   }
@@ -80,16 +55,16 @@ export default function UsuariosPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold mb-2 text-white flex items-center gap-3">
-              <Users className="w-8 h-8" />
-              Usuarios del Sistema
+              <Layers className="w-8 h-8" />
+              Categorías de Productos
             </h1>
             <p className="text-slate-300">
-              Gestión completa de usuarios, roles y permisos del sistema de ventas.
+              Gestión de categorías para organizar los productos del sistema.
             </p>
           </div>
           <Button className="bg-blue-600 hover:bg-blue-700">
-            <UserPlus className="w-4 h-4 mr-2" />
-            Nuevo Usuario
+            <Plus className="w-4 h-4 mr-2" />
+            Nueva Categoría
           </Button>
         </div>
       </header>
@@ -100,10 +75,10 @@ export default function UsuariosPage() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-2xl font-bold text-blue-300">{usuarios.length}</p>
-                <p className="text-slate-300 text-sm">Total Usuarios</p>
+                <p className="text-2xl font-bold text-blue-300">{categorias.length}</p>
+                <p className="text-slate-300 text-sm">Total Categorías</p>
               </div>
-              <Users className="w-8 h-8 text-blue-400" />
+              <Layers className="w-8 h-8 text-blue-400" />
             </div>
           </CardContent>
         </Card>
@@ -113,9 +88,9 @@ export default function UsuariosPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-2xl font-bold text-green-300">
-                  {usuarios.filter(u => u.activo).length}
+                  {categorias.filter(c => c.activo !== false).length}
                 </p>
-                <p className="text-slate-300 text-sm">Usuarios Activos</p>
+                <p className="text-slate-300 text-sm">Categorías Activas</p>
               </div>
               <div className="w-8 h-8 bg-green-400/20 rounded-full flex items-center justify-center">
                 <div className="w-3 h-3 bg-green-400 rounded-full"></div>
@@ -129,24 +104,24 @@ export default function UsuariosPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-2xl font-bold text-purple-300">
-                  {usuarios.filter(u => u.rol === 'VENDEDOR').length}
+                  {categorias.filter(c => c.categoriaPadre).length}
                 </p>
-                <p className="text-slate-300 text-sm">Vendedores</p>
+                <p className="text-slate-300 text-sm">Subcategorías</p>
               </div>
               <div className="w-8 h-8 bg-purple-400/20 rounded-full flex items-center justify-center">
-                <Edit className="w-4 h-4 text-purple-400" />
+                <Layers className="w-4 h-4 text-purple-400" />
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* TABLA DE USUARIOS */}
+      {/* TABLA DE CATEGORÍAS */}
       <Card className="border-blue-400/30 shadow-[0_0_15px_rgba(59,130,246,0.1)] bg-slate-900/60 backdrop-blur-xl">
         <CardHeader>
           <CardTitle className="text-white flex items-center gap-2">
-            <Users className="w-5 h-5" />
-            Lista de Usuarios
+            <Layers className="w-5 h-5" />
+            Lista de Categorías
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -156,39 +131,35 @@ export default function UsuariosPage() {
                 <TableRow className="border-slate-700 hover:bg-slate-800/50">
                   <TableHead className="text-slate-300">ID</TableHead>
                   <TableHead className="text-slate-300">Nombre</TableHead>
-                  <TableHead className="text-slate-300">Email</TableHead>
-                  <TableHead className="text-slate-300">Rol</TableHead>
+                  <TableHead className="text-slate-300">Categoría Padre</TableHead>
                   <TableHead className="text-slate-300">Estado</TableHead>
-                  <TableHead className="text-slate-300">Fecha Registro</TableHead>
+                  <TableHead className="text-slate-300">Fecha Creación</TableHead>
                   <TableHead className="text-slate-300">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {usuarios.map((usuario) => (
-                  <TableRow key={usuario.id} className="border-slate-700 hover:bg-slate-800/30">
-                    <TableCell className="text-slate-300">#{usuario.id}</TableCell>
-                    <TableCell className="font-medium text-white">{usuario.nombre}</TableCell>
-                    <TableCell className="text-slate-300">{usuario.email}</TableCell>
-                    <TableCell>
-                      <Badge className={`text-xs ${getRoleColor(usuario.rol || '')}`}>
-                        {formatRole(usuario.rol || '')}
-                      </Badge>
+                {categorias.map((categoria) => (
+                  <TableRow key={categoria.id} className="border-slate-700 hover:bg-slate-800/30">
+                    <TableCell className="text-slate-300">#{categoria.id}</TableCell>
+                    <TableCell className="font-medium text-white">{categoria.nombre}</TableCell>
+                    <TableCell className="text-slate-400">
+                      {categoria.categoriaPadre ? `Categoría #${categoria.categoriaPadre}` : 'Ninguna'}
                     </TableCell>
                     <TableCell>
                       <Badge
-                        variant={usuario.activo ? 'default' : 'secondary'}
+                        variant={categoria.activo !== false ? 'default' : 'secondary'}
                         className={
-                          usuario.activo
+                          categoria.activo !== false
                             ? 'bg-green-500/20 text-green-300 border-green-400/30'
                             : 'bg-red-500/20 text-red-300 border-red-400/30'
                         }
                       >
-                        {usuario.activo ? 'Activo' : 'Inactivo'}
+                        {categoria.activo !== false ? 'Activa' : 'Inactiva'}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-slate-400 text-sm">
-                      {usuario.fechaCreacion
-                        ? new Date(usuario.fechaCreacion).toLocaleDateString('es-ES')
+                      {categoria.fechaCreacion
+                        ? new Date(categoria.fechaCreacion).toLocaleDateString('es-ES')
                         : 'N/A'
                       }
                     </TableCell>
@@ -212,10 +183,10 @@ export default function UsuariosPage() {
             </Table>
           </div>
 
-          {usuarios.length === 0 && (
+          {categorias.length === 0 && (
             <div className="text-center py-8">
-              <Users className="w-12 h-12 text-slate-500 mx-auto mb-4" />
-              <p className="text-slate-400">No hay usuarios registrados en el sistema.</p>
+              <Layers className="w-12 h-12 text-slate-500 mx-auto mb-4" />
+              <p className="text-slate-400">No hay categorías registradas en el sistema.</p>
             </div>
           )}
         </CardContent>

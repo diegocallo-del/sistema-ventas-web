@@ -17,6 +17,8 @@ export const authEndpoints = {
   refresh: `${API_BASE}/auth/refresh`,
   me: `${API_BASE}/auth/me`,
   verify: `${API_BASE}/auth/verify`,
+  test: `${API_BASE}/auth/test`,
+  bootstrap: `${API_BASE}/auth/bootstrap`,
 } as const;
 
 /**
@@ -66,6 +68,25 @@ export const saleEndpoints = {
   details: (id: number) => `${API_BASE}/ventas/${id}/detalles`,
   byDate: `${API_BASE}/ventas/por-fecha`,
   byClient: (clientId: number) => `${API_BASE}/ventas/cliente/${clientId}`,
+} as const;
+
+/**
+ * Endpoints de categorias
+ */
+export const categoryEndpoints = {
+  base: `${API_BASE}/categorias`,
+  byId: (id: number) => `${API_BASE}/categorias/${id}`,
+  create: `${API_BASE}/categorias`,
+  update: (id: number) => `${API_BASE}/categorias/${id}`,
+  delete: (id: number) => `${API_BASE}/categorias/${id}`,
+} as const;
+
+/**
+ * Endpoints de análisis IA
+ */
+export const analysisEndpoints = {
+  process: `${API_BASE}/ia/procesar`,
+  insights: `${API_BASE}/ia/insights`,
 } as const;
 
 /**

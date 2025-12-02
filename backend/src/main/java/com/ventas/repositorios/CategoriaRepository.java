@@ -15,15 +15,10 @@ import java.util.Optional;
 @Repository
 public interface CategoriaRepository extends JpaRepository<Categoria, Long> {
 
-    /**
-     * Busca categoría por nombre (debe ser único).
-     * @param nombre El nombre de la categoría
-     * @return Optional de la categoría si existe
-     */
+
     Optional<Categoria> findByNombre(String nombre);
 
     /**
-     * Busca categorías por nombre (búsqueda insensible a mayúsculas/minúsculas).
      * @param nombre El nombre o parte del nombre de la categoría
      * @return Lista de categorías que coinciden
      */

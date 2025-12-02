@@ -11,8 +11,9 @@ import { rolePermissions } from './role-config';
  */
 export function hasPermission(user: User | null, permission: Permission): boolean {
   if (!user) return false;
-  
-  const permissions = rolePermissions[user.rol];
+
+  const permissions = rolePermissions[user?.rol ?? ''] || [];
+  if (permissions.length === 0) return false;
   return permissions.includes(permission);
 }
 
@@ -56,9 +57,9 @@ export function hasAnyRole(user: User | null, roles: UserRole[]): boolean {
  * Obtiene todos los permisos de un usuario
  */
 export function getUserPermissions(user: User | null): Permission[] {
-  if (!user) return [];
-  
-  return rolePermissions[user.rol];
+  if (!user || !user.rol) return [];
+  const permissions = rolePermissions[user?.rol] ?? [];
+  return permissions;
 }
 
 /**

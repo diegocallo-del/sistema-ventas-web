@@ -10,9 +10,6 @@ import lombok.experimental.SuperBuilder;
 
 @Entity
 @Table(name = "usuarios")
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "rol")
-@DiscriminatorValue("USUARIO")
 @Data
 @SuperBuilder
 @NoArgsConstructor
@@ -26,7 +23,7 @@ public class Usuario extends PersonaBase {
     private String password;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "rol", length = 20, nullable = false, insertable = false, updatable = false)
+    @Column(name = "rol", length = 20, nullable = false)
     private RolUsuario rol;
 
     @Column(name = "numero_documento", unique = true, length = 20)

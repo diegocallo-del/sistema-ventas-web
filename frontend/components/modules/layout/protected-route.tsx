@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/hooks/use-auth';
 import { AlertCircle } from 'lucide-react';
+import { useAuthStore } from '@/store/auth-store';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -12,38 +12,40 @@ interface ProtectedRouteProps {
 
 export function ProtectedRoute({ children, requiredPermission }: ProtectedRouteProps) {
   const router = useRouter();
-  const { isAuthenticated, isLoading, user, hasPermission } = useAuth();
+  const { isAuthenticated, isLoading, user, initialize, isInitialized } = useAuthStore();
 
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      router.push('/login');
+  React.useEffect(() => {
+    initialize();
+  }, []);
+
+  React.useEffect(() => {
+    if (isInitialized && !isLoading && !isAuthenticated) {
+      router.replace('/login');
     }
-  }, [isAuthenticated, isLoading, router]);
+  }, [isInitialized, isLoading, isAuthenticated]);
 
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-black animate-gradient-slow">
         <div className="flex flex-col items-center gap-4">
           <div className="h-12 w-12 border-4 border-t-purple-600 border-white/20 rounded-full animate-spin" />
-          <p className="text-white/80 text-lg">Cargando...</p>
+          <p className="text-white/80 text-lg">Verificando autenticación...</p>
         </div>
       </div>
     );
   }
 
-  if (!isAuthenticated || !user) {
+  if (!isAuthenticated) {
     return null;
   }
 
-  if (requiredPermission && !hasPermission(requiredPermission)) {
+  // Si se requiere permiso, verificarlo aquí (puedes expandir la lógica)
+  if (requiredPermission && user && !(user.permisos?.includes(requiredPermission))) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-black animate-gradient-slow px-4">
-        <div className="bg-white/10 backdrop-blur-xl p-8 rounded-2xl shadow-lg text-center max-w-sm">
-          <AlertCircle className="mx-auto w-12 h-12 text-red-500 mb-4" />
-          <h2 className="text-2xl font-bold text-white mb-2">Acceso Denegado</h2>
-          <p className="text-white/80">
-            No tienes permisos para acceder a esta sección
-          </p>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-black animate-gradient-slow">
+        <div className="flex flex-col items-center gap-4">
+          <AlertCircle className="h-12 w-12 text-red-500" />
+          <p className="text-white/80 text-lg">No tienes permiso para acceder a esta sección.</p>
         </div>
       </div>
     );

@@ -10,7 +10,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { createProducto, updateProducto } from '@/lib/productos';
+import { createProduct, updateProduct } from '@/lib/services/producto-service';
 import { isValidProductName, isValidPrice, isValidStock } from '@/lib/validators';
 import { Image, Upload, X } from 'lucide-react';
 
@@ -184,9 +184,9 @@ export default function ProductModalForm({ initialData, onSaved }: ProductModalF
       setIsSubmitting(true);
 
       if (initialData?.id) {
-        await updateProducto(initialData.id, payload as any);
+        await updateProduct(initialData.id, payload as any);
       } else {
-        await createProducto(payload as any);
+        await createProduct(payload as any);
       }
 
       if (!initialData?.id) {

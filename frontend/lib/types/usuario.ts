@@ -22,10 +22,11 @@ export interface User {
   username: string;
   email: string;
   nombre: string;
-  apellido: string;
+  apellido?: string;
   rol: UserRole;
   activo: boolean;
   fecha_creacion: string;
   ultimo_acceso: string | null;
   password?: string; // Solo para desarrollo
+  permisos?: string[];
 }

@@ -45,12 +45,19 @@ public class AuthService {
         if (!usuario.isActivo()) {
             return AuthResponseDTO.error("Usuario inactivo. Contacte al administrador.");
         }
-        // Comparación de contraseña en texto plano
-        if (!loginRequest.password().equals(usuario.getPassword())) {
-            return AuthResponseDTO.error("Contraseña incorrecta. Verifique sus credenciales.");
+        // Comparación de contraseña (con migración automática de texto plano a BCrypt)
+        if (!passwordEncoder.matches(loginRequest.password(), usuario.getPassword())) {
+            // Fallback: Verificar si es contraseña legacy en texto plano
+            if (loginRequest.password().equals(usuario.getPassword())) {
+                // Migración automática: Encriptar y guardar
+                usuario.setPassword(passwordEncoder.encode(loginRequest.password()));
+                usuarioRepository.save(usuario);
+            } else {
+                return AuthResponseDTO.error("Contraseña incorrecta. Verifique sus credenciales.");
+            }
         }
-        // Generar token simple UUID
-        String token = UUID.randomUUID().toString();
+        // Generar token JWT
+        String token = jwtUtil.generateToken(usuario);
         return AuthResponseDTO.success(
                 token,
                 usuario.getId(),
@@ -88,14 +95,14 @@ public class AuthService {
         Usuario usuario = new Usuario();
         usuario.setEmail(createUsuario.email());
         usuario.setNombre(createUsuario.nombre());
-        usuario.setPassword(createUsuario.password());
+        usuario.setPassword(passwordEncoder.encode(createUsuario.password()));
         usuario.setRol(createUsuario.rol());
         usuario.setActivo(true);
 
         Usuario usuarioGuardado = usuarioRepository.save(usuario);
 
-        // Generar token simple UUID
-        String token = UUID.randomUUID().toString();
+        // Generar token JWT
+        String token = jwtUtil.generateToken(usuario);
 
         return AuthResponseDTO.success(
                 token,
@@ -149,8 +156,7 @@ public class AuthService {
 
         // Solo actualizar contraseña si se proporciona
         if (createUsuario.password() != null && !createUsuario.password().trim().isEmpty()) {
-            // Guardar contraseña en texto plano para desarrollo
-            usuarioActual.setPassword(createUsuario.password());
+            usuarioActual.setPassword(passwordEncoder.encode(createUsuario.password()));
         }
 
         return usuarioRepository.save(usuarioActual);

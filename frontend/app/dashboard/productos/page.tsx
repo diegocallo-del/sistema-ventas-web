@@ -30,7 +30,7 @@ export default function ProductosPage() {
   const [productos, setProductos] = useState<Product[]>([]);
   const [loadingLista, setLoadingLista] = useState(false);
   const [search, setSearch] = useState("");
-  const [categoria, setCategoria] = useState("");
+  const [categoria, setCategoria] = useState("all");
   const [estado, setEstado] = useState("");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
@@ -61,7 +61,7 @@ export default function ProductosPage() {
   // Filtrar productos localmente
   const productosFiltrados = productos.filter((p) => {
     const matchSearch = !search || p.nombre.toLowerCase().includes(search.toLowerCase()) || p.codigo.toLowerCase().includes(search.toLowerCase());
-    const matchCategoria = !categoria || p.categoria === categoria;
+    const matchCategoria = categoria === "all" || !categoria || p.categoria === categoria;
     const matchEstado = !estado || (estado === 'activo' && p.activo) || (estado === 'inactivo' && !p.activo) || (estado === 'agotado' && p.stock === 0);
     return matchSearch && matchCategoria && matchEstado;
   });
@@ -155,9 +155,11 @@ export default function ProductosPage() {
           {/* CATEGORÍA */}
           <Select value={categoria} onValueChange={setCategoria}>
             <SelectTrigger className="bg-slate-800/50 border-blue-400/30 text-white focus:ring-blue-400/50">
-              <SelectValue placeholder="Categoría" />
+              <SelectValue placeholder="Todas las categorías" />
             </SelectTrigger>
             <SelectContent className="bg-slate-800 border-blue-400/30">
+              <SelectItem value="all">Todas las categorías</SelectItem>
+              {/* Aquí se cargarían dinámicamente desde el backend */}
               <SelectItem value="bebidas">Bebidas</SelectItem>
               <SelectItem value="snacks">Snacks</SelectItem>
               <SelectItem value="postres">Postres</SelectItem>

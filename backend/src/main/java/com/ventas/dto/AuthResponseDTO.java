@@ -4,23 +4,16 @@ import com.ventas.enums.RolUsuario;
 
 /**
  * DTO para la respuesta de autenticación.
- * Contiene un token simple (UUID) y la información básica del usuario
- * autenticado.
+
  */
 public record AuthResponseDTO(
 
         boolean success,
-
-        String token, // UUID simple, no JWT
-
+        String token, 
         Long userId,
-
         String nombre,
-
         String email,
-
         String error,
-
         RolUsuario rol
 
 ) {

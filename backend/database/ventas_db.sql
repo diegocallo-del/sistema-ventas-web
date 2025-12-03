@@ -1,3 +1,4 @@
+-- Active: 1764715775083@@127.0.0.1@3306@sistema_ventas_db
 -- ============================================================
 --   BASE DE DATOS TIPO MERCADO LIBRE (ECOMMERCE PROFESIONAL)
 -- ============================================================
@@ -93,17 +94,18 @@ CREATE TABLE categorias (
 -- ==========================================
 CREATE TABLE productos (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL,
+    codigo VARCHAR(50) UNIQUE,
+    nombre VARCHAR(255) NOT NULL,
     descripcion TEXT,
     categoria_id BIGINT NOT NULL,
     marca VARCHAR(100),
     modelo VARCHAR(100),
-    precio DECIMAL(10,2) NOT NULL,
-    stock INT NOT NULL DEFAULT 0,
+    precio DECIMAL(10,2) NOT NULL CHECK (precio > 0),
+    stock INT UNSIGNED NOT NULL DEFAULT 0,
     vendedor_id BIGINT NOT NULL,
     activo TINYINT(1) DEFAULT 1,
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_modificacion DATETIME,
+    fecha_modificacion TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (vendedor_id) REFERENCES usuarios(id) ON DELETE CASCADE,
     FOREIGN KEY (categoria_id) REFERENCES categorias(id) ON DELETE CASCADE
 );
@@ -251,6 +253,17 @@ CREATE TABLE calificaciones (
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
 );
 
+-- ==========================================
+-- ÍNDICES PARA OPTIMIZACIÓN
+-- ==========================================
+
+-- Índices para productos (campos de búsqueda frecuente)
+CREATE INDEX idx_productos_categoria ON productos(categoria_id);
+CREATE INDEX idx_productos_vendedor ON productos(vendedor_id);
+CREATE INDEX idx_productos_marca ON productos(marca);
+CREATE INDEX idx_productos_precio ON productos(precio);
+CREATE INDEX idx_productos_activo ON productos(activo);
+
 -- =======================================================
 -- ================== INSERTS DE PRUEBA ===================
 -- =======================================================
@@ -290,13 +303,13 @@ INSERT INTO categorias (nombre) VALUES
 ('Deportes');
 
 -- PRODUCTOS
-INSERT INTO productos (vendedor_id, nombre, descripcion, categoria_id, marca, modelo, precio, stock)
+INSERT INTO productos (codigo, vendedor_id, nombre, descripcion, categoria_id, marca, modelo, precio, stock)
 VALUES
-(2,'Laptop HP','Buen rendimiento',4,'HP','Pav14',2500,10),
-(2,'Camisa Polo','Algodón premium',2,'Polo','2023',45,20),
-(4,'Silla Gamer','Ergonómica',3,'DXRacer','X1',200,10),
-(4,'Audífonos Bluetooth','Alta calidad',1,'Sony','WH1000',150,10),
-(2,'Zapatillas Running','Para deporte',5,'Nike','RunX',180,10);
+('LP-HP-001', 2,'Laptop HP','Buen rendimiento',4,'HP','Pav14',2500,10),
+('CM-POLO-M', 2,'Camisa Polo','Algodón premium',2,'Polo','2023',45,20),
+('SG-DXR-X1', 4,'Silla Gamer','Ergonómica',3,'DXRacer','X1',200,10),
+('AUD-SONY-001', 4,'Audífonos Bluetooth','Alta calidad',1,'Sony','WH1000',150,10),
+('ZP-NIKE-42', 2,'Zapatillas Running','Para deporte',5,'Nike','RunX',180,10);
 
 -- VARIANTES
 INSERT INTO producto_variantes (producto_id, atributo, valor, precio, stock)

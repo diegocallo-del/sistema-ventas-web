@@ -44,17 +44,5 @@ public interface ProductoRepository extends JpaRepository<Producto, Long> {
     @Query("SELECT p FROM Producto p WHERE p.stock <= :stockMinimo AND p.activo = true")
     List<Producto> findProductosConStockBajo(@Param("stockMinimo") Integer stockMinimo);
 
-    /**
-     * Encuentra un producto por código único.
-     * @param codigo Código único del producto
-     * @return Optional con el producto encontrado
-     */
-    Optional<Producto> findByCodigo(String codigo);
 
-    /**
-     * Verifica si existe un producto con el código dado.
-     * @param codigo Código a verificar
-     * @return true si existe, false en caso contrario
-     */
-    boolean existsByCodigo(String codigo);
 }

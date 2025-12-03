@@ -16,6 +16,7 @@ import com.ventas.repositorios.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -29,6 +30,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional
 public class VentaService {
+
+    // Hardcoded IGV para Perú 18%
+    private final BigDecimal ivaPercentage = BigDecimal.valueOf(0.18);
 
     private final VentaRepository ventaRepository;
     private final DetalleVentaRepository detalleVentaRepository;
@@ -76,7 +80,8 @@ public class VentaService {
 
         validarStock(createDTO.detalles());
 
-        BigDecimal total = BigDecimal.ZERO;
+        // Calcular subtotal (precios base sin IGV)
+        BigDecimal subtotal = BigDecimal.ZERO;
         for (var detalle : createDTO.detalles()) {
             Producto producto = productoRepository.findById(detalle.productoId())
                     .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado con ID: " + detalle.productoId()));
@@ -85,12 +90,19 @@ public class VentaService {
                 throw new ValidationException("Producto inactivo: " + producto.getNombre());
             }
 
-            total = total.add(producto.getPrecio().multiply(BigDecimal.valueOf(detalle.cantidad())));
+            subtotal = subtotal.add(producto.getPrecio().multiply(BigDecimal.valueOf(detalle.cantidad())));
         }
+
+        // Calcular IGV y total
+        BigDecimal igv = subtotal.multiply(ivaPercentage);
+        BigDecimal total = subtotal.add(igv);
+        System.out.println("DEBUG: subtotal=" + subtotal + ", ivaPercentage=" + ivaPercentage + ", igv=" + igv + ", total=" + total);
 
         // Crear venta
         Venta venta = new Venta();
         venta.setCliente(cliente);
+        venta.setSubtotal(subtotal);
+        venta.setIgv(igv);
         venta.setTotal(total);
         venta.setEstadoVenta(EstadoVenta.PAGADA); // assuming completed as paid
         venta.setTipoPago(createDTO.tipoPago()); // assuming TipoPago enum
@@ -210,6 +222,8 @@ public class VentaService {
                 comprador != null && comprador instanceof Cliente ? ((Cliente) comprador).getNumeroDocumento() : null,
                 null, // sin usuario vendedor
                 null,
+                venta.getSubtotal(),
+                venta.getIgv(),
                 venta.getTotal(),
                 venta.getEstadoVenta(),
                 venta.getTipoPago(),

@@ -6,8 +6,10 @@ import com.ventas.excepciones.ResourceNotFoundException;
 import com.ventas.excepciones.ValidationException;
 import com.ventas.modelos.Categoria;
 import com.ventas.modelos.Producto;
+import com.ventas.modelos.Usuario;
 import com.ventas.repositorios.CategoriaRepository;
 import com.ventas.repositorios.ProductoRepository;
+import com.ventas.repositorios.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +28,7 @@ public class ProductoService {
 
     private final ProductoRepository productoRepository;
     private final CategoriaRepository categoriaRepository;
+    private final UsuarioRepository usuarioRepository;
 
     /**
      * Obtiene todos los productos activos.
@@ -62,16 +65,26 @@ public class ProductoService {
         Categoria categoria = categoriaRepository.findById(createDTO.categoriaId())
                 .orElseThrow(() -> new ValidationException("La categoría especificada no existe"));
 
-        // Generar código automáticamente
-        String codigo = generarCodigoProducto(createDTO.nombre());
+        // Usar vendedor por defecto (admin id 1) - luego implementar auth
+        Usuario vendedor = usuarioRepository.findById(1L)
+                .orElseThrow(() -> new ValidationException("Vendedor por defecto no encontrado"));
+
+        // Generar código automático si no se proporciona
+        String codigo = createDTO.codigo();
+        if (codigo == null || codigo.trim().isEmpty()) {
+            codigo = generarCodigoAutomatico(createDTO.nombre(), categoria.getNombre());
+        }
 
         Producto producto = Producto.builder()
-                .codigo(codigo)
                 .nombre(createDTO.nombre())
+                .codigo(codigo)
                 .descripcion(createDTO.descripcion())
+                .marca(createDTO.marca())
+                .modelo(createDTO.modelo())
                 .precio(createDTO.precio())
                 .stock(createDTO.stock())
                 .categoria(categoria)
+                .vendedor(vendedor)
                 .build();
         producto.setActivo(true);
 
@@ -95,8 +108,17 @@ public class ProductoService {
         Categoria categoria = categoriaRepository.findById(createDTO.categoriaId())
                 .orElseThrow(() -> new ValidationException("La categoría especificada no existe"));
 
+        // Generar código automático si no se proporciona o está vacío
+        String codigo = createDTO.codigo();
+        if (codigo == null || codigo.trim().isEmpty()) {
+            codigo = generarCodigoAutomatico(createDTO.nombre(), categoria.getNombre());
+        }
+
         producto.setNombre(createDTO.nombre());
+        producto.setCodigo(codigo);
         producto.setDescripcion(createDTO.descripcion());
+        producto.setMarca(createDTO.marca());
+        producto.setModelo(createDTO.modelo());
         producto.setPrecio(createDTO.precio());
         producto.setStock(createDTO.stock());
         producto.setCategoria(categoria);
@@ -162,6 +184,36 @@ public class ProductoService {
     }
 
     /**
+     * Genera un código automático único para el producto.
+     * @param nombreProducto Nombre del producto
+     * @param nombreCategoria Nombre de la categoría
+     * @return Código único generado
+     */
+    private String generarCodigoAutomatico(String nombreProducto, String nombreCategoria) {
+        // Usar timestamp para generar códigos únicos automáticamente
+        long timestamp = System.currentTimeMillis();
+        String timeCode = Long.toString(timestamp).substring(6); // Últimos 7 dígitos
+
+        // Limpiar y acortar nombres (máximo 8 caracteres para nombre)
+        String nombreLimpio = limpiarTextoParaCodigo(nombreProducto).substring(0, Math.min(6, nombreProducto.length()));
+        String categoriaLimpio = limpiarTextoParaCodigo(nombreCategoria).substring(0, Math.min(3, nombreCategoria.length()));
+
+        // Generar código: NOMBRE-CATEGORIA-TIMESTAMP (ej: LAPTOP-COM-1234567)
+        return String.format("%s-%s-%s", nombreLimpio.toUpperCase(), categoriaLimpio.toUpperCase(), timeCode);
+    }
+
+    /**
+     * Limpia el texto para usarlo en códigos: elimina caracteres especiales y espacios.
+     * @param texto Texto a limpiar
+     * @return Texto limpio en mayúsculas
+     */
+    private String limpiarTextoParaCodigo(String texto) {
+        if (texto == null) return "";
+        // Mantener solo letras, números y espacios, luego reemplazar espacios con guiones
+        return texto.replaceAll("[^a-zA-Z0-9\\s]", "").trim().replaceAll("\\s+", "-").toUpperCase();
+    }
+
+    /**
      * Valida los datos de un producto antes de guardar.
      * @param dto Datos a validar
      */
@@ -185,26 +237,20 @@ public class ProductoService {
                 producto.getCodigo(),
                 producto.getNombre(),
                 producto.getDescripcion(),
+                producto.getMarca(),
+                producto.getModelo(),
                 producto.getPrecio(),
                 producto.getStock(),
                 producto.getCategoria() != null ? producto.getCategoria().getId() : null,
                 producto.getCategoria() != null ? producto.getCategoria().getNombre() : null,
-                null, // imagen - por ahora null ya que no está implementada en el modelo
+                producto.getVendedor() != null ? producto.getVendedor().getId() : null,
+                producto.getVendedor() != null ? producto.getVendedor().getNombre() : null,
+                null, // imagen
                 producto.isActivo(),
                 producto.getFechaCreacion(),
                 producto.getFechaModificacion()
         );
     }
 
-    /**
-     * Genera un código único para el producto basado en su nombre.
-     * Formula: PRIMERA_LETRA_MAYUSCULA + (N+1) donde N es el total de productos actuales
-     * @param nombre Nombre del producto
-     * @return Código generado
-     */
-    private String generarCodigoProducto(String nombre) {
-        String primeraLetra = nombre.substring(0, 1).toUpperCase();
-        long cantidadProductos = productoRepository.count();
-        return primeraLetra + String.format("%03d", cantidadProductos + 1);
-    }
+
 }

@@ -28,6 +28,12 @@ public class Venta extends EntidadBase {
     @JoinColumn(name = "direccion_envio_id")
     private Direccion direccionEnvio;
 
+    @Column(name = "subtotal", precision = 12, scale = 2, nullable = false)
+    private BigDecimal subtotal;
+
+    @Column(name = "igv", precision = 12, scale = 2, nullable = false)
+    private BigDecimal igv;
+
     @Column(name = "total", precision = 12, scale = 2, nullable = false)
     private BigDecimal total;
 

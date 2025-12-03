@@ -19,6 +19,8 @@ public record VentaDTO(
     String clienteNumeroDocumento,
     Long usuarioId,
     String usuarioNombre,
+    BigDecimal subtotal,
+    BigDecimal igv,
     BigDecimal total,
     EstadoVenta estado,
     TipoPago tipoPago,

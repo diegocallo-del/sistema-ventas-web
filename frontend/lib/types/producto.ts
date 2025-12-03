@@ -10,6 +10,8 @@ export interface Product {
   codigo: string;
   nombre: string;
   descripcion: string | null;
+  marca: string | null;
+  modelo: string | null;
   precio: number;
   stock: number;
   categoria: string | null;
@@ -26,9 +28,11 @@ export interface CreateProductData {
   codigo: string;
   nombre: string;
   descripcion?: string;
+  marca?: string;
+  modelo?: string;
   precio: number;
   stock: number;
-  categoria?: string;
+  categoriaId: number;
   imagen?: File | string | null; // File para envío, string para URL/base64, null para sin imagen
 }
 
@@ -39,9 +43,12 @@ export interface UpdateProductData {
   codigo?: string;
   nombre?: string;
   descripcion?: string;
+  marca?: string;
+  modelo?: string;
   precio?: number;
   stock?: number;
   categoria?: string;
+  categoriaId?: number;
   imagen?: File | string | null; // File para envío, string para URL/base64, null para eliminar imagen
   activo?: boolean;
 }

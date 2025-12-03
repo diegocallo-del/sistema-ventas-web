@@ -1,8 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { User, LoginCredentials, UserRole } from '../lib/types/usuario';
 import { login, register } from '@/lib/services/auth-service';
+import { useAuthStore } from '@/store/auth-store';
 
 type AuthResponse = {
   success: boolean;
@@ -10,6 +12,8 @@ type AuthResponse = {
 };
 
 export function useAuth() {
+  const router = useRouter();
+  const store = useAuthStore();
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -51,12 +55,16 @@ export function useAuth() {
     }
   }
 
-  // Logout simple
+  // Logout consistente con el store global
   function handleLogout() {
+    // Limpiar el store global (esto también maneja localStorage y persistencia)
+    store.logout();
+
+    // Limpiar estado local del hook
     setUser(null);
-    localStorage.removeItem('user_data');
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('refresh_token');
+
+    // Redireccionar al login inmediatamente
+    router.replace('/login');
   }
 
   // Verificar si está autenticado

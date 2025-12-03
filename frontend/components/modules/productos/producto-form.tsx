@@ -7,7 +7,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Product, CreateProductData, UpdateProductData } from '@/lib/types';
+import { getCategorias, type CategoriaDTO } from '@/lib/services/categoria-service';
 import {
   isValidProductCode,
   isValidProductName,
@@ -35,15 +43,19 @@ export function ProductoForm({
     codigo: '',
     nombre: '',
     descripcion: '',
+    marca: '',
+    modelo: '',
     precio: '',
     stock: '',
-    categoria: '',
+    categoriaId: '',
     imagen: null as File | null,
     imagenPreview: null as string | null,
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [imageError, setImageError] = useState<string | null>(null);
+  const [categorias, setCategorias] = useState<CategoriaDTO[]>([]);
+  const [categoriasLoading, setCategoriasLoading] = useState(false);
 
   useEffect(() => {
     if (producto) {
@@ -51,14 +63,39 @@ export function ProductoForm({
         codigo: producto.codigo,
         nombre: producto.nombre,
         descripcion: producto.descripcion || '',
+        marca: producto.marca || '',
+        modelo: producto.modelo || '',
         precio: producto.precio.toString(),
         stock: producto.stock.toString(),
-        categoria: producto.categoria || '',
+        categoriaId: '',
         imagen: null,
         imagenPreview: producto.imagen || null,
       });
     }
   }, [producto]);
+
+  useEffect(() => {
+    const cargarCategorias = async () => {
+      setCategoriasLoading(true);
+      try {
+        const data = await getCategorias();
+        setCategorias(data);
+      } catch (error) {
+        console.error('Error al cargar categorias:', error);
+      } finally {
+        setCategoriasLoading(false);
+      }
+    };
+
+    cargarCategorias();
+  }, []);
+
+  useEffect(() => {
+    if (producto && categorias.length > 0) {
+      const match = categorias.find((c) => c.nombre === producto.categoria);
+      setFormData((prev) => ({ ...prev, categoriaId: match ? String(match.id) : '' }));
+    }
+  }, [producto, categorias]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -113,33 +150,38 @@ export function ProductoForm({
     }
   };
 
+const safeTrim = (v: unknown) => (typeof v === 'string' ? v.trim() : '');
+
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.codigo.trim()) {
-      newErrors.codigo = 'El código es requerido';
-    } else if (!isValidProductCode(formData.codigo)) {
+    // Código ahora es opcional, pero si se proporciona debe ser válido
+    if (safeTrim(formData.codigo) && !isValidProductCode(safeTrim(formData.codigo))) {
       newErrors.codigo = 'El código debe tener entre 1 y 50 caracteres';
     }
 
-    if (!formData.nombre.trim()) {
+    if (!safeTrim(formData.nombre)) {
       newErrors.nombre = 'El nombre es requerido';
     } else if (!isValidProductName(formData.nombre)) {
       newErrors.nombre = 'El nombre debe tener entre 2 y 200 caracteres';
     }
 
     const precio = parseFloat(formData.precio);
-    if (!formData.precio.trim()) {
+    if (!safeTrim(formData.precio)) {
       newErrors.precio = 'El precio es requerido';
     } else if (isNaN(precio) || !isValidPrice(precio)) {
       newErrors.precio = 'El precio debe ser un número válido mayor a 0';
     }
 
     const stock = parseInt(formData.stock);
-    if (!formData.stock.trim()) {
+    if (!safeTrim(formData.stock)) {
       newErrors.stock = 'El stock es requerido';
     } else if (isNaN(stock) || !isValidStock(stock)) {
       newErrors.stock = 'El stock debe ser un número entero mayor o igual a 0';
+    }
+
+    if (!safeTrim(formData.categoriaId)) {
+      newErrors.categoriaId = 'La categoría es requerida';
     }
 
     setErrors(newErrors);
@@ -152,21 +194,20 @@ export function ProductoForm({
     if (!validateForm()) return;
 
     const data: CreateProductData | UpdateProductData = {
-      codigo: formData.codigo.trim(),
-      nombre: formData.nombre.trim(),
-      descripcion: formData.descripcion.trim() || undefined,
-      precio: parseFloat(formData.precio),
-      stock: parseInt(formData.stock),
-      categoria: formData.categoria.trim() || undefined,
+      codigo: safeTrim(formData.codigo),
+      nombre: safeTrim(formData.nombre),
+      descripcion: safeTrim(formData.descripcion) || undefined,
+      marca: safeTrim(formData.marca) || undefined,
+      modelo: safeTrim(formData.modelo) || undefined,
+      precio: parseFloat(safeTrim(formData.precio)),
+      stock: parseInt(safeTrim(formData.stock)),
+      categoriaId: safeTrim(formData.categoriaId) ? parseInt(formData.categoriaId) : undefined,
     };
 
     // Si hay una imagen nueva, incluirla en el payload
     // El backend debe aceptar FormData o el File se convertirá según la implementación
     if (formData.imagen) {
       data.imagen = formData.imagen;
-    } else if (formData.imagenPreview && !formData.imagen) {
-      // Si hay preview pero no hay archivo nuevo, mantener la URL existente
-      data.imagen = formData.imagenPreview;
     }
 
     await onSubmit(data);
@@ -174,20 +215,25 @@ export function ProductoForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* CODIGO Y NOMBRE */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* CODIGO, NOMBRE Y MARCA */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
           <label className="block text-sm font-medium mb-1 text-slate-200">
-            Código <span className="text-red-400">*</span>
+            Código
           </label>
-          <Input
-            name="codigo"
-            value={formData.codigo}
-            onChange={handleChange}
-            placeholder="Ej: PROD001"
-            disabled={isLoading}
-            className="bg-white/5 text-white border border-white/10 rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none placeholder-slate-400"
-          />
+          <div className="space-y-1">
+            <Input
+              name="codigo"
+              value={formData.codigo}
+              onChange={handleChange}
+              placeholder="Ej: PROD001 (se genera automáticamente)"
+              disabled={isLoading}
+              className="bg-white/5 text-white border border-white/10 rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none placeholder-slate-400"
+            />
+            <p className="text-xs text-slate-400">
+              Si dejas vacío, se generará automáticamente (Ej: LAPTOP-COMPUT-001)
+            </p>
+          </div>
           {errors.codigo && (
             <p className="text-xs text-red-400 mt-1">{errors.codigo}</p>
           )}
@@ -207,6 +253,23 @@ export function ProductoForm({
           />
           {errors.nombre && (
             <p className="text-xs text-red-400 mt-1">{errors.nombre}</p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1 text-slate-200">
+            Marca
+          </label>
+          <Input
+            name="marca"
+            value={formData.marca}
+            onChange={handleChange}
+            placeholder="Ej: HP"
+            disabled={isLoading}
+            className="bg-white/5 text-white border border-white/10 rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none placeholder-slate-400"
+          />
+          {errors.marca && (
+            <p className="text-xs text-red-400 mt-1">{errors.marca}</p>
           )}
         </div>
       </div>
@@ -254,14 +317,25 @@ export function ProductoForm({
           <label className="block text-sm font-medium mb-1 text-slate-200">
             Categoría
           </label>
-          <Input
-            name="categoria"
-            value={formData.categoria}
-            onChange={handleChange}
-            placeholder="Ej: Electrónica"
-            disabled={isLoading}
-            className="bg-white/5 text-white border border-white/10 rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none placeholder-slate-400"
-          />
+          <Select
+            value={formData.categoriaId}
+            onValueChange={(value) => setFormData(prev => ({ ...prev, categoriaId: value }))}
+            disabled={isLoading || categoriasLoading}
+          >
+            <SelectTrigger className="bg-white/5 text-white border border-white/10 rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none placeholder-slate-400">
+              <SelectValue placeholder="Selecciona una categoría" />
+            </SelectTrigger>
+            <SelectContent className="bg-slate-800 border-blue-400/30">
+              {categorias.map((categoria) => (
+                <SelectItem key={categoria.id} value={String(categoria.id)}>
+                  {categoria.nombre}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {errors.categoriaId && (
+            <p className="text-xs text-red-400 mt-1">{errors.categoriaId}</p>
+          )}
         </div>
       </div>
 

@@ -4,6 +4,13 @@ import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
   Client,
   CreateClientData,
   UpdateClientData,
@@ -124,27 +131,30 @@ export function ClienteForm({
       {/* DOCUMENTO */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium mb-1">
-            Tipo de Documento <span className="text-red-500">*</span>
+          <label className="block text-sm font-medium mb-1 text-slate-200">
+            Tipo de Documento <span className="text-red-400">*</span>
           </label>
-          <select
-            name="tipo_documento"
+          <Select
             value={formData.tipo_documento}
-            onChange={handleChange}
+            onValueChange={(value) => setFormData((prev) => ({ ...prev, tipo_documento: value as DocumentType }))}
             disabled={isLoading}
-            className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-white focus:ring-2 focus:ring-purple-500 focus:outline-none"
           >
-            {DOCUMENT_TYPE_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger className="bg-white/5 text-white border border-white/10 rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none placeholder-slate-400">
+              <SelectValue placeholder="Selecciona un tipo de documento" />
+            </SelectTrigger>
+            <SelectContent className="bg-slate-800 border-blue-400/30">
+              {DOCUMENT_TYPE_OPTIONS.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">
-            Número de Documento <span className="text-red-500">*</span>
+          <label className="block text-sm font-medium mb-1 text-slate-200">
+            Número de Documento <span className="text-red-400">*</span>
           </label>
           <Input
             name="numero_documento"
@@ -155,7 +165,7 @@ export function ClienteForm({
             className="bg-white/5 text-white border border-white/10 rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none"
           />
           {errors.numero_documento && (
-            <p className="text-red-500 text-xs mt-1">{errors.numero_documento}</p>
+            <p className="text-xs text-red-400 mt-1">{errors.numero_documento}</p>
           )}
         </div>
       </div>
@@ -163,8 +173,8 @@ export function ClienteForm({
       {/* NOMBRE - APELLIDO */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium mb-1">
-            Nombre <span className="text-red-500">*</span>
+          <label className="block text-sm font-medium mb-1 text-slate-200">
+            Nombre <span className="text-red-400">*</span>
           </label>
           <Input
             name="nombre"
@@ -175,12 +185,12 @@ export function ClienteForm({
             className="bg-white/5 text-white border border-white/10 rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none"
           />
           {errors.nombre && (
-            <p className="text-red-500 text-xs mt-1">{errors.nombre}</p>
+            <p className="text-xs text-red-400 mt-1">{errors.nombre}</p>
           )}
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Apellido</label>
+          <label className="block text-sm font-medium mb-1 text-slate-200">Apellido</label>
           <Input
             name="apellido"
             value={formData.apellido}
@@ -195,7 +205,7 @@ export function ClienteForm({
       {/* EMAIL - TELEFONO */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium mb-1">Email</label>
+          <label className="block text-sm font-medium mb-1 text-slate-200">Email</label>
           <Input
             type="email"
             name="email"
@@ -206,12 +216,12 @@ export function ClienteForm({
             className="bg-white/5 text-white border border-white/10 rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none"
           />
           {errors.email && (
-            <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+            <p className="text-xs text-red-400 mt-1">{errors.email}</p>
           )}
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Teléfono</label>
+          <label className="block text-sm font-medium mb-1 text-slate-200">Teléfono</label>
           <Input
             name="telefono"
             value={formData.telefono}
@@ -221,14 +231,14 @@ export function ClienteForm({
             className="bg-white/5 text-white border border-white/10 rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none"
           />
           {errors.telefono && (
-            <p className="text-red-500 text-xs mt-1">{errors.telefono}</p>
+            <p className="text-xs text-red-400 mt-1">{errors.telefono}</p>
           )}
         </div>
       </div>
 
       {/* DIRECCIÓN */}
       <div>
-        <label className="block text-sm font-medium mb-1">Dirección</label>
+        <label className="block text-sm font-medium mb-1 text-slate-200">Dirección</label>
         <textarea
           name="direccion"
           value={formData.direccion}

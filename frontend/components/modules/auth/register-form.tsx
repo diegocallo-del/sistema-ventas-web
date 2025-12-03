@@ -19,7 +19,7 @@ export function RegisterForm() {
     email: '',
     password: '',
     confirmPassword: '',
-    rol: 'VENDEDOR' // Valor por defecto
+    rol: 'CLIENTE' // Valor por defecto
   });
 
   const [error, setError] = useState<string | null>(null);

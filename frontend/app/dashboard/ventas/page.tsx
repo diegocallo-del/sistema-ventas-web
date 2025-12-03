@@ -10,10 +10,12 @@ import { Client, Product } from "@/lib/types";
 import { getClients } from "@/lib/services/cliente-service";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { ShoppingCart, TrendingUp, Users, DollarSign, Eye, History } from "lucide-react";
+import { ShoppingCart, TrendingUp, Users, DollarSign, Eye, History, Search } from "lucide-react";
 import { formatCurrency } from "@/lib/formatters";
+import { IGV_PERCENTAGE } from "@/lib/constants";
 export default function VentasPage() {
   const { user } = useAuth();
   const { sales, createSale, isLoading: ventasCargando, error: ventasError, loadSales } = useVentas();
@@ -108,6 +110,120 @@ export default function VentasPage() {
           </div>
         </div>
       </header>
+
+      {/* TIENDA DE PRODUCTOS */}
+      <Card className="border-green-400/30 shadow-[0_0_15px_rgba(34,197,94,0.1)] bg-slate-900/60 backdrop-blur-xl animate-slide-up">
+        <CardHeader>
+          <CardTitle className="text-white flex items-center gap-2">
+            <ShoppingCart className="w-5 h-5 text-green-400" />
+            Tienda de Productos
+          </CardTitle>
+          <p className="text-slate-400 text-sm">
+            Selecciona productos para agregar al carrito de venta
+          </p>
+        </CardHeader>
+        <CardContent>
+          {/* Barra de búsqueda para tienda */}
+          <div className="flex gap-4 mb-6">
+            <div className="flex-1 relative">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
+              <Input
+                placeholder="Buscar productos..."
+                className="pl-10 bg-slate-800/50 border-slate-600 text-white placeholder-slate-400"
+                onChange={(e) => handleSearchProducto(e.target.value)}
+              />
+            </div>
+            <Button onClick={() => setProductosVisibles(products)} variant="outline">
+              Mostrar Todos
+            </Button>
+          </div>
+
+          {/* Grid de productos */}
+          {inicializando ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <Card key={i} className="border-slate-700 bg-slate-800/50">
+                  <CardContent className="p-4">
+                    <div className="aspect-square bg-slate-700 rounded mb-3 animate-pulse" />
+                    <div className="space-y-2">
+                      <div className="h-4 bg-slate-700 rounded animate-pulse" />
+                      <div className="h-3 bg-slate-700 rounded animate-pulse w-3/4" />
+                      <div className="flex justify-between">
+                        <div className="h-6 bg-slate-700 rounded animate-pulse w-16" />
+                        <div className="h-6 bg-slate-700 rounded animate-pulse w-12" />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : productosVisibles.length === 0 ? (
+            <div className="text-center py-8">
+              <ShoppingCart className="w-12 h-12 text-slate-500 mx-auto mb-4" />
+              <p className="text-slate-400">No se encontraron productos.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {productosVisibles.map((product) => (
+                <Card
+                  key={product.id}
+                  className="group border-slate-600 bg-slate-800/50 hover:border-slate-500 hover:bg-slate-800/70 transition-colors cursor-pointer"
+                  onClick={() => {
+                    const { addItem } = useVentaStore.getState();
+                    addItem(product, 1);
+                  }}
+                >
+                  <CardContent className="p-4">
+                    <div className="aspect-square relative mb-3 bg-slate-700 rounded overflow-hidden">
+                      {product.imagen ? (
+                        <img
+                          src={product.imagen}
+                          alt={product.nombre}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-slate-400">
+                          Sin imagen
+                        </div>
+                      )}
+                      {product.stock === 0 && (
+                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded">
+                          <span className="text-white text-sm font-medium px-2 py-1 bg-red-600 rounded">
+                            Agotado
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="mb-3">
+                      <h3 className="font-semibold text-white text-sm line-clamp-2 mb-1">
+                        {product.nombre}
+                      </h3>
+                      <p className="text-green-400 font-bold text-lg">
+                        {formatCurrency(product.precio * (1 + IGV_PERCENTAGE))}
+                      </p>
+                      <p className="text-slate-400 text-xs">
+                        Incluye IGV • Stock: {product.stock}
+                      </p>
+                    </div>
+                    <Button
+                      onClick={(e) => {
+                        e.stopPropagation(); // Evita que se active el onClick del Card
+                        const { addItem } = useVentaStore.getState();
+                        addItem(product, 1);
+                      }}
+                      disabled={product.stock === 0}
+                      className="w-full text-sm"
+                      size="sm"
+                    >
+                      {product.stock === 0 ? 'Agotado' : 'Agregar al carrito'}
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* ESTADÍSTICAS RÁPIDAS */}
       {!isClientUser && (

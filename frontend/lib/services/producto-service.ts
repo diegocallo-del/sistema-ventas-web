@@ -24,6 +24,8 @@ interface ProductoDTOBackend {
   codigo: string;
   nombre: string;
   descripcion: string | null;
+  marca: string | null;
+  modelo: string | null;
   precio: number;
   stock: number;
   categoriaId: number | null;
@@ -43,6 +45,8 @@ function mapProductoFromBackend(dto: ProductoDTOBackend): Product {
     codigo: dto.codigo,
     nombre: dto.nombre,
     descripcion: dto.descripcion,
+    marca: dto.marca,
+    modelo: dto.modelo,
     precio: Number(dto.precio),
     stock: dto.stock,
     categoria: dto.categoriaNombre,
@@ -104,36 +108,38 @@ async function getCategoriaIdByName(nombre: string): Promise<number | null> {
 
 /**
  * Crea un nuevo producto
- * Convierte el nombre de categoría a ID si es necesario
  */
 export async function createProduct(data: CreateProductData): Promise<Product> {
-  // Convertir nombre de categoría a ID si es necesario
-  let categoriaId: number | null = null;
-  if (data.categoria) {
-    // Si categoria es un número, usarlo directamente
-    const parsedId = parseInt(data.categoria);
-    if (!isNaN(parsedId)) {
-      categoriaId = parsedId;
-    } else {
-      // Si es un string (nombre), buscar el ID
-      categoriaId = await getCategoriaIdByName(data.categoria);
-      if (!categoriaId) {
-        throw new Error(`Categoría "${data.categoria}" no encontrada`);
-      }
-    }
-  }
-
   // Preparar datos para el backend
   const backendData = {
     nombre: data.nombre,
     descripcion: data.descripcion || null,
+    marca: data.marca || null,
+    modelo: data.modelo || null,
     precio: data.precio,
     stock: data.stock,
-    categoriaId: categoriaId,
+    categoriaId: data.categoriaId,
+    codigo: (data as any).codigo || null, // Agregar campo código
   };
 
-  const response = await api.post<ProductoDTOBackend>(productEndpoints.create, backendData);
+  // Si hay imagen como File, enviar como FormData
+  if (typeof FormData !== 'undefined' && data.imagen instanceof File) {
+    const formData = new FormData();
+    formData.append('nombre', backendData.nombre);
+    if (backendData.descripcion !== undefined && backendData.descripcion !== null) formData.append('descripcion', String(backendData.descripcion));
+    if (backendData.marca !== undefined && backendData.marca !== null) formData.append('marca', String(backendData.marca));
+    if (backendData.modelo !== undefined && backendData.modelo !== null) formData.append('modelo', String(backendData.modelo));
+    formData.append('precio', String(backendData.precio));
+    formData.append('stock', String(backendData.stock));
+    if (backendData.categoriaId !== undefined && backendData.categoriaId !== null) formData.append('categoriaId', String(backendData.categoriaId));
+    formData.append('imagen', data.imagen);
 
+    const response = await api.post<ProductoDTOBackend>(productEndpoints.create, formData);
+    return mapProductoFromBackend(response);
+  }
+
+  // Envío estándar como JSON si no hay imagen nueva
+  const response = await api.post<ProductoDTOBackend>(productEndpoints.create, backendData);
   return mapProductoFromBackend(response);
 }
 
@@ -145,22 +151,31 @@ export async function updateProduct(
   id: number,
   data: UpdateProductData
 ): Promise<Product> {
-  // Convertir nombre de categoría a ID si es necesario
-  let categoriaId: number | null | undefined = undefined;
-  if (data.categoria !== undefined) {
-    if (data.categoria === null) {
-      categoriaId = null;
-    } else {
-      // Si categoria es un número, usarlo directamente
-      const parsedId = parseInt(data.categoria);
-      if (!isNaN(parsedId)) {
-        categoriaId = parsedId;
+  // Determinar categoriaId a enviar
+  let categoriaId: number | null | undefined = (data as any).categoriaId;
+
+  if (categoriaId === undefined) {
+    if (data.categoria !== undefined) {
+      if (data.categoria === null) {
+        categoriaId = null;
       } else {
-        // Si es un string (nombre), buscar el ID
-        categoriaId = await getCategoriaIdByName(data.categoria);
-        if (categoriaId === null) {
-          throw new Error(`Categoría "${data.categoria}" no encontrada`);
+        const parsedId = parseInt(data.categoria);
+        if (!isNaN(parsedId)) {
+          categoriaId = parsedId;
+        } else {
+          categoriaId = await getCategoriaIdByName(data.categoria);
+          if (categoriaId === null) {
+            throw new Error(`Categoría "${data.categoria}" no encontrada`);
+          }
         }
+      }
+    } else {
+      // Si no se envió nada de categoría, obtener el producto actual y usar su categoriaId
+      try {
+        const currentDto = await api.get<ProductoDTOBackend>(productEndpoints.byId(id));
+        categoriaId = currentDto.categoriaId ?? null;
+      } catch {
+        categoriaId = null;
       }
     }
   }
@@ -169,9 +184,30 @@ export async function updateProduct(
   const backendData: any = {};
   if (data.nombre !== undefined) backendData.nombre = data.nombre;
   if (data.descripcion !== undefined) backendData.descripcion = data.descripcion || null;
+  if (data.marca !== undefined) backendData.marca = data.marca || null;
+  if (data.modelo !== undefined) backendData.modelo = data.modelo || null;
   if (data.precio !== undefined) backendData.precio = data.precio;
   if (data.stock !== undefined) backendData.stock = data.stock;
   if (categoriaId !== undefined) backendData.categoriaId = categoriaId;
+  if ((data as any).codigo !== undefined) backendData.codigo = (data as any).codigo || null; // Agregar código si viene
+  // Solo enviar imagen si es File (para FormData) o null (para eliminar imagen)
+  // Para actualizaciones sin nueva imagen, omitir el campo para mantener la existente
+
+  // Si hay imagen como File, enviar como FormData
+  if (typeof FormData !== 'undefined' && data.imagen instanceof File) {
+    const formData = new FormData();
+    if (backendData.nombre !== undefined) formData.append('nombre', backendData.nombre);
+    if (backendData.descripcion !== undefined && backendData.descripcion !== null) formData.append('descripcion', String(backendData.descripcion));
+    if (backendData.marca !== undefined && backendData.marca !== null) formData.append('marca', String(backendData.marca));
+    if (backendData.modelo !== undefined && backendData.modelo !== null) formData.append('modelo', String(backendData.modelo));
+    if (backendData.precio !== undefined) formData.append('precio', String(backendData.precio));
+    if (backendData.stock !== undefined) formData.append('stock', String(backendData.stock));
+    if (backendData.categoriaId !== undefined && backendData.categoriaId !== null) formData.append('categoriaId', String(backendData.categoriaId));
+    formData.append('imagen', data.imagen);
+
+    const response = await api.put<ProductoDTOBackend>(productEndpoints.update(id), formData);
+    return mapProductoFromBackend(response);
+  }
 
   const response = await api.put<ProductoDTOBackend>(productEndpoints.update(id), backendData);
 

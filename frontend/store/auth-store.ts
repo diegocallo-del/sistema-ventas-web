@@ -80,12 +80,14 @@ export const useAuthStore = create<AuthState>()(
       logout: () => {
         console.log('🔄 Store: Iniciando logout...');
         
-        // Limpiar localStorage
+        // Limpiar localStorage y cookies
         if (typeof window !== 'undefined') {
           localStorage.removeItem('user_data');
           localStorage.removeItem('auth_token');
           localStorage.removeItem('refresh_token');
-          console.log('🧹 Store: localStorage limpiado');
+          // Borrar cookie usada por el proxy
+          document.cookie = 'auth_token=; path=/; max-age=0';
+          console.log('🧹 Store: localStorage y cookies limpiados');
         }
 
         // Actualizar estado
@@ -98,6 +100,14 @@ export const useAuthStore = create<AuthState>()(
         });
         
         console.log('✅ Store: Logout completado');
+        
+        // Redirigir al login con un microtask para evitar condiciones de render
+        if (typeof window !== 'undefined') {
+          setTimeout(() => {
+            console.log('➡️ Redirigiendo a /login...');
+            window.location.replace('/login');
+          }, 0);
+        }
       },
 
       /**

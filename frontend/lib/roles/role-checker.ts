@@ -10,11 +10,13 @@ import { rolePermissions } from './role-config';
  * Verifica si un usuario tiene un permiso especifico
  */
 export function hasPermission(user: User | null, permission: Permission): boolean {
-  if (!user) return false;
+  if (!user || !user.rol) return false;
 
-  const permissions = rolePermissions[user?.rol ?? ''] || [];
-  if (permissions.length === 0) return false;
-  return permissions.includes(permission);
+  const rol = user.rol;
+  const rolePerms = rolePermissions[rol];
+  if (!rolePerms || rolePerms.length === 0) return false;
+
+  return rolePerms.includes(permission);
 }
 
 /**
@@ -58,8 +60,10 @@ export function hasAnyRole(user: User | null, roles: UserRole[]): boolean {
  */
 export function getUserPermissions(user: User | null): Permission[] {
   if (!user || !user.rol) return [];
-  const permissions = rolePermissions[user?.rol] ?? [];
-  return permissions;
+
+  const rol = user.rol;
+  const permissions = rolePermissions[rol];
+  return permissions || [];
 }
 
 /**

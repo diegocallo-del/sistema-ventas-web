@@ -154,11 +154,11 @@ export const useVentaStore = create<VentaState>((set, get) => ({
    */
   calculateTotals: () => {
     const { items } = get();
-    
+
     const subtotal = items.reduce((sum, item) => sum + item.subtotal, 0);
     const igv = subtotal * IGV_PERCENTAGE;
     const total = subtotal + igv;
-    
+
     set({ subtotal, igv, total });
   },
 }));

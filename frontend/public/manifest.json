@@ -1,1 +1,54 @@
-{"name":"Sistema de Ventas Empresarial","short_name":"POS System","description":"Sistema completo de punto de venta moderno con IA integrada","start_url":"/","display":"standalone","background_color":"#0f172a","theme_color":"#7c3aed","orientation":"portrait-primary","scope":"/","lang":"es-ES","icons":[{"src":"/icon-192x192.png","sizes":"192x192","type":"image/png","purpose":"maskable"},{"src":"/icon-512x512.png","sizes":"512x512","type":"image/png","purpose":"any"}],"categories":["business","productivity"],"shortcuts":[{"name":"Nueva Venta","short_name":"Venta","description":"Crear nueva venta","url":"/dashboard/ventas?new=true","icons":[{"src":"/shortcut-venta.png","sizes":"96x96"}]},{"name":"Productos","short_name":"Productos","description":"Gestionar inventario","url":"/dashboard/productos","icons":[{"src":"/shortcut-productos.png","sizes":"96x96"}]}]}
+{
+  "name": "Sistema de Ventas Empresarial",
+  "short_name": "POS System",
+  "description": "Sistema completo de punto de venta moderno con IA integrada",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#7c3aed",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "es-ES",
+  "update_via_cache": "none",
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["business", "productivity"],
+  "shortcuts": [
+    {
+      "name": "Nueva Venta",
+      "short_name": "Venta",
+      "description": "Crear nueva venta",
+      "url": "/dashboard/ventas?new=true",
+      "icons": [
+        {
+          "src": "/shortcut-venta.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Productos",
+      "short_name": "Productos",
+      "description": "Gestionar inventario",
+      "url": "/dashboard/productos",
+      "icons": [
+        {
+          "src": "/shortcut-productos.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ]
+}

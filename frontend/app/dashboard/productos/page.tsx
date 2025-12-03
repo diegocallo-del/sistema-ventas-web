@@ -20,6 +20,7 @@ import { Dialog } from "@/components/ui/dialog";
 import { useAuth } from "@/hooks/use-auth";
 import { UserRole } from "@/lib/types/usuario";
 import { CreateProductData, UpdateProductData, Product } from "@/lib/types";
+import { getCategorias, type CategoriaDTO } from "@/lib/services/categoria-service";
 import { createProduct, getProducts, updateProduct, deleteProduct } from "@/lib/services/producto-service";
 
 export default function ProductosPage() {
@@ -28,6 +29,7 @@ export default function ProductosPage() {
   const isClient = user?.rol === UserRole.CLIENTE;
 
   const [productos, setProductos] = useState<Product[]>([]);
+  const [categorias, setCategorias] = useState<CategoriaDTO[]>([]);
   const [loadingLista, setLoadingLista] = useState(false);
   const [search, setSearch] = useState("");
   const [categoria, setCategoria] = useState("all");
@@ -56,6 +58,19 @@ export default function ProductosPage() {
 
   useEffect(() => {
     void cargarProductos();
+  }, []);
+
+  useEffect(() => {
+    const cargarCategorias = async () => {
+      try {
+        const data = await getCategorias();
+        setCategorias(data);
+      } catch (error) {
+        console.error('Error al cargar categorias:', error);
+      }
+    };
+
+    cargarCategorias();
   }, []);
 
   // Filtrar productos localmente
@@ -159,11 +174,11 @@ export default function ProductosPage() {
             </SelectTrigger>
             <SelectContent className="bg-slate-800 border-blue-400/30">
               <SelectItem value="all">Todas las categorías</SelectItem>
-              {/* Aquí se cargarían dinámicamente desde el backend */}
-              <SelectItem value="bebidas">Bebidas</SelectItem>
-              <SelectItem value="snacks">Snacks</SelectItem>
-              <SelectItem value="postres">Postres</SelectItem>
-              <SelectItem value="menu">Menú</SelectItem>
+              {categorias.map((categoria) => (
+                <SelectItem key={categoria.id} value={categoria.nombre}>
+                  {categoria.nombre}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
 
@@ -257,7 +272,12 @@ export default function ProductosPage() {
                 await cargarProductos();
               } catch (error: any) {
                 console.error('Error al guardar producto:', error);
-                setError(error?.message || 'Error al guardar producto');
+                const errorMessage = error?.response?.data?.message ||
+                                   error?.response?.data?.error ||
+                                   error?.message ||
+                                   JSON.stringify(error?.response?.data) ||
+                                   'Error al guardar producto';
+                setError(errorMessage);
                 throw error;
               } finally {
                 setIsSaving(false);

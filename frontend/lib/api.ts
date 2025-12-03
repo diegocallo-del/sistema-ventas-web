@@ -49,13 +49,18 @@ async function httpRequest<T>(
   data?: any,
   customHeaders?: Record<string, string>
 ): Promise<T> {
+  const isFormData = typeof FormData !== 'undefined' && data instanceof FormData;
+  const headers = { ...getAuthHeaders(), ...customHeaders };
+  if (isFormData) {
+    delete headers['Content-Type'];
+  }
   const request: RetryableRequest = {
     method,
-    headers: { ...getAuthHeaders(), ...customHeaders },
+    headers
   };
 
   if (data) {
-    request.body = JSON.stringify(data);
+    request.body = isFormData ? data : JSON.stringify(data);
   }
 
   // Interceptor de petición (equivalente al axios interceptor)
@@ -112,12 +117,14 @@ async function makeRequest<T>(fullUrl: string, request: RetryableRequest): Promi
       throw apiError;
     }
   } catch (error) {
+    const maybeApiError = error as ApiError;
+    if (maybeApiError && typeof maybeApiError.status === 'number') {
+      // Propagar errores HTTP parseados para no perder el mensaje
+      throw maybeApiError;
+    }
     if (error instanceof Error) {
       if (error.name === 'AbortError') {
         throw { message: 'Request timeout', status: 0 } as ApiError;
-      }
-      if ((error as ApiError).status !== undefined) {
-        throw error;
       }
     }
     throw { message: 'Network error', status: 0 } as ApiError;

@@ -10,8 +10,21 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { createProduct, updateProduct } from '@/lib/services/producto-service';
-import { isValidProductName, isValidPrice, isValidStock } from '@/lib/validators';
+import { getCategorias, type CategoriaDTO } from '@/lib/services/categoria-service';
+import {
+  isValidProductCode,
+  isValidProductName,
+  isValidPrice,
+  isValidStock
+} from '@/lib/validators';
 import { Image, Upload, X } from 'lucide-react';
 
 interface ProductModalInitialData {
@@ -33,6 +46,7 @@ interface FormState {
   precio: string;
   stock: string;
   descripcion: string;
+  categoriaId: string;
   imagen: File | null;
   imagenPreview: string | null;
 }
@@ -47,6 +61,7 @@ export default function ProductModalForm({ initialData, onSaved }: ProductModalF
     precio: initialData?.precio != null ? String(initialData.precio) : '',
     stock: initialData?.stock != null ? String(initialData.stock) : '',
     descripcion: initialData?.descripcion ?? '',
+    categoriaId: '',
     imagen: null,
     imagenPreview: initialData?.imagen ?? null,
   }));
@@ -54,6 +69,8 @@ export default function ProductModalForm({ initialData, onSaved }: ProductModalF
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [categorias, setCategorias] = useState<CategoriaDTO[]>([]);
+  const [categoriasLoading, setCategoriasLoading] = useState(false);
 
   useEffect(() => {
     if (initialData) {
@@ -62,6 +79,7 @@ export default function ProductModalForm({ initialData, onSaved }: ProductModalF
         precio: initialData.precio != null ? String(initialData.precio) : '',
         stock: initialData.stock != null ? String(initialData.stock) : '',
         descripcion: initialData.descripcion ?? '',
+        categoriaId: '',
         imagen: null,
         imagenPreview: initialData.imagen ?? null,
       });
@@ -69,6 +87,22 @@ export default function ProductModalForm({ initialData, onSaved }: ProductModalF
       setSubmitError(null);
     }
   }, [initialData]);
+
+  useEffect(() => {
+    const cargarCategorias = async () => {
+      setCategoriasLoading(true);
+      try {
+        const data = await getCategorias();
+        setCategorias(data);
+      } catch (error) {
+        console.error('Error al cargar categorias:', error);
+      } finally {
+        setCategoriasLoading(false);
+      }
+    };
+
+    cargarCategorias();
+  }, []);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -150,6 +184,10 @@ export default function ProductModalForm({ initialData, onSaved }: ProductModalF
       nextErrors.stock = 'El stock está fuera del rango permitido';
     }
 
+    if (!form.categoriaId.trim()) {
+      nextErrors.categoriaId = 'La categoría es requerida';
+    }
+
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
   };
@@ -169,16 +207,9 @@ export default function ProductModalForm({ initialData, onSaved }: ProductModalF
       precio: precioNumber,
       stock: stockNumber,
       descripcion: form.descripcion.trim() || null,
+      categoriaId: form.categoriaId ? parseInt(form.categoriaId) : undefined,
     };
 
-    // Si hay una imagen nueva, incluirla en el payload
-    // El backend debe aceptar FormData o el File se convertirá según la implementación
-    if (form.imagen) {
-      payload.imagen = form.imagen;
-    } else if (form.imagenPreview && !form.imagen) {
-      // Si hay preview pero no hay archivo nuevo, mantener la URL existente
-      payload.imagen = form.imagenPreview;
-    }
 
     try {
       setIsSubmitting(true);
@@ -190,7 +221,7 @@ export default function ProductModalForm({ initialData, onSaved }: ProductModalF
       }
 
       if (!initialData?.id) {
-        setForm({ nombre: '', precio: '', stock: '', descripcion: '', imagen: null, imagenPreview: null });
+        setForm({ nombre: '', precio: '', stock: '', descripcion: '', categoriaId: '', imagen: null, imagenPreview: null });
         setErrors({});
         if (fileInputRef.current) {
           fileInputRef.current.value = '';
@@ -199,8 +230,13 @@ export default function ProductModalForm({ initialData, onSaved }: ProductModalF
 
       onSaved?.();
     } catch (err: any) {
-      const apiMessage = err?.response?.data?.message as string | undefined;
-      setSubmitError(apiMessage || 'Error al guardar el producto');
+      const errorMessage = err?.response?.data?.message ||
+                          err?.response?.data?.error ||
+                          err?.message ||
+                          JSON.stringify(err?.response?.data) ||
+                          'Error al guardar el producto';
+      setSubmitError(errorMessage);
+      console.error('Error al guardar producto:', err);
     } finally {
       setIsSubmitting(false);
     }
@@ -282,6 +318,29 @@ export default function ProductModalForm({ initialData, onSaved }: ProductModalF
           className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
           placeholder="Descripción opcional del producto"
         />
+      </div>
+
+      {/* CATEGORÍA */}
+      <div>
+        <label className="block text-sm font-medium mb-1 text-slate-200">
+          Categoría
+        </label>
+        <Select
+          value={form.categoriaId}
+          onValueChange={(value) => setForm(prev => ({ ...prev, categoriaId: value }))}
+          disabled={isSubmitting || categoriasLoading}
+        >
+          <SelectTrigger className="bg-white/5 text-white border border-white/10 rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none placeholder-slate-400">
+            <SelectValue placeholder="Selecciona una categoría" />
+          </SelectTrigger>
+          <SelectContent className="bg-slate-800 border-blue-400/30">
+            {categorias.map((categoria) => (
+              <SelectItem key={categoria.id} value={String(categoria.id)}>
+                {categoria.nombre}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       {/* IMAGEN */}

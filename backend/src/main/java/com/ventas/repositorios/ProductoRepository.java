@@ -31,6 +31,13 @@ public interface ProductoRepository extends JpaRepository<Producto, Long> {
     List<Producto> findByCategoriaIdAndActivoTrue(Long categoriaId);
 
     /**
+     * Encuentra productos activos con sus imágenes cargadas.
+     * @return Lista de productos activos con fetch join de imágenes
+     */
+    @Query("SELECT p FROM Producto p LEFT JOIN FETCH p.imagenes WHERE p.activo = true")
+    List<Producto> findByActivoTrueConImagenes();
+
+    /**
      * Encuentra productos activos.
      * @return Lista de productos activos
      */

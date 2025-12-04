@@ -1,6 +1,8 @@
 package com.ventas.controladores;
 
 import com.ventas.dto.CreateProductoDTO;
+import com.ventas.dto.CrearProductoConImagenRequest;
+import com.ventas.dto.CreateProductoConImagenDTO;
 import com.ventas.dto.ProductoDTO;
 import com.ventas.servicios.ProductoService;
 import lombok.RequiredArgsConstructor;
@@ -90,33 +92,30 @@ public ResponseEntity<List<ProductoDTO>> obtenerTodosLosProductos() {
     }
 
     /**
-     * Crea un nuevo producto CON imagen.
-     * Solo acepta FormData
+     * Crea un nuevo producto CON imagen (por URL).
+     * Acepta JSON con todos los campos de producto + imagenUrl
      */
-    @PostMapping(value = "/conimagen", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ProductoDTO> crearProductoConImagen(
-            @RequestParam String nombre,
-            @RequestParam(value = "descripcion", required = false) String descripcion,
-            @RequestParam(value = "marca", required = false) String marca,
-            @RequestParam(value = "modelo", required = false) String modelo,
-            @RequestParam Double precio,
-            @RequestParam Integer stock,
-            @RequestParam Long categoriaId,
-            @RequestParam(value = "codigo", required = false) String codigo,
-            @RequestParam MultipartFile imagen) {
+    @PostMapping("/conimagenurl")
+    public ResponseEntity<ProductoDTO> crearProductoConImagenUrl(
+            @Valid @RequestBody CreateProductoConImagenDTO requestDTO) {
 
-        CreateProductoDTO dto = new CreateProductoDTO(
-                codigo,
-                nombre,
-                descripcion,
-                marca,
-                modelo,
-                java.math.BigDecimal.valueOf(precio),
-                stock,
-                categoriaId
+        System.out.println("=== CONTROLADOR: crearProductoConImagenUrl INVOCADO ===");
+        System.out.println("Producto: " + requestDTO.nombre());
+        System.out.println("Imagen URL: " + requestDTO.imagenUrl());
+
+        // Convertir al DTO base y llamar al servicio
+        CreateProductoDTO createDTO = new CreateProductoDTO(
+                requestDTO.nombre(),
+                requestDTO.codigo(),
+                requestDTO.descripcion(),
+                requestDTO.marca(),
+                requestDTO.modelo(),
+                requestDTO.precio(),
+                requestDTO.stock(),
+                requestDTO.categoriaId()
         );
 
-        ProductoDTO producto = productoService.crearProductoConImagen(dto, imagen);
+        ProductoDTO producto = productoService.crearProductoConImagenUrl(createDTO, requestDTO.imagenUrl());
         return new ResponseEntity<>(producto, HttpStatus.CREATED);
     }
 
@@ -152,7 +151,8 @@ public ResponseEntity<List<ProductoDTO>> obtenerTodosLosProductos() {
             @RequestParam Integer stock,
             @RequestParam(value = "codigo", required = false) String codigo,
             @RequestParam(value = "imagenEliminar", required = false, defaultValue = "false") Boolean imagenEliminar,
-            @RequestParam(value = "imagen", required = false) MultipartFile imagen) {
+            @RequestParam(value = "imagen", required = false) MultipartFile imagen,
+            @RequestParam(value = "imagenUrl", required = false) String nuevaImagenUrl) {
 
         System.out.println("=== CONTROLADOR: Iniciando actualización de producto con imagen ===");
         System.out.println("ID: " + id + ", Nombre: " + nombre + ", Imagen: " +
@@ -166,7 +166,7 @@ public ResponseEntity<List<ProductoDTO>> obtenerTodosLosProductos() {
             // Llamar servicio completamente NO transaccional
             ProductoDTO producto = productoService.actualizarProductoConImagen(id,
                     codigo, nombre, descripcion, marca, modelo,
-                    java.math.BigDecimal.valueOf(precio), stock, categoriaId, imagen, imagenEliminar);
+                    java.math.BigDecimal.valueOf(precio), stock, categoriaId, imagen, imagenEliminar, nuevaImagenUrl);
 
             System.out.println("=== CONTROLADOR: Producto actualizado exitosamente ===");
             System.out.println("Imagen final del producto: " + producto.imagen());

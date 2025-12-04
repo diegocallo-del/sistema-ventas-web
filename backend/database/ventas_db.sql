@@ -175,16 +175,18 @@ CREATE TABLE carrito_items (
 -- ==========================================
 CREATE TABLE ordenes (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    comprador_id BIGINT NOT NULL,
-    direccion_envio_id BIGINT NOT NULL,
+    comprador_id BIGINT NULL,
+    direccion_envio_id BIGINT NULL,
     total DECIMAL(12,2) NOT NULL,
+    subtotal DECIMAL(12,2) NOT NULL DEFAULT 0,
+    igv DECIMAL(12,2) NOT NULL DEFAULT 0,
     estado ENUM('PENDIENTE','PAGADA','ENVIADA','ENTREGADA','CANCELADA') DEFAULT 'PENDIENTE',
     metodo_pago VARCHAR(50),
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     fecha_modificacion DATETIME,
     activo TINYINT(1) DEFAULT 1,
-    FOREIGN KEY (comprador_id) REFERENCES usuarios(id) ON DELETE CASCADE,
-    FOREIGN KEY (direccion_envio_id) REFERENCES direcciones(id) ON DELETE CASCADE
+    FOREIGN KEY (comprador_id) REFERENCES usuarios(id) ON DELETE SET NULL,
+    FOREIGN KEY (direccion_envio_id) REFERENCES direcciones(id) ON DELETE SET NULL
 );
 
 CREATE TABLE orden_items (

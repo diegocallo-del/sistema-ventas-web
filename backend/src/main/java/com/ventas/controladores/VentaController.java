@@ -83,6 +83,39 @@ public class VentaController {
     }
 
     /**
+     * Procesa el pago de una venta pendiente.
+     * @param id ID de la venta
+     * @return Venta con pago procesado
+     */
+    @PostMapping("/{id}/pagar")
+    public ResponseEntity<VentaDTO> procesarPagoVenta(@PathVariable Long id) {
+        VentaDTO venta = ventaService.procesarPagoVenta(id);
+        return ResponseEntity.ok(venta);
+    }
+
+    /**
+     * Confirma el envío de una venta pagada.
+     * @param id ID de la venta
+     * @return Venta con envío confirmado
+     */
+    @PostMapping("/{id}/enviar")
+    public ResponseEntity<VentaDTO> confirmarEnvioVenta(@PathVariable Long id) {
+        VentaDTO venta = ventaService.confirmarEnvioVenta(id);
+        return ResponseEntity.ok(venta);
+    }
+
+    /**
+     * Confirma la entrega de una venta enviada.
+     * @param id ID de la venta
+     * @return Venta con entrega confirmada
+     */
+    @PostMapping("/{id}/entregar")
+    public ResponseEntity<VentaDTO> confirmarEntregaVenta(@PathVariable Long id) {
+        VentaDTO venta = ventaService.confirmarEntregaVenta(id);
+        return ResponseEntity.ok(venta);
+    }
+
+    /**
      * Cancela/elimina una venta lógicamente (solo administradores).
      * Devuelve stock al inventario.
      * @param id ID de la venta

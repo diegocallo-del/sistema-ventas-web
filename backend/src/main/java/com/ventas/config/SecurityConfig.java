@@ -50,7 +50,7 @@ public class SecurityConfig {
 
             // Configurar rutas protegidas
             .authorizeHttpRequests(authz -> authz
-                .requestMatchers("/api/auth/**", "/actuator/**", "/swagger-ui/**", "/v3/api-docs/**", "/error").permitAll()
+                .requestMatchers("/api/auth/**", "/api/imagenes/**", "/uploads/**", "/actuator/**", "/swagger-ui/**", "/v3/api-docs/**", "/error").permitAll()
                 .anyRequest().authenticated()
             )
             // Agregar filtro JWT antes de la autenticación estándar

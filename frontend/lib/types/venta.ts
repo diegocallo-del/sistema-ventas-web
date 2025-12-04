@@ -8,22 +8,25 @@ import { User } from './usuario';
 
 /**
  * Estados de una venta
+ * Deben coincidir con los valores del enum EstadoVenta del backend
  */
 export enum SaleStatus {
-  COMPLETADA = 'completada',
-  CANCELADA = 'cancelada',
-  PENDIENTE = 'pendiente',
+  PENDIENTE = 'PENDIENTE',
+  PAGADA = 'PAGADA',
+  ENVIADA = 'ENVIADA',
+  ENTREGADA = 'ENTREGADA',
+  CANCELADA = 'CANCELADA',
 }
 
 /**
- * Metodos de pago
+ * Metodos de pago - Deben coincidir con TipoPago del backend
  */
 export enum PaymentMethod {
-  EFECTIVO = 'efectivo',
-  TARJETA = 'tarjeta',
-  TRANSFERENCIA = 'transferencia',
-  YAPE = 'yape',
-  PLIN = 'plin',
+  EFECTIVO = 'EFECTIVO',
+  TARJETA = 'TARJETA',
+  TRANSFERENCIA = 'TRANSFERENCIA',
+  YAPE = 'YAPE',
+  PLIN = 'PLIN',
 }
 
 /**

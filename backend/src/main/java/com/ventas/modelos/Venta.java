@@ -21,11 +21,11 @@ import java.util.List;
 public class Venta extends EntidadBase {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "comprador_id")
+    @JoinColumn(name = "comprador_id", nullable = true)
     private Usuario cliente;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "direccion_envio_id")
+    @JoinColumn(name = "direccion_envio_id", nullable = true)
     private Direccion direccionEnvio;
 
     @Column(name = "subtotal", precision = 12, scale = 2, nullable = false)

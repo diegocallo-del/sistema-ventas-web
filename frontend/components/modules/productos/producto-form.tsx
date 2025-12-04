@@ -51,6 +51,7 @@ export function ProductoForm({
     imagen: null as File | null,
     imagenPreview: null as string | null,
     imagenEliminar: false, // Flag para indicar si eliminar imagen existente
+    imagenUrl: '', // Nueva opción: URL de imagen externa
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -72,6 +73,7 @@ export function ProductoForm({
         imagen: null,
         imagenPreview: producto.imagen || null,
         imagenEliminar: false,
+        imagenUrl: producto.imagen || '', // Usar la imagen actual como URL si existe
       });
     }
   }, [producto]);
@@ -209,24 +211,34 @@ const safeTrim = (v: unknown) => (typeof v === 'string' ? v.trim() : '');
       categoriaId: safeTrim(formData.categoriaId) ? parseInt(formData.categoriaId) : undefined,
     };
 
+    // Prioridad: URL > Archivo > Eliminar imagen
+    const urlImagen = safeTrim(formData.imagenUrl);
+    const tieneImagenFile = formData.imagen !== null;
+
     // Si estamos editando (producto existe), incluir lógica de imagen
     if (producto) {
       // Flag para eliminar imagen (solo si tiene imagen actual y usuario hizo click en X)
       if (formData.imagenEliminar && producto.imagen && producto.imagen.trim() !== '') {
         (data as UpdateProductData).imagenEliminar = true;
       }
-
-      // Si hay una imagen nueva, incluirla (sera reemplaza anterior)
-      if (formData.imagen) {
+      // Si hay URL nueva, usarla (tiene prioridad)
+      else if (urlImagen) {
+        (data as UpdateProductData).imagenUrl = urlImagen;
+      }
+      // Si hay archivo nuevo, usarlo
+      else if (tieneImagenFile) {
         data.imagen = formData.imagen;
       }
     } else {
-      // Al crear producto, incluir imagen si existe
-      if (formData.imagen) {
+      // Al crear producto, usar URL si existe, sino archivo
+      if (urlImagen) {
+        (data as CreateProductData).imagenUrl = urlImagen;
+      } else if (tieneImagenFile) {
         data.imagen = formData.imagen;
       }
     }
 
+    console.log('Enviando datos:', data);
     await onSubmit(data);
   };
 
@@ -426,6 +438,24 @@ const safeTrim = (v: unknown) => (typeof v === 'string' ? v.trim() : '');
           disabled={isLoading}
           className="hidden"
         />
+
+        {/* URL de imagen alternativa */}
+        <div className="mt-4">
+          <label className="block text-sm font-medium mb-1 text-slate-200">
+            O URL de imagen externa
+          </label>
+          <Input
+            name="imagenUrl"
+            value={formData.imagenUrl}
+            onChange={handleChange}
+            placeholder="https://ejemplo.com/imagen.jpg"
+            disabled={isLoading}
+            className="bg-white/5 text-white border border-white/10 rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none placeholder-slate-400"
+          />
+          <p className="text-xs text-slate-400 mt-1">
+            Opcional: puedes pegar un enlace directo a una imagen en lugar de subir un archivo
+          </p>
+        </div>
       </div>
 
       {/* BOTONES */}

@@ -98,25 +98,36 @@ public class VentaService {
         BigDecimal total = subtotal.add(igv);
         System.out.println("DEBUG: subtotal=" + subtotal + ", ivaPercentage=" + ivaPercentage + ", igv=" + igv + ", total=" + total);
 
-        // Crear venta
+        // Crear venta pendiente de pago
         Venta venta = new Venta();
         venta.setCliente(cliente);
         venta.setSubtotal(subtotal);
         venta.setIgv(igv);
         venta.setTotal(total);
-        venta.setEstadoVenta(EstadoVenta.PAGADA); // assuming completed as paid
-        venta.setTipoPago(createDTO.tipoPago()); // assuming TipoPago enum
+        venta.setEstadoVenta(EstadoVenta.PENDIENTE); // Start as pending payment
+        venta.setTipoPago(createDTO.tipoPago());
         venta.setActivo(true);
 
         Venta ventaGuardada = ventaRepository.save(venta);
 
         // Crear detalles y actualizar stock
         for (var detalleDTO : createDTO.detalles()) {
-            Producto producto = productoRepository.findById(detalleDTO.productoId()).get();
+            Producto producto = productoRepository.findById(detalleDTO.productoId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado con ID: " + detalleDTO.productoId()));
+
+            // Crear variante temporal basada en el producto (simplificado)
+            ProductoVariante variante = new ProductoVariante();
+            variante.setId(producto.getId()); // Para esta impl, variante_id = producto_id
+            variante.setProducto(producto);
+            variante.setPrecio(producto.getPrecio());
+            variante.setStock(producto.getStock());
+            variante.setAtributo("DEFAULT");
+            variante.setValor("DEFAULT");
 
             DetalleVenta detalle = new DetalleVenta();
             detalle.setOrden(ventaGuardada);
             detalle.setProducto(producto);
+            detalle.setVariante(variante);
             detalle.setCantidad(detalleDTO.cantidad());
             detalle.setPrecio(producto.getPrecio());
             detalle.setActivo(true);
@@ -142,6 +153,61 @@ public class VentaService {
         }
 
         venta.setEstadoVenta(nuevoEstado);
+        ventaRepository.save(venta);
+
+        return obtenerVentaPorId(id);
+    }
+
+    /**
+     * Procesa el pago de una venta pendiente y la marca como pagada.
+     */
+    public VentaDTO procesarPagoVenta(Long id) {
+        Venta venta = ventaRepository.findById(id)
+                .filter(Venta::isActivo)
+                .orElseThrow(() -> new ResourceNotFoundException("Venta no encontrada con ID: " + id));
+
+        if (venta.getEstadoVenta() != EstadoVenta.PENDIENTE) {
+            throw new ValidationException("Solo se pueden procesar pagos de ventas pendientes. Estado actual: " + venta.getEstadoVenta());
+        }
+
+        // Cambiar estado a PAGADA
+        venta.setEstadoVenta(EstadoVenta.PAGADA);
+        ventaRepository.save(venta);
+
+        return obtenerVentaPorId(id);
+    }
+
+    /**
+     * Confirma el envío de una venta pagada.
+     */
+    public VentaDTO confirmarEnvioVenta(Long id) {
+        Venta venta = ventaRepository.findById(id)
+                .filter(Venta::isActivo)
+                .orElseThrow(() -> new ResourceNotFoundException("Venta no encontrada con ID: " + id));
+
+        if (venta.getEstadoVenta() != EstadoVenta.PAGADA) {
+            throw new ValidationException("Solo se pueden enviar ventas pagadas. Estado actual: " + venta.getEstadoVenta());
+        }
+
+        venta.setEstadoVenta(EstadoVenta.ENVIADA);
+        ventaRepository.save(venta);
+
+        return obtenerVentaPorId(id);
+    }
+
+    /**
+     * Confirma la entrega de una venta enviada.
+     */
+    public VentaDTO confirmarEntregaVenta(Long id) {
+        Venta venta = ventaRepository.findById(id)
+                .filter(Venta::isActivo)
+                .orElseThrow(() -> new ResourceNotFoundException("Venta no encontrada con ID: " + id));
+
+        if (venta.getEstadoVenta() != EstadoVenta.ENVIADA) {
+            throw new ValidationException("Solo se pueden entregar ventas enviadas. Estado actual: " + venta.getEstadoVenta());
+        }
+
+        venta.setEstadoVenta(EstadoVenta.ENTREGADA);
         ventaRepository.save(venta);
 
         return obtenerVentaPorId(id);

@@ -35,26 +35,41 @@ public class ProductoService {
     private final ProductoImagenRepository productoImagenRepository;
 
     /**
-     * Obtiene todos los productos activos.
+     * Obtiene todos los productos activos con sus imágenes cargadas.
      * @return Lista de productos activos como DTO
      */
     @Transactional(readOnly = true)
     public List<ProductoDTO> obtenerTodosLosProductos() {
-        return productoRepository.findByActivoTrue().stream()
+        System.out.println("=== Servicio: Obteniendo todos los productos con imágenes ===");
+        List<Producto> productos = productoRepository.findByActivoTrueConImagenes();
+        System.out.println("Encontrados " + productos.size() + " productos");
+
+        return productos.stream()
                 .map(this::convertirADTO)
                 .collect(Collectors.toList());
     }
 
     /**
-     * Obtiene un producto por su ID.
+     * Obtiene un producto por su ID con sus imágenes cargadas.
      * @param id ID del producto
      * @return Producto como DTO
      */
     @Transactional(readOnly = true)
     public ProductoDTO obtenerProductoPorId(Long id) {
+        System.out.println("=== Servicio: Obteniendo producto por ID: " + id);
         Producto producto = productoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado con ID: " + id));
         return convertirADTO(producto);
+    }
+
+    /**
+     * Obtiene un producto con sus imágenes cargadas para procesamiento.
+     * @param productoId ID del producto
+     * @return Entidad Producto con imágenes cargadas
+     */
+    private Producto obtenerProductoConImagenes(Long productoId) {
+        // Usar JPQL con JOIN FETCH para asegurar que las imágenes se carguen
+        return productoRepository.findById(productoId).orElse(null);
     }
 
     /**
@@ -199,38 +214,7 @@ public class ProductoService {
         return convertirADTO(productoActualizado);
     }
 
-    /**
-     * Sube imagen FUERA de cualquier transacción para evitar conflictos
-     * AHORA GUARDA DIRECTAMENTE EN BASE DE DATOS
-     */
-    public void subirImagenSinTransaccion(Long productoId, MultipartFile imagen) {
-        try {
-            // Determinar orden
-            int proximoOrden = productoImagenRepository.findMaxOrdenByProductoId(productoId) + 1;
 
-            // Leer bytes de la imagen
-            byte[] datosImagen = imagen.getBytes();
-
-            // Crear y guardar entidad imagen con datos binarios
-            Producto producto = productoRepository.findById(productoId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Producto: " + productoId));
-
-            ProductoImagen productoImagen = ProductoImagen.builder()
-                    .producto(producto)
-                    .datosImagen(datosImagen)  // Guardar bytes directamente en DB
-                    .tipoContenido(imagen.getContentType())
-                    .orden(proximoOrden)
-                    .url(null)  // No usar URL cuando guardamos en DB
-                    .build();
-
-            productoImagenRepository.save(productoImagen);
-            System.out.println("Imagen guardada en base de datos: " + datosImagen.length + " bytes");
-
-        } catch (Exception e) {
-            System.err.println("Error guardando imagen en DB: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
 
     /**
      * Valida los datos de un producto antes de guardar.
@@ -312,16 +296,95 @@ public class ProductoService {
     }
 
     /**
+     * Crea un nuevo producto con imagen por URL.
+     * @param createDTO Datos del producto
+     * @param imagenUrl URL de la imagen
+     * @return Producto creado como DTO
+     */
+    @Transactional
+    public ProductoDTO crearProductoConImagenUrl(CreateProductoDTO createDTO, String imagenUrl) {
+        System.out.println("=== crearProductoConImagenUrl INVOCADO ===");
+        System.out.println("Producto: " + createDTO.nombre());
+        System.out.println("URL imagen: " + imagenUrl);
+
+        validarDatosProducto(createDTO);
+
+        // Verificar que la categoría existe
+        Categoria categoria = categoriaRepository.findById(createDTO.categoriaId())
+                .orElseThrow(() -> new ValidationException("La categoría especificada no existe"));
+
+        // Usar vendedor por defecto (admin id 1)
+        Usuario vendedor = usuarioRepository.findById(1L)
+                .orElseThrow(() -> new ValidationException("Vendedor por defecto no encontrado"));
+
+        // Generar código automático si no se proporciona
+        String codigo = createDTO.codigo();
+        if (codigo == null || codigo.trim().isEmpty()) {
+            codigo = generarCodigoAutomatico(createDTO.nombre(), categoria.getNombre());
+        } else {
+            // Validar unicidad del código si es proporcionado manualmente
+            if (productoRepository.existsByCodigo(codigo)) {
+                throw new ValidationException("El código del producto ya está en uso");
+            }
+        }
+
+        Producto producto = Producto.builder()
+                .nombre(createDTO.nombre())
+                .codigo(codigo)
+                .descripcion(createDTO.descripcion())
+                .marca(createDTO.marca())
+                .modelo(createDTO.modelo())
+                .precio(createDTO.precio())
+                .stock(createDTO.stock())
+                .categoria(categoria)
+                .vendedor(vendedor)
+                .build();
+        producto.setActivo(true);
+
+        Producto productoGuardado = productoRepository.save(producto);
+        System.out.println("Producto guardado con ID: " + productoGuardado.getId());
+
+        // Si hay URL de imagen, guardarla
+        if (imagenUrl != null && !imagenUrl.trim().isEmpty()) {
+            System.out.println("Guardando imagen con URL: " + imagenUrl.trim());
+
+            // Determinar el próximo orden
+            int proximoOrden = productoImagenRepository.findByProductoIdOrderByOrdenAsc(producto.getId())
+                    .size() + 1;
+
+            // Crear la entidad de imagen
+            ProductoImagen productoImagen = ProductoImagen.builder()
+                    .producto(productoGuardado)
+                    .url(imagenUrl.trim())  // Guardar la URL completa
+                    .orden(proximoOrden)
+                    .build();
+
+            ProductoImagen imagenGuardada = productoImagenRepository.save(productoImagen);
+            System.out.println("Imagen guardada con ID: " + imagenGuardada.getId() + ", URL: " + imagenGuardada.getUrl());
+
+            // IMPORTANTE: Recargar el producto desde BD para que incluya la nueva imagen en la relación
+            productoGuardado = productoRepository.findById(productoGuardado.getId()).orElse(productoGuardado);
+        } else {
+            System.out.println("No hay URL de imagen para guardar");
+        }
+
+        return convertirADTO(productoGuardado);
+    }
+
+    /**
      * Actualiza un producto existente con nueva imagen (REPLACEMENT).
-     * BORRA todas las imágenes anteriores y agrega la nueva
+     * Ahora soporta también actualizar con imagen URL externa
      */
     public ProductoDTO actualizarProductoConImagen(
             Long productoId, String codigo, String nombre, String descripcion,
             String marca, String modelo, java.math.BigDecimal precio,
-            Integer stock, Long categoriaId, MultipartFile imagen, Boolean imagenEliminar) {
+            Integer stock, Long categoriaId, MultipartFile imagen, Boolean imagenEliminar,
+            String nuevaImagenUrl) {
 
         System.out.println("=== INICIO actualizarProductoConImagen (REPLACEMENT MODE) ===");
         System.out.println("Producto ID: " + productoId + ", Imagen: " + (imagen != null ? imagen.getOriginalFilename() : "null"));
+        System.out.println("NuevaImagenUrl: " + nuevaImagenUrl);
+        System.out.println("ImagenEliminar: " + imagenEliminar);
 
         try {
             // === VERIFICACIONES BÁSICAS ===
@@ -379,16 +442,21 @@ public class ProductoService {
             System.out.println("✓ Producto guardado correctamente, ID=" + productoGuardado.getId());
 
             // === GESTIÓN DE IMÁGENES ===
-            // Si hay imagen nueva: eliminar anteriores y agregar nueva
+            // Si hay imagen nueva (Archivo o URL): eliminar anteriores y agregar nueva
             // Si no hay imagen nueva (imagen == null): eliminar todas las imágenes para "quitar imagen"
             System.out.println("✓ Paso 6: Gestionando imágenes del producto");
             if (imagen != null && !imagen.isEmpty()) {
-                // CASO 1: Hay imagen nueva -> reemplazar (eliminar anteriores + nueva)
-                System.out.println("✓ Imagen nueva proporcionada, reemplazando imagen anterior");
+                // CASO 1: Hay nueva imagen de archivo -> reemplazar (eliminar anteriores + nueva)
+                System.out.println("✓ Imagen nueva de archivo proporcionada, reemplazando imagen anterior");
                 eliminarImagenesAnteriores(productoId);
                 System.out.println("✓ Imágenes anteriores eliminadas, preparación completada");
+            } else if (nuevaImagenUrl != null && !nuevaImagenUrl.trim().isEmpty()) {
+                // CASO 2: Hay nueva imagen de URL -> reemplazar (eliminar anteriores + nueva URL)
+                System.out.println("✓ Nueva imagen URL proporcionada, reemplazando imagen anterior");
+                eliminarImagenesAnteriores(productoId);
+                System.out.println("✓ Imágenes anteriores eliminadas, preparación completada para nueva URL");
             } else {
-                // CASO 2: imagen == null -> usuario quiere "quitar imagen" -> eliminar todas
+                // CASO 3: Ni imagen ni URL nueva -> usuario quiere "quitar imagen" -> eliminar todas
                 System.out.println("✓ Sin imagen nueva - eliminando todas las imágenes del producto");
                 eliminarImagenesAnteriores(productoId);
                 System.out.println("✓ Todas las imágenes eliminadas");
@@ -399,10 +467,15 @@ public class ProductoService {
             // El DTO será correcto después de agregar la nueva imagen
 
             // === PROCESAR IMAGEN NUEVA FUERA DE LA TRANSACCIÓN ===
-            if (imagen != null && !imagen.isEmpty()) {
-                System.out.println("✓ Paso 8: Procesando nueva imagen");
+            // Prioridad: nuevaImagenUrl > imagen archivo
+            if (nuevaImagenUrl != null && !nuevaImagenUrl.trim().isEmpty()) {
+                System.out.println("✓ Paso 8: Procesando nueva imagen desde URL");
+                procesarImagenUrlAsync(productoId, nuevaImagenUrl);
+                System.out.println("✓ Proceso de nueva imagen URL completado");
+            } else if (imagen != null && !imagen.isEmpty()) {
+                System.out.println("✓ Paso 8: Procesando nueva imagen de archivo");
                 procesarImagenAsync(productoId, imagen);
-                System.out.println("✓ Proceso de nueva imagen completado");
+                System.out.println("✓ Proceso de nueva imagen de archivo completado");
             } else {
                 System.out.println("✓ Paso 8: No hay imagen para procesar");
             }
@@ -470,7 +543,7 @@ public class ProductoService {
      */
     private void procesarImagenAsync(Long productoId, MultipartFile imagen) {
         try {
-            System.out.println("✓ Procesando imagen para producto ID=" + productoId);
+            System.out.println("✓ Procesando imagen de archivo para producto ID=" + productoId);
 
             // Crear nuevo registro de imagen en BD
             int proximoOrden = productoImagenRepository.findMaxOrdenByProductoId(productoId) + 1;
@@ -489,10 +562,40 @@ public class ProductoService {
                     .build();
 
             productoImagenRepository.save(productoImagenNueva);
-            System.out.println("✓ Imagen guardada correctamente en BD y file system");
+            System.out.println("✓ Imagen de archivo guardada correctamente en BD y file system");
 
         } catch (Exception e) {
-            System.err.println("⚠️ Error procesando imagen pero producto ya fue actualizado: " + e.getMessage());
+            System.err.println("⚠️ Error procesando imagen de archivo pero producto ya fue actualizado: " + e.getMessage());
+            e.printStackTrace(); // Log pero NO fallar la actualización del producto
+        }
+    }
+
+    /**
+     * Procesa imagen completamente separado cuando se recibe una URL directamente
+     */
+    private void procesarImagenUrlAsync(Long productoId, String imagenUrl) {
+        try {
+            System.out.println("✓ Procesando imagen de URL para producto ID=" + productoId + ", URL=" + imagenUrl);
+
+            // Crear nuevo registro de imagen en BD
+            int proximoOrden = productoImagenRepository.findMaxOrdenByProductoId(productoId) + 1;
+            System.out.println("✓ Obtenido próximo orden: " + proximoOrden);
+
+            Producto producto = productoRepository.findById(productoId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Producto para imagen URL: " + productoId));
+
+            // Guardar URL directamente en BD (sin file system para URLs externas)
+            ProductoImagen productoImagenNueva = ProductoImagen.builder()
+                    .producto(producto)
+                    .url(imagenUrl.trim())
+                    .orden(proximoOrden)
+                    .build();
+
+            ProductoImagen imagenGuardada = productoImagenRepository.save(productoImagenNueva);
+            System.out.println("✓ Imagen URL guardada correctamente en BD, ID=" + imagenGuardada.getId() + ", URL=" + imagenGuardada.getUrl());
+
+        } catch (Exception e) {
+            System.err.println("⚠️ Error procesando imagen URL pero producto ya fue actualizado: " + e.getMessage());
             e.printStackTrace(); // Log pero NO fallar la actualización del producto
         }
     }
@@ -688,33 +791,32 @@ public class ProductoService {
 
     /**
      * Convierte una entidad Producto a DTO.
-     * Maneja tanto imágenes en BLOB como URLs antiguas de file system
+     * Usa URLs guardadas directamente de la BD (incluyendo URLs externas)
      * @param producto Entidad Producto
      * @return Producto como DTO
      */
     private ProductoDTO convertirADTO(Producto producto) {
+        System.out.println("=== convertirADTO para producto: " + producto.getNombre() + " (ID: " + producto.getId() + ")");
+
         String imagenUrl = null;
 
         // Cargar imagen principal si existe
         if (producto.getImagenes() != null && !producto.getImagenes().isEmpty()) {
             ProductoImagen imagenPrincipal = producto.getImagenes().get(0); // Primera imagen (ordenada por 'orden')
+            System.out.println("Encontrada imagen principal: ID=" + imagenPrincipal.getId() + ", URL=" + imagenPrincipal.getUrl());
 
-            // Si la imagen tiene datos binarios (BLOB nueva), usar endpoint de BD
-            if (imagenPrincipal.getDatosImagen() != null && imagenPrincipal.getDatosImagen().length > 0) {
-                imagenUrl = "/api/imagenes/" + imagenPrincipal.getId();
-            } else if (imagenPrincipal.getUrl() != null && !imagenPrincipal.getUrl().isEmpty()) {
-                // Si tiene URL de file system (imágenes antiguas), verificar si es absoluta o relativa
-                String url = imagenPrincipal.getUrl();
-                if (url.startsWith("http://") || url.startsWith("https://")) {
-                    imagenUrl = url; // URL absoluta
-                } else {
-                    // URL relativa - construir URL absoluta al servidor
-                    imagenUrl = "http://localhost:8080/uploads/" + url;
-                }
+            // Usar la URL guardada directamente (puede ser externa o local)
+            if (imagenPrincipal.getUrl() != null && !imagenPrincipal.getUrl().isEmpty()) {
+                imagenUrl = imagenPrincipal.getUrl();
+                System.out.println("Imagen final para producto: " + imagenUrl);
+            } else {
+                System.out.println("URL de imagen es null o vacía");
             }
+        } else {
+            System.out.println("Producto no tiene imágenes en la colección");
         }
 
-        return new ProductoDTO(
+        ProductoDTO dto = new ProductoDTO(
                 producto.getId(),
                 producto.getCodigo(),
                 producto.getNombre(),
@@ -727,11 +829,14 @@ public class ProductoService {
                 producto.getCategoria() != null ? producto.getCategoria().getNombre() : null,
                 producto.getVendedor() != null ? producto.getVendedor().getId() : null,
                 producto.getVendedor() != null ? producto.getVendedor().getNombre() : null,
-                imagenUrl, // URL apropiada según tipo de imagen
+                imagenUrl, // URL guardada directamente
                 producto.isActivo(),
                 producto.getFechaCreacion(),
                 producto.getFechaModificacion()
         );
+
+        System.out.println("=== DTO creado con imagen: " + dto.imagen());
+        return dto;
     }
 
 

@@ -21,8 +21,12 @@ public class DetalleVenta extends EntidadBase {
     private Venta orden;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "variante_id", nullable = false)
+    @JoinColumn(name = "producto_id", nullable = false)
     private Producto producto;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "variante_id", nullable = false)
+    private ProductoVariante variante;
 
     @Column(name = "cantidad", nullable = false)
     private int cantidad;

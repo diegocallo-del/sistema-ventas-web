@@ -2,18 +2,20 @@
 
 import React, { useEffect, useState } from "react";
 import { VentaForm } from "@/components/modules/ventas/venta-form";
+import { PagoConfirmationDialog } from "@/components/modules/ventas/pago-confirmation-dialog";
 import { useVentas } from "@/hooks/use-ventas";
 import { useProductos } from "@/hooks/use-productos";
 import { useAuth } from "@/hooks/use-auth";
 import { useVentaStore } from "@/store/venta-store";
-import { Client, Product } from "@/lib/types";
+import { Client, Product, Sale, PaymentMethod, SaleStatus } from "@/lib/types";
 import { getClients } from "@/lib/services/cliente-service";
+import { processPayment } from "@/lib/services/venta-service";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { ShoppingCart, TrendingUp, Users, DollarSign, Eye, History, Search } from "lucide-react";
+import { ShoppingCart, TrendingUp, Users, DollarSign, Eye, History, Search, CheckCircle } from "lucide-react";
 import { formatCurrency } from "@/lib/formatters";
 import { IGV_PERCENTAGE } from "@/lib/constants";
 export default function VentasPage() {
@@ -26,6 +28,9 @@ export default function VentasPage() {
   const [productosVisibles, setProductosVisibles] = useState<Product[]>([]);
   const [inicializando, setInicializando] = useState(true);
   const [enviando, setEnviando] = useState(false);
+  const [showPagoDialog, setShowPagoDialog] = useState(false);
+  const [ventaPendiente, setVentaPendiente] = useState<Sale | null>(null);
+  const [procesandoPago, setProcesandoPago] = useState(false);
 
   // Carga inicial: clientes y productos
   useEffect(() => {
@@ -75,9 +80,34 @@ export default function VentasPage() {
   async function handleSubmit() {
     setEnviando(true);
     try {
-      await createSale();
+      const nuevaVenta = await createSale();
+      if (nuevaVenta) {
+        setVentaPendiente(nuevaVenta);
+        setShowPagoDialog(true);
+      }
+    } catch (error) {
+      console.error('Error creando venta:', error);
     } finally {
       setEnviando(false);
+    }
+  }
+
+  // Procesar pago de venta pendiente
+  async function handleConfirmarPago() {
+    if (!ventaPendiente) return;
+
+    setProcesandoPago(true);
+    try {
+      await processPayment(ventaPendiente.id);
+      // Limpiar el carrito y recargar ventas después de pago exitoso
+      const { clearCart } = useVentaStore.getState();
+      clearCart();
+      setVentaPendiente(null);
+      await loadSales({ page_size: 50 });
+    } catch (error) {
+      console.error('Error procesando pago:', error);
+    } finally {
+      setProcesandoPago(false);
     }
   }
 
@@ -303,10 +333,27 @@ export default function VentasPage() {
           }}
           onSearchProducto={handleSearchProducto}
           onSubmit={handleSubmit}
-          isLoading={cargando}
+          isLoading={cargando || procesandoPago}
           isClientUser={isClientUser}
         />
       </div>
+
+      {/* DIÁLOGO DE CONFIRMACIÓN DE PAGO */}
+      {ventaPendiente && (
+        <PagoConfirmationDialog
+          isOpen={showPagoDialog}
+          onClose={() => {
+            setShowPagoDialog(false);
+            setVentaPendiente(null);
+          }}
+          onConfirm={handleConfirmarPago}
+          saleId={ventaPendiente.id}
+          total={ventaPendiente.total}
+          metodoPago={ventaPendiente.metodo_pago}
+          clienteNombre={ventaPendiente.cliente_nombre}
+          isProcessing={procesandoPago}
+        />
+      )}
 
       {/* HISTORIAL DE VENTAS (Para todos los usuarios) */}
       <Card className="border-blue-400/30 shadow-[0_0_15px_rgba(59,130,246,0.1)] bg-slate-900/60 backdrop-blur-xl animate-slide-up delay-200">
@@ -363,9 +410,19 @@ export default function VentasPage() {
                       <TableCell>
                         <Badge
                           variant="default"
-                          className="bg-green-500/20 text-green-300 border-green-400/30"
+                          className={
+                            venta.estado === SaleStatus.PENDIENTE
+                              ? "bg-yellow-500/20 text-yellow-300 border-yellow-400/30"
+                              : venta.estado === SaleStatus.PAGADA
+                              ? "bg-green-500/20 text-green-300 border-green-400/30"
+                              : venta.estado === SaleStatus.ENVIADA
+                              ? "bg-blue-500/20 text-blue-300 border-blue-400/30"
+                              : venta.estado === SaleStatus.ENTREGADA
+                              ? "bg-purple-500/20 text-purple-300 border-purple-400/30"
+                              : "bg-red-500/20 text-red-300 border-red-400/30"
+                          }
                         >
-                          PAGADA
+                          {venta.estado}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-slate-400 text-sm">

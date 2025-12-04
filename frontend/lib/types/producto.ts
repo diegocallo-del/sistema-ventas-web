@@ -34,6 +34,7 @@ export interface CreateProductData {
   stock: number;
   categoriaId: number;
   imagen?: File | string | null; // File para envío, string para URL/base64, null para sin imagen
+  imagenUrl?: string; // Nueva opción: URL externa de imagen
 }
 
 /**
@@ -50,6 +51,7 @@ export interface UpdateProductData {
   categoria?: string;
   categoriaId?: number;
   imagen?: File | string | null; // File para nueva imagen, string para URL, null para eliminar
+  imagenUrl?: string; // Nueva opción: URL externa de imagen para actualizar
   imagenEliminar?: boolean; // true = eliminar imagen existente, false/undefined = mantener/reemplazar
   activo?: boolean;
 }

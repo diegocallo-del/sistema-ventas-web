@@ -123,6 +123,30 @@ export async function createSale(data: CreateSaleData): Promise<Sale> {
 }
 
 /**
+ * Procesa el pago de una venta pendiente
+ */
+export async function processPayment(id: number): Promise<Sale> {
+  const response = await api.post<VentaDTOBackend>(`${saleEndpoints.base}/${id}/pagar`);
+  return mapVentaFromBackend(response);
+}
+
+/**
+ * Confirma el envío de una venta pagada
+ */
+export async function shipSale(id: number): Promise<Sale> {
+  const response = await api.post<VentaDTOBackend>(`${saleEndpoints.base}/${id}/enviar`);
+  return mapVentaFromBackend(response);
+}
+
+/**
+ * Confirma la entrega de una venta enviada
+ */
+export async function deliverSale(id: number): Promise<Sale> {
+  const response = await api.post<VentaDTOBackend>(`${saleEndpoints.base}/${id}/entregar`);
+  return mapVentaFromBackend(response);
+}
+
+/**
  * Cancela una venta existente
  */
 export async function cancelSale(id: number, motivo: string): Promise<Sale> {

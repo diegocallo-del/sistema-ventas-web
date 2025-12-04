@@ -29,9 +29,11 @@ export const PAYMENT_METHOD_OPTIONS = [
  * Opciones de estados de venta
  */
 export const SALE_STATUS_OPTIONS = [
-  { value: SaleStatus.COMPLETADA, label: 'Completada' },
-  { value: SaleStatus.CANCELADA, label: 'Cancelada' },
   { value: SaleStatus.PENDIENTE, label: 'Pendiente' },
+  { value: SaleStatus.PAGADA, label: 'Pagada' },
+  { value: SaleStatus.ENVIADA, label: 'Enviada' },
+  { value: SaleStatus.ENTREGADA, label: 'Entregada' },
+  { value: SaleStatus.CANCELADA, label: 'Cancelada' },
 ];
 
 /**
@@ -48,9 +50,11 @@ export const USER_ROLE_OPTIONS = [
  * Colores para estados de venta
  */
 export const SALE_STATUS_COLORS: Record<SaleStatus, string> = {
-  [SaleStatus.COMPLETADA]: 'text-green-600 bg-green-50',
-  [SaleStatus.CANCELADA]: 'text-red-600 bg-red-50',
   [SaleStatus.PENDIENTE]: 'text-yellow-600 bg-yellow-50',
+  [SaleStatus.PAGADA]: 'text-green-600 bg-green-50',
+  [SaleStatus.ENVIADA]: 'text-blue-600 bg-blue-50',
+  [SaleStatus.ENTREGADA]: 'text-purple-600 bg-purple-50',
+  [SaleStatus.CANCELADA]: 'text-red-600 bg-red-50',
 };
 
 /**

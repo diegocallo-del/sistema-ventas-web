@@ -49,7 +49,8 @@ export interface UpdateProductData {
   stock?: number;
   categoria?: string;
   categoriaId?: number;
-  imagen?: File | string | null; // File para envío, string para URL/base64, null para eliminar imagen
+  imagen?: File | string | null; // File para nueva imagen, string para URL, null para eliminar
+  imagenEliminar?: boolean; // true = eliminar imagen existente, false/undefined = mantener/reemplazar
   activo?: boolean;
 }
 

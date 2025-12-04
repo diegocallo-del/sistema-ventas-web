@@ -1,11 +1,17 @@
 package com.ventas.dto;
 
-import com.ventas.enums.RolUsuario;
-
+/**
+ * DTO para la representación de usuarios en la API REST
+ */
 public record UsuarioDTO(
-        Long id,
-        String username,
-        String nombre,
-        String email,
-        RolUsuario rol
-) {}
+    Long id,
+    String nombre,
+    String email,
+    String telefono,
+    String numeroDocumento,
+    String rol,
+    Boolean activo,
+    String fechaCreacion,
+    String fechaModificacion
+) {
+}

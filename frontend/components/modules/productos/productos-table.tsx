@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog } from '@/components/ui/dialog';
 import { formatCurrency } from '@/lib/formatters';
 import { cn } from '@/lib/utils';
+import { getImageUrl } from '@/lib/api';
 import {
   Edit,
   Trash2,
@@ -35,6 +36,11 @@ export function ProductosTable({
   isLoading = false,
 }: ProductosTableProps) {
   const [previewImagen, setPreviewImagen] = useState<string | null>(null);
+
+  const handleImageClick = (imagen: string | null | undefined) => {
+    const imageUrl = getImageUrl(imagen || null);
+    setPreviewImagen(imageUrl);
+  };
 
   if (isLoading) {
     return (
@@ -67,10 +73,10 @@ export function ProductosTable({
             {producto.imagen ? (
               <>
                 <img
-                  src={producto.imagen}
+                  src={getImageUrl(producto.imagen) || ""}
                   alt={producto.nombre}
                   className="w-full h-full object-cover cursor-pointer hover:scale-105 transition-transform duration-300"
-                  onClick={() => setPreviewImagen(producto.imagen || null)}
+                  onClick={() => handleImageClick(producto.imagen)}
                 />
                 {/* Overlay sutil */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300" />

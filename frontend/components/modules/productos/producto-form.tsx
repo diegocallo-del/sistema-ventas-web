@@ -50,6 +50,7 @@ export function ProductoForm({
     categoriaId: '',
     imagen: null as File | null,
     imagenPreview: null as string | null,
+    imagenEliminar: false, // Flag para indicar si eliminar imagen existente
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -70,6 +71,7 @@ export function ProductoForm({
         categoriaId: '',
         imagen: null,
         imagenPreview: producto.imagen || null,
+        imagenEliminar: false,
       });
     }
   }, [producto]);
@@ -100,12 +102,13 @@ export function ProductoForm({
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Validar tipo de archivo
-      if (!file.type.startsWith('image/')) {
-        setImageError('Por favor selecciona un archivo de imagen válido');
-        return;
-      }
-      
+    // Validar tipo de archivo - compatibilizar con backend
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(file.type.toLowerCase())) {
+      setImageError('Formato no soportado. Usa JPG, JPEG, PNG, GIF o WebP');
+      return;
+    }
+
       // Validar tamaño (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
         setImageError('La imagen no debe ser mayor a 5MB');
@@ -118,6 +121,7 @@ export function ProductoForm({
           ...prev,
           imagen: file,
           imagenPreview: reader.result as string,
+          imagenEliminar: false, // Nueva imagen, resetear el flag de eliminar
         }));
       };
       reader.readAsDataURL(file);
@@ -130,6 +134,7 @@ export function ProductoForm({
       ...prev,
       imagen: null,
       imagenPreview: null,
+      imagenEliminar: true, // Usuario quiere eliminar imagen existente
     }));
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -204,10 +209,22 @@ const safeTrim = (v: unknown) => (typeof v === 'string' ? v.trim() : '');
       categoriaId: safeTrim(formData.categoriaId) ? parseInt(formData.categoriaId) : undefined,
     };
 
-    // Si hay una imagen nueva, incluirla en el payload
-    // El backend debe aceptar FormData o el File se convertirá según la implementación
-    if (formData.imagen) {
-      data.imagen = formData.imagen;
+    // Si estamos editando (producto existe), incluir lógica de imagen
+    if (producto) {
+      // Flag para eliminar imagen (solo si tiene imagen actual y usuario hizo click en X)
+      if (formData.imagenEliminar && producto.imagen && producto.imagen.trim() !== '') {
+        (data as UpdateProductData).imagenEliminar = true;
+      }
+
+      // Si hay una imagen nueva, incluirla (sera reemplaza anterior)
+      if (formData.imagen) {
+        data.imagen = formData.imagen;
+      }
+    } else {
+      // Al crear producto, incluir imagen si existe
+      if (formData.imagen) {
+        data.imagen = formData.imagen;
+      }
     }
 
     await onSubmit(data);
@@ -397,7 +414,7 @@ const safeTrim = (v: unknown) => (typeof v === 'string' ? v.trim() : '');
           >
             <Upload className="w-8 h-8 mx-auto mb-2 text-slate-400" />
             <p className="text-sm text-slate-300 mb-1">Haz clic para subir una imagen</p>
-            <p className="text-xs text-slate-400">JPG, PNG (máx. 5MB)</p>
+            <p className="text-xs text-slate-400">JPG, JPEG, PNG, GIF, WebP (máx. 5MB)</p>
           </div>
         )}
 

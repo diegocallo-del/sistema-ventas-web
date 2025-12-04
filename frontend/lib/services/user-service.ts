@@ -1,89 +1,57 @@
 /**
- * Servicio de usuarios
- * Maneja todas las operaciones relacionadas con usuarios
+ * Servicio simple de usuarios
+ * Solo para operaciones básicas de listas y cambio de roles
  */
 
-import { api } from '../api';
-import { userEndpoints } from '../config/endpoints';
-
 /**
- * Interfaz para usuario del backend
+ * Interfaz para usuario básico
  */
 export interface UsuarioDTO {
   id: number;
   nombre: string;
   email: string;
-  telefono?: string;
-  numeroDocumento?: string;
-  rol?: string;
+  rol: string;
   activo: boolean;
-  fechaCreacion?: string;
-  fechaModificacion?: string;
 }
 
 /**
- * Interfaz para crear usuario
- */
-export interface CreateUsuarioData {
-  nombre: string;
-  email: string;
-  password: string;
-  telefono?: string;
-  numeroDocumento?: string;
-  rol?: string;
-}
-
-/**
- * Interfaz para actualizar usuario
- */
-export interface UpdateUsuarioData {
-  nombre?: string;
-  email?: string;
-  password?: string;
-  telefono?: string;
-  numeroDocumento?: string;
-  rol?: string;
-  activo?: boolean;
-}
-
-/**
- * Obtiene todos los usuarios
+ * Obtiene usuarios básicos (VENDEDOR/CLIENTE)
  */
 export async function getUsuarios(): Promise<UsuarioDTO[]> {
-  const response = await api.get<UsuarioDTO[]>(userEndpoints.base);
-  return response;
+  const token = localStorage.getItem('auth_token');
+  const response = await fetch('/api/usuarios', {
+    headers: {
+      'Authorization': token ? `Bearer ${token}` : '',
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
+
+  return response.json();
 }
 
 /**
- * Obtiene un usuario por ID
+ * Cambia rol de un usuario
  */
-export async function getUsuarioById(id: number): Promise<UsuarioDTO> {
-  const response = await api.get<UsuarioDTO>(userEndpoints.byId(id));
-  return response;
-}
+export async function cambiarRolUsuario(userId: number, nuevoRol: string): Promise<UsuarioDTO> {
+  const token = localStorage.getItem('auth_token');
+  const formData = new FormData();
+  formData.append('nuevoRol', nuevoRol);
 
-/**
- * Crea un nuevo usuario
- */
-export async function createUsuario(data: CreateUsuarioData): Promise<UsuarioDTO> {
-  const response = await api.post<UsuarioDTO>(userEndpoints.create, data);
-  return response;
-}
+  const response = await fetch(`/api/usuarios/${userId}/role`, {
+    method: 'POST',
+    headers: {
+      'Authorization': token ? `Bearer ${token}` : '',
+    },
+    body: formData,
+  });
 
-/**
- * Actualiza un usuario existente
- */
-export async function updateUsuario(
-  id: number,
-  data: UpdateUsuarioData
-): Promise<UsuarioDTO> {
-  const response = await api.put<UsuarioDTO>(userEndpoints.update(id), data);
-  return response;
-}
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
 
-/**
- * Elimina un usuario
- */
-export async function deleteUsuario(id: number): Promise<void> {
-  await api.delete(userEndpoints.delete(id));
+  return response.json();
 }

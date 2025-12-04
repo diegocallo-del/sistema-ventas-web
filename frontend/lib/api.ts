@@ -14,11 +14,44 @@ export const API_CONFIG = {
   },
 };
 
+/**
+ * Utilidad para convertir URLs de imagen a URLs absolutas del backend
+ */
+export function getImageUrl(imagen: string | null): string | null {
+  if (!imagen) return null;
+
+  // Si ya es una URL completa, devolverla
+  if (imagen.startsWith('http://') || imagen.startsWith('https://') || imagen.startsWith('data:')) {
+    return imagen;
+  }
+
+  // Si es un endpoint API relativo (contiene /api/), construir URL completa
+  if (imagen.includes('/api/')) {
+    // Si contiene el full URL ya, verificar
+    if (imagen.startsWith('http')) {
+      return imagen; // Ya es completo
+    }
+    return `${API_CONFIG.baseURL}${imagen}`;
+  }
+
+  // Casos restantes: filenames, UUIDs, rutas relativas - todos van al backend
+  // Si es ruta relativa (no começa con /), agregar /
+  const path = imagen.startsWith('/') ? imagen : `/${imagen}`;
+  return `${API_CONFIG.baseURL}/api/imagenes${path}`;
+}
+
 // Funciones helper para manejo de URL y headers
 function buildUrl(url: string): string {
   if (url.startsWith('http')) {
     return url;
   }
+
+  // En el navegador, usar rutas relativas para evitar CORS
+  if (typeof window !== 'undefined') {
+    return url.startsWith('/') ? url : `/${url}`;
+  }
+
+  // En el servidor, usar URL completa
   return `${API_CONFIG.baseURL}${url.startsWith('/') ? url : `/${url}`}`;
 }
 

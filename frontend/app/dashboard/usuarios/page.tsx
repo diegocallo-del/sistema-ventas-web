@@ -5,32 +5,24 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, Users, UserPlus, Edit, Trash2 } from 'lucide-react';
-import { getUsuarios, UsuarioDTO } from '@/lib/services/user-service';
-import { UserRole } from '@/lib/types/usuario';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Loader2, Users, UserPlus, Trash2 } from 'lucide-react';
+import { getUsuarios, cambiarRolUsuario } from '@/lib/services/user-service';
 
-const roleLabels: Record<string, string> = {
-  ADMIN: 'Administrador',
-  SUPERVISOR: 'Supervisor',
-  VENDEDOR: 'Vendedor',
-  CAJERO: 'Cajero',
-  CLIENTE: 'Cliente',
-};
-
-const roleColors: Record<string, string> = {
-  ADMIN: 'bg-red-500/20 text-red-300 border-red-400/30',
-  SUPERVISOR: 'bg-purple-500/20 text-purple-300 border-purple-400/30',
-  VENDEDOR: 'bg-blue-500/20 text-blue-300 border-blue-400/30',
-  CAJERO: 'bg-green-500/20 text-green-300 border-green-400/30',
-  CLIENTE: 'bg-gray-500/20 text-gray-300 border-gray-400/30',
-};
+interface Usuario {
+  id: number;
+  nombre: string;
+  email: string;
+  numeroDocumento?: string;
+  rol: string;
+  activo: boolean;
+}
 
 export default function UsuariosPage() {
-  const [usuarios, setUsuarios] = useState<UsuarioDTO[]>([]);
+  const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
+  const [cargandoRol, setCargandoRol] = useState<number | null>(null);
   useEffect(() => {
     loadUsuarios();
   }, []);
@@ -38,188 +30,172 @@ export default function UsuariosPage() {
   const loadUsuarios = async () => {
     try {
       setIsLoading(true);
-      setError(null);
       const data = await getUsuarios();
       setUsuarios(data);
-    } catch (err) {
-      setError('Error al cargar los usuarios');
+    } catch (error) {
+      console.error('Error cargando usuarios:', error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const formatRole = (rol: string) => {
-    return roleLabels[rol.toUpperCase()] || rol;
+  const cambiarRol = async (usuarioId: number, nuevoRol: string) => {
+    try {
+      setCargandoRol(usuarioId);
+      await cambiarRolUsuario(usuarioId, nuevoRol);
+      await loadUsuarios();
+    } catch (error) {
+      console.error('Error cambiando rol:', error);
+      alert('Error cambiando rol del usuario');
+    } finally {
+      setCargandoRol(null);
+    }
   };
 
-  const getRoleColor = (rol: string) => {
-    return roleColors[rol.toUpperCase()] || roleColors.CLIENTE;
+  const eliminarUsuario = async (usuarioId: number) => {
+    if (!confirm('¿Estás seguro de que quieres eliminar este usuario?')) return;
+
+    try {
+      const response = await fetch(`/api/usuarios/${usuarioId}`, { method: 'DELETE' });
+      if (!response.ok) throw new Error('Error eliminando usuario');
+      await loadUsuarios();
+    } catch (error) {
+      console.error('Error eliminando usuario:', error);
+      alert('Error eliminando usuario');
+    }
+  };
+
+  const getRolContrario = (rolActual: string) => {
+    return rolActual === 'VENDEDOR' ? 'CLIENTE' : 'VENDEDOR';
   };
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-96">
         <Loader2 className="w-8 h-8 animate-spin text-blue-400" />
-        <span className="ml-2 text-slate-300">Cargando usuarios...</span>
       </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <Alert className="border-red-400/30 bg-red-900/20 text-red-300">
-        <AlertDescription>{error}</AlertDescription>
-      </Alert>
     );
   }
 
   return (
     <div className="space-y-8 animate-fade-in">
-      {/* ENCABEZADO */}
+      {/* HEADER */}
       <header className="animate-slide-down">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold mb-2 text-white flex items-center gap-3">
-              <Users className="w-8 h-8" />
-              Usuarios del Sistema
-            </h1>
-            <p className="text-slate-300">
-              Gestión completa de usuarios, roles y permisos del sistema de ventas.
-            </p>
-          </div>
-          <Button className="bg-blue-600 hover:bg-blue-700">
-            <UserPlus className="w-4 h-4 mr-2" />
-            Nuevo Usuario
-          </Button>
+        <div>
+          <h1 className="text-3xl font-bold mb-2 text-white flex items-center gap-3">
+            <Users className="w-8 h-8" />
+            Gestión de Usuarios
+          </h1>
+          <p className="text-slate-300">
+            Administra usuarios con roles Vendedor y Cliente
+          </p>
         </div>
       </header>
 
-      {/* ESTADÍSTICAS RÁPIDAS */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="border-blue-400/30 shadow-[0_0_15px_rgba(59,130,246,0.1)] bg-slate-900/60 backdrop-blur-xl">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-2xl font-bold text-blue-300">{usuarios.length}</p>
-                <p className="text-slate-300 text-sm">Total Usuarios</p>
-              </div>
-              <Users className="w-8 h-8 text-blue-400" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-green-400/30 shadow-[0_0_15px_rgba(34,197,94,0.1)] bg-slate-900/60 backdrop-blur-xl">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-2xl font-bold text-green-300">
-                  {usuarios.filter(u => u.activo).length}
-                </p>
-                <p className="text-slate-300 text-sm">Usuarios Activos</p>
-              </div>
-              <div className="w-8 h-8 bg-green-400/20 rounded-full flex items-center justify-center">
-                <div className="w-3 h-3 bg-green-400 rounded-full"></div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-purple-400/30 shadow-[0_0_15px_rgba(147,51,234,0.1)] bg-slate-900/60 backdrop-blur-xl">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-2xl font-bold text-purple-300">
-                  {usuarios.filter(u => u.rol === 'VENDEDOR').length}
-                </p>
-                <p className="text-slate-300 text-sm">Vendedores</p>
-              </div>
-              <div className="w-8 h-8 bg-purple-400/20 rounded-full flex items-center justify-center">
-                <Edit className="w-4 h-4 text-purple-400" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* TABLA DE USUARIOS */}
-      <Card className="border-blue-400/30 shadow-[0_0_15px_rgba(59,130,246,0.1)] bg-slate-900/60 backdrop-blur-xl">
-        <CardHeader>
-          <CardTitle className="text-white flex items-center gap-2">
-            <Users className="w-5 h-5" />
-            Lista de Usuarios
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow className="border-slate-700 hover:bg-slate-800/50">
-                  <TableHead className="text-slate-300">ID</TableHead>
-                  <TableHead className="text-slate-300">Nombre</TableHead>
-                  <TableHead className="text-slate-300">Email</TableHead>
-                  <TableHead className="text-slate-300">Rol</TableHead>
-                  <TableHead className="text-slate-300">Estado</TableHead>
-                  <TableHead className="text-slate-300">Fecha Registro</TableHead>
-                  <TableHead className="text-slate-300">Acciones</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {usuarios.map((usuario) => (
-                  <TableRow key={usuario.id} className="border-slate-700 hover:bg-slate-800/30">
-                    <TableCell className="text-slate-300">#{usuario.id}</TableCell>
-                    <TableCell className="font-medium text-white">{usuario.nombre}</TableCell>
-                    <TableCell className="text-slate-300">{usuario.email}</TableCell>
-                    <TableCell>
-                      <Badge className={`text-xs ${getRoleColor(usuario.rol || '')}`}>
-                        {formatRole(usuario.rol || '')}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={usuario.activo ? 'default' : 'secondary'}
-                        className={
-                          usuario.activo
-                            ? 'bg-green-500/20 text-green-300 border-green-400/30'
-                            : 'bg-red-500/20 text-red-300 border-red-400/30'
-                        }
-                      >
-                        {usuario.activo ? 'Activo' : 'Inactivo'}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-slate-400 text-sm">
-                      {usuario.fechaCreacion
-                        ? new Date(usuario.fechaCreacion).toLocaleDateString('es-ES')
-                        : 'N/A'
-                      }
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 w-8 p-0 text-red-400 hover:text-red-300"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+      {/* GRID DE USUARIOS */}
+      <div className="border border-slate-700/70 rounded-2xl bg-slate-950/80 backdrop-blur-xl shadow-[0_12px_35px_rgba(15,23,42,0.85)] overflow-hidden animate-slide-up">
+        <div className="px-6 py-4 border-b border-slate-700/70">
+          <div className="flex items-center gap-2">
+            <Users className="w-5 h-5 text-blue-400" />
+            <h2 className="text-xl font-semibold text-white">Usuarios Registrados</h2>
           </div>
+          <p className="text-slate-400 text-sm mt-1">
+            Mostrando {usuarios.length} usuarios registrados
+          </p>
+        </div>
 
-          {usuarios.length === 0 && (
-            <div className="text-center py-8">
-              <Users className="w-12 h-12 text-slate-500 mx-auto mb-4" />
-              <p className="text-slate-400">No hay usuarios registrados en el sistema.</p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+        <div className="p-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {usuarios.map((usuario, index) => (
+              <div
+                key={usuario.id}
+                className="bg-white/5 rounded-lg border border-slate-700/70 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group"
+              >
+                {/* Header del card */}
+                <div className="px-4 py-3 border-b border-slate-700/50 bg-slate-900/50">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-semibold text-white text-sm truncate" title={usuario.nombre}>
+                      {usuario.nombre}
+                    </h3>
+                    <Badge
+                      className={`text-xs ${
+                        usuario.activo
+                          ? 'bg-green-500/20 text-green-300 border-green-400/30'
+                          : 'bg-gray-500/20 text-gray-300 border-gray-400/30'
+                      }`}
+                    >
+                      {usuario.activo ? 'ACTIVO' : 'INACTIVO'}
+                    </Badge>
+                  </div>
+                </div>
+
+                {/* Contenido del card */}
+                <div className="px-4 py-4 space-y-3">
+                  {/* Email */}
+                  <div>
+                    <p className="text-xs text-slate-400 font-medium uppercase tracking-wide">Email</p>
+                    <p className="text-slate-300 text-sm truncate" title={usuario.email}>
+                      {usuario.email}
+                    </p>
+                  </div>
+
+                  {/* Rol actual */}
+                  <div>
+                    <p className="text-xs text-slate-400 font-medium uppercase tracking-wide mb-2">Rol Actual</p>
+                    <div className="flex items-center gap-2">
+                      <Badge
+                        className={`flex-1 ${
+                          usuario.rol === 'VENDEDOR'
+                            ? 'bg-blue-500/20 text-blue-300 border-blue-400/30'
+                            : 'bg-purple-500/20 text-purple-300 border-purple-400/30'
+                        }`}
+                      >
+                        {usuario.rol}
+                      </Badge>
+                      <Button
+                        size="sm"
+                        onClick={() => cambiarRol(usuario.id, getRolContrario(usuario.rol))}
+                        disabled={cargandoRol === usuario.id}
+                        className="bg-blue-600 hover:bg-blue-700 text-white transition-colors duration-200 flex-shrink-0"
+                      >
+                        {cargandoRol === usuario.id ? (
+                          <Loader2 className="w-3 h-3 animate-spin" />
+                        ) : (
+                          'Cambiar'
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Footer con botón eliminar */}
+                <div className="px-4 py-3 border-t border-slate-700/50 bg-slate-900/30">
+                  <div className="flex justify-end">
+                    <Button
+                      size="sm"
+                      onClick={() => eliminarUsuario(usuario.id)}
+                      className="bg-red-600 hover:bg-red-700 text-white transition-colors duration-200"
+                    >
+                      <Trash2 className="w-3 h-3 mr-1" />
+                      Eliminar
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {usuarios.length === 0 && (
+          <div className="px-6 py-12 text-center">
+            <Users className="w-12 h-12 text-slate-500 mx-auto mb-4" />
+            <h3 className="mt-2 text-lg font-semibold text-slate-200">No hay usuarios registrados</h3>
+            <p className="mt-1 text-sm text-slate-400">
+              Comience creando usuarios con roles Vendedor o Cliente.
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

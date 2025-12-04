@@ -6,6 +6,7 @@ import com.ventas.dto.LoginRequestDTO;
 import com.ventas.servicios.AuthService;
 import com.ventas.modelos.Usuario;
 import com.ventas.repositorios.UsuarioRepository;
+import com.ventas.enums.RolUsuario;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -75,6 +76,7 @@ public class AuthController {
                         .nombre("Administrador")
                         .email("admin@sistema-ventas.com")
                         .password(passwordEncoder.encode("admin123"))
+                        .rol(RolUsuario.ADMIN)
                         .activo(true)
                         .build();
 

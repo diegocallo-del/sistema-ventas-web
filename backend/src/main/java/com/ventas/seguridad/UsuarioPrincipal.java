@@ -32,8 +32,9 @@ public class UsuarioPrincipal implements UserDetails {
      * @return UsuarioPrincipal configurado
      */
     public static UsuarioPrincipal create(Usuario usuario) {
-        // Crear autoridad basada en el rol del usuario
-        GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + usuario.getRol().name());
+        // Crear autoridad basada en el rol del usuario (default CLIENTE si null)
+        String rol = usuario.getRol() != null ? usuario.getRol().name() : "CLIENTE";
+        GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + rol);
 
         return new UsuarioPrincipal(
             usuario.getId(),

@@ -110,7 +110,25 @@ async function getCategoriaIdByName(nombre: string): Promise<number | null> {
  * Crea un nuevo producto
  */
 export async function createProduct(data: CreateProductData): Promise<Product> {
-  // Preparar datos para el backend
+  // Si hay imagen como File, usar endpoint específico para imágenes
+  if (typeof FormData !== 'undefined' && data.imagen instanceof File) {
+    const formData = new FormData();
+    formData.append('nombre', data.nombre);
+    if (data.descripcion !== undefined) formData.append('descripcion', data.descripcion);
+    if (data.marca !== undefined) formData.append('marca', data.marca);
+    if (data.modelo !== undefined) formData.append('modelo', data.modelo);
+    formData.append('precio', String(data.precio));
+    formData.append('stock', String(data.stock));
+    formData.append('categoriaId', String(data.categoriaId));
+    if ((data as any).codigo !== undefined) formData.append('codigo', (data as any).codigo);
+    formData.append('imagen', data.imagen);
+
+    // Usar endpoint específico para creación con imagen
+    const response = await api.post<ProductoDTOBackend>('/api/productos/conimagen', formData);
+    return mapProductoFromBackend(response);
+  }
+
+  // Para productos sin imagen, usar endpoint normal
   const backendData = {
     nombre: data.nombre,
     descripcion: data.descripcion || null,
@@ -119,26 +137,9 @@ export async function createProduct(data: CreateProductData): Promise<Product> {
     precio: data.precio,
     stock: data.stock,
     categoriaId: data.categoriaId,
-    codigo: (data as any).codigo || null, // Agregar campo código
+    codigo: (data as any).codigo || null,
   };
 
-  // Si hay imagen como File, enviar como FormData
-  if (typeof FormData !== 'undefined' && data.imagen instanceof File) {
-    const formData = new FormData();
-    formData.append('nombre', backendData.nombre);
-    if (backendData.descripcion !== undefined && backendData.descripcion !== null) formData.append('descripcion', String(backendData.descripcion));
-    if (backendData.marca !== undefined && backendData.marca !== null) formData.append('marca', String(backendData.marca));
-    if (backendData.modelo !== undefined && backendData.modelo !== null) formData.append('modelo', String(backendData.modelo));
-    formData.append('precio', String(backendData.precio));
-    formData.append('stock', String(backendData.stock));
-    if (backendData.categoriaId !== undefined && backendData.categoriaId !== null) formData.append('categoriaId', String(backendData.categoriaId));
-    formData.append('imagen', data.imagen);
-
-    const response = await api.post<ProductoDTOBackend>(productEndpoints.create, formData);
-    return mapProductoFromBackend(response);
-  }
-
-  // Envío estándar como JSON si no hay imagen nueva
   const response = await api.post<ProductoDTOBackend>(productEndpoints.create, backendData);
   return mapProductoFromBackend(response);
 }
@@ -189,12 +190,13 @@ export async function updateProduct(
   if (data.precio !== undefined) backendData.precio = data.precio;
   if (data.stock !== undefined) backendData.stock = data.stock;
   if (categoriaId !== undefined) backendData.categoriaId = categoriaId;
-  if ((data as any).codigo !== undefined) backendData.codigo = (data as any).codigo || null; // Agregar código si viene
-  // Solo enviar imagen si es File (para FormData) o null (para eliminar imagen)
-  // Para actualizaciones sin nueva imagen, omitir el campo para mantener la existente
+  if ((data as any).codigo !== undefined) backendData.codigo = (data as any).codigo || null;
 
-  // Si hay imagen como File, enviar como FormData
-  if (typeof FormData !== 'undefined' && data.imagen instanceof File) {
+  // Si hay imagen como File O si hay que eliminar imagen, usar endpoint especial para imágenes
+  if (typeof FormData !== 'undefined' && (
+      data.imagen instanceof File ||
+      (data as any).imagenEliminar
+    )) {
     const formData = new FormData();
     if (backendData.nombre !== undefined) formData.append('nombre', backendData.nombre);
     if (backendData.descripcion !== undefined && backendData.descripcion !== null) formData.append('descripcion', String(backendData.descripcion));
@@ -203,14 +205,29 @@ export async function updateProduct(
     if (backendData.precio !== undefined) formData.append('precio', String(backendData.precio));
     if (backendData.stock !== undefined) formData.append('stock', String(backendData.stock));
     if (backendData.categoriaId !== undefined && backendData.categoriaId !== null) formData.append('categoriaId', String(backendData.categoriaId));
-    formData.append('imagen', data.imagen);
 
-    const response = await api.put<ProductoDTOBackend>(productEndpoints.update(id), formData);
+    // Agregar flag de eliminar imagen si es necesario
+    if ((data as any).imagenEliminar) {
+      formData.append('imagenEliminar', 'true');
+      formData.append('imagen', ''); // Campo vacío pero required en backend
+    }
+
+    // Agregar imagen SOLO si hay una nueva (no si se está eliminando)
+    if (data.imagen instanceof File) {
+      formData.append('imagen', data.imagen);
+    }
+
+    console.log('=== Enviando FormData ===');
+    console.log('imagenEliminar:', (data as any).imagenEliminar);
+    console.log('tiene imagen:', data.imagen instanceof File);
+
+    // Usar endpoint específico para actualización con imagen
+    const response = await api.put<ProductoDTOBackend>(`/api/productos/${id}/imagen`, formData);
     return mapProductoFromBackend(response);
   }
 
+  // Para actualizaciones sin imagen, usar endpoint normal
   const response = await api.put<ProductoDTOBackend>(productEndpoints.update(id), backendData);
-
   return mapProductoFromBackend(response);
 }
 

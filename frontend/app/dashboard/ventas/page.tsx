@@ -20,7 +20,7 @@ import { formatCurrency } from "@/lib/formatters";
 import { IGV_PERCENTAGE } from "@/lib/constants";
 export default function VentasPage() {
   const { user } = useAuth();
-  const { sales, createSale, isLoading: ventasCargando, error: ventasError, loadSales } = useVentas();
+  const { sales, createSale, isLoading: ventasCargando, error: ventasError, dataFiltered, filterReason, loadSales } = useVentas();
   const { products, loadProducts } = useProductos();
   const { setCliente, items } = useVentaStore();
 
@@ -356,107 +356,125 @@ export default function VentasPage() {
       )}
 
       {/* HISTORIAL DE VENTAS (Para todos los usuarios) */}
-      <Card className="border-blue-400/30 shadow-[0_0_15px_rgba(59,130,246,0.1)] bg-slate-900/60 backdrop-blur-xl animate-slide-up delay-200">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <History className="w-5 h-5 text-blue-400" />
-              <CardTitle className="text-white">
-                {isClientUser ? "Mi Historial de Compras" : "Historial de Ventas"}
-              </CardTitle>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => loadSales({ page_size: 50 })}
-              disabled={ventasCargando}
-            >
-              <Eye className="w-4 h-4 mr-2" />
-              Actualizar
-            </Button>
+      <div className="bg-slate-900/60 backdrop-blur-xl p-6 rounded-2xl border border-blue-400/30 shadow-[0_0_15px_rgba(59,130,246,0.1)] animate-slide-up delay-200">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <History className="w-5 h-5 text-blue-400" />
+            <h2 className="text-xl font-semibold text-white">
+              {isClientUser ? "Mi Historial de Compras" : "Historial de Ventas"}
+            </h2>
           </div>
-          <p className="text-slate-400 text-sm mt-1">
-            Mostrando {sales?.length || 0} {isClientUser ? 'compras' : 'ventas'} recientes
-          </p>
-        </CardHeader>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => loadSales({ page_size: 50 })}
+            disabled={ventasCargando}
+          >
+            <Eye className="w-4 h-4 mr-2" />
+            Actualizar
+          </Button>
+        </div>
 
-        <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow className="border-slate-700 hover:bg-slate-800/50">
-                  <TableHead className="text-slate-300">ID</TableHead>
-                  <TableHead className="text-slate-300">Cliente</TableHead>
-                  <TableHead className="text-slate-300">Total</TableHead>
-                  <TableHead className="text-slate-300">Estado</TableHead>
-                  <TableHead className="text-slate-300">Fecha</TableHead>
-                  {!isClientUser && <TableHead className="text-slate-300">Acciones</TableHead>}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {sales?.slice(0, 10).map((venta) => {
-                  // Encontrar nombre del cliente
-                  const clienteNombre = clientes.find(c => c.id === venta.cliente_id)?.nombre || 'Cliente';
-                  const clienteApellido = clientes.find(c => c.id === venta.cliente_id)?.apellido || '';
-                  const nombreCompleto = clienteApellido ? `${clienteNombre} ${clienteApellido}` : clienteNombre;
+        {/* INDICADOR VISUAL DE FILTROS ACTIVOS */}
+        {dataFiltered && (
+          <div className="bg-blue-500/10 border border-blue-400/30 rounded-lg px-4 py-2 mb-4 text-sm">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+              <span className="text-blue-300 font-medium">Vista filtrada:</span>
+              <span className="text-blue-200">{filterReason}</span>
+            </div>
+          </div>
+        )}
+        <div className="space-y-4">
+          {/* Lista compacta de ventas */}
+          {sales && sales.length > 0 ? (
+            <div className="space-y-3">
+              {sales.slice(0, 8).map((venta) => {
+                // Encontrar nombre del cliente
+                const clienteNombre = clientes.find(c => c.id === venta.cliente_id)?.nombre || 'Cliente';
+                const clienteApellido = clientes.find(c => c.id === venta.cliente_id)?.apellido || '';
+                const nombreCompleto = clienteApellido ? `${clienteNombre} ${clienteApellido}` : clienteNombre;
 
-                  return (
-                    <TableRow key={venta.id} className="border-slate-700 hover:bg-slate-800/30">
-                      <TableCell className="text-slate-300">#{venta.id}</TableCell>
-                      <TableCell className="font-medium text-white">{nombreCompleto}</TableCell>
-                      <TableCell className="font-medium text-green-400">
-                        {formatCurrency(venta.total || 0)}
-                      </TableCell>
-                      <TableCell>
+                // Encontrar nombre del vendedor (usuario que realizó la venta)
+                const vendedorNombre = 'Vendedor Uno'; // Para esta demo,硬-coded el único vendedor
+
+                return (
+                  <div key={venta.id} className="bg-slate-800/40 border border-slate-600/50 rounded-lg p-4 hover:bg-slate-800/60 transition-all duration-200">
+                    <div className="flex items-center justify-between flex-wrap gap-4">
+                      {/* Información Principal */}
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2">
+                          <ShoppingCart className="w-4 h-4 text-blue-400" />
+                          <span className="text-white font-medium">#{venta.id}</span>
+                        </div>
+                        <div className="text-slate-300">
+                          {isClientUser ? `Compra realizada por ` : `Vendida por `}
+                          <span className="font-medium text-white">{isClientUser ? clienteNombre : vendedorNombre}</span>
+                          {!isClientUser && ` a ${nombreCompleto}`}
+                        </div>
+                      </div>
+
+                      {/* Estado y Total */}
+                      <div className="flex items-center gap-6">
+                        <div className="text-right">
+                          <div className="text-lg font-semibold text-green-400">
+                            {formatCurrency(venta.total || 0)}
+                          </div>
+                          <div className="text-xs text-slate-400">
+                            {venta.fecha_creacion
+                              ? new Date(venta.fecha_creacion).toLocaleDateString('es-ES')
+                              : 'N/A'
+                            }
+                          </div>
+                        </div>
+
                         <Badge
-                          variant="default"
+                          variant="outline"
                           className={
                             venta.estado === SaleStatus.PENDIENTE
-                              ? "bg-yellow-500/20 text-yellow-300 border-yellow-400/30"
+                              ? "border-yellow-400/30 text-yellow-300 bg-yellow-500/10"
                               : venta.estado === SaleStatus.PAGADA
-                              ? "bg-green-500/20 text-green-300 border-green-400/30"
+                              ? "border-green-400/30 text-green-300 bg-green-500/10"
                               : venta.estado === SaleStatus.ENVIADA
-                              ? "bg-blue-500/20 text-blue-300 border-blue-400/30"
+                              ? "border-blue-400/30 text-blue-300 bg-blue-500/10"
                               : venta.estado === SaleStatus.ENTREGADA
-                              ? "bg-purple-500/20 text-purple-300 border-purple-400/30"
-                              : "bg-red-500/20 text-red-300 border-red-400/30"
+                              ? "border-purple-400/30 text-purple-300 bg-purple-500/10"
+                              : "border-red-400/30 text-red-300 bg-red-500/10"
                           }
                         >
                           {venta.estado}
                         </Badge>
-                      </TableCell>
-                      <TableCell className="text-slate-400 text-sm">
-                        {venta.fecha_creacion
-                          ? new Date(venta.fecha_creacion).toLocaleDateString('es-ES')
-                          : 'N/A'
-                        }
-                      </TableCell>
-                      {!isClientUser && (
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                              <Eye className="w-4 h-4 text-blue-400" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      )}
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </div>
 
-          {(!sales || sales.length === 0) && (
-            <div className="text-center py-8">
-              <History className="w-12 h-12 text-slate-500 mx-auto mb-4" />
+                        {!isClientUser && (
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-slate-700/70">
+                            <Eye className="w-4 h-4 text-blue-400" />
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="text-center py-12 border border-dashed border-slate-500/50 rounded-lg">
+              <History className="w-12 h-12 text-slate-500 mx-auto mb-3" />
               <p className="text-slate-400">
                 {isClientUser ? "No tienes compras registradas aún." : "No hay ventas registradas."}
               </p>
             </div>
           )}
-        </CardContent>
-      </Card>
+
+          {/* Botón para ver todas las ventas */}
+          {sales && sales.length > 8 && (
+            <div className="flex justify-center pt-4">
+              <Button variant="outline" className="border-slate-500/50 hover:bg-slate-800/50 hover:border-slate-400/50">
+                Ver todas las {sales.length} ventas
+              </Button>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
+import jakarta.validation.Validator;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -75,6 +77,7 @@ public class ClienteService {
         cliente.setDireccion(createDTO.direccion());
         cliente.setRol(com.ventas.enums.RolUsuario.CLIENTE);
         cliente.setActivo(true);
+        cliente.setPassword(""); // 🔒 CLIENTE SIN PASSWORD (cumple constraint NOT NULL)
 
         Usuario clienteGuardado = clienteRepository.save(cliente);
         return convertirADTO(clienteGuardado);
@@ -87,32 +90,64 @@ public class ClienteService {
      * @return Cliente actualizado como DTO
      */
     public ClienteDTO actualizarCliente(Long id, CreateClienteDTO createDTO) {
+        log.info("🎯 INICIANDO actualización de cliente ID: {}", id);
+
         validarDatosCliente(createDTO);
+        log.info("✅ Validaciones básicas pasaron");
 
         Usuario cliente = clienteRepository.findById(id)
                 .filter(Usuario::isActivo)
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado con ID: " + id));
 
+        log.info("✅ Cliente encontrado: {} (Email actual: {}, Documento actual: {})",
+                 cliente.getNombre(), cliente.getEmail(), cliente.getNumeroDocumento());
+
         // Verificar unicidad del email si cambió
-        if (!cliente.getEmail().equals(createDTO.email()) && clienteRepository.existsByEmail(createDTO.email())) {
-            throw new ValidationException("Ya existe un cliente con ese email");
+        if (!cliente.getEmail().equals(createDTO.email())) {
+            log.info("🔍 Cambio de email detectado. Verificando unicidad para: {}", createDTO.email());
+            if (clienteRepository.existsByEmail(createDTO.email())) {
+                log.error("❌ Email duplicado encontrado: {}", createDTO.email());
+                throw new ValidationException("Ya existe un cliente con ese email");
+            }
         }
 
-        // Verificar unicidad del número de documento
-        if (createDTO.numeroDocumento() != null &&
-            !cliente.getNumeroDocumento().equals(createDTO.numeroDocumento()) &&
-            clienteRepository.existsByNumeroDocumento(createDTO.numeroDocumento())) {
+        // Verificar unicidad del número de documento (manejar nulls con cuidado)
+        String currentDocumento = cliente.getNumeroDocumento();
+        String newDocumento = createDTO.numeroDocumento();
+
+        if (newDocumento != null &&
+            !newDocumento.equals(currentDocumento) &&
+            clienteRepository.existsByNumeroDocumento(newDocumento)) {
+            log.error("❌ Documento duplicado encontrado: {}", newDocumento);
             throw new ValidationException("Ya existe un cliente con ese número de documento");
         }
 
-        cliente.setNombre(createDTO.nombre());
-        cliente.setEmail(createDTO.email());
-        cliente.setTelefono(createDTO.telefono());
-        cliente.setDireccion(createDTO.direccion());
-        cliente.setNumeroDocumento(createDTO.numeroDocumento());
+        log.info("📝 Aplicando cambios...");
 
-        Usuario clienteActualizado = clienteRepository.save(cliente);
-        return convertirADTO(clienteActualizado);
+        try {
+            // Aplicar cambios uno por uno
+            cliente.setNombre(createDTO.nombre());
+            cliente.setEmail(createDTO.email());
+            cliente.setTelefono(createDTO.telefono());
+            cliente.setDireccion(createDTO.direccion());
+            cliente.setNumeroDocumento(createDTO.numeroDocumento());
+
+            // ASEGURAR QUE PASSWORD NO SEA NULL (BD constraint NOT NULL)
+            if (cliente.getPassword() == null || cliente.getPassword().trim().isEmpty()) {
+                cliente.setPassword(""); // Valor por defecto para clientes sin password
+                log.info("🔒 Asignando password vacío para cliente sin password");
+            }
+
+            log.info("💾 Intentando guardar cambios en BD...");
+            Usuario clienteActualizado = clienteRepository.save(cliente);
+            log.info("✅ Cliente ID {} actualizado exitosamente", clienteActualizado.getId());
+
+            return convertirADTO(clienteActualizado);
+
+        } catch (Exception e) {
+            log.error("❌ ERROR JAP TRANSACTION durante save: {}", e.getMessage(), e);
+            throw new RuntimeException("Error al guardar el cliente: " + e.getMessage(), e);
+        }
     }
 
     /**

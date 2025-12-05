@@ -73,7 +73,9 @@ public class ProductoService {
     }
 
     /**
-     * Crea un nuevo producto.
+     * CREA UN NUEVO PRODUCTO.
+     * ⚠️ POR AHORA USA VENDEDOR HARDCODEADO (ADMIN ID=1) PARA EVITAR ERRORES EN CREATEPRODUCTODTO
+     * TODO: ACTUALIZAR CreateProductoDTO PARA INCLUIR vendedorId Y preciosArray
      * @param createDTO Datos del producto a crear
      * @return Producto creado como DTO
      */
@@ -84,7 +86,8 @@ public class ProductoService {
         Categoria categoria = categoriaRepository.findById(createDTO.categoriaId())
                 .orElseThrow(() -> new ValidationException("La categoría especificada no existe"));
 
-        // Usar vendedor por defecto (admin id 1) - luego implementar auth
+        // ⚠️ HARDCODEADO TEMPORALMENTE - USARÁ VENDEDOR ADMIN (ID=1)
+        // TODO: MODIFICAR CreateProductoDTO PARA INCLUIR vendedorId Y REEMPLAZAR ESTO
         Usuario vendedor = usuarioRepository.findById(1L)
                 .orElseThrow(() -> new ValidationException("Vendedor por defecto no encontrado"));
 
@@ -108,7 +111,7 @@ public class ProductoService {
                 .precio(createDTO.precio())
                 .stock(createDTO.stock())
                 .categoria(categoria)
-                .vendedor(vendedor)
+                .vendedor(vendedor)  // ✅ VENDEDOR ADMIN HARDCODEADO
                 .build();
         producto.setActivo(true);
 

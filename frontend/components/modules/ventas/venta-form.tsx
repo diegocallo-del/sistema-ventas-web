@@ -12,12 +12,13 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useVentaStore } from '@/store/venta-store';
-import { Client, Product } from '@/lib/types';
+import { Client, Product, UserRole } from '@/lib/types';
 import { PAYMENT_METHOD_OPTIONS } from '@/lib/constants';
 import { formatCurrency } from '@/lib/formatters';
 import { ProductoItem } from '../productos/producto-item';
 import { Carrito } from './carrito';
 import { Search, UserPlus } from 'lucide-react';
+import { useAuth } from '@/hooks/use-auth';
 
 interface VentaFormProps {
   clientes: Client[];
@@ -53,6 +54,7 @@ export function VentaForm({
     setObservaciones,
   } = useVentaStore();
 
+  const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -66,10 +68,9 @@ export function VentaForm({
   };
 
   const isFormValid = (): boolean => {
-    if (isClientUser) {
-      return items.length > 0;
-    }
-    return items.length > 0 && clienteId !== null;
+    // Todos los usuarios pueden completar ventas si tienen items en el carrito
+    // Sin importar si son clientes registrados, admin, vendedores, etc.
+    return items.length > 0;
   };
 
   return (

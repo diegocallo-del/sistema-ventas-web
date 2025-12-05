@@ -23,6 +23,11 @@ import java.util.List;
 @Validated
 public class ClienteController {
 
+    // LOG GLOBAL PARA VERIFICAR QUE EL CONTROLADOR FUNCIONE
+    {
+        System.out.println("✅ ClienteController inicializado OK");
+    }
+
     private final ClienteService clienteService;
 
     /**
@@ -112,8 +117,35 @@ public class ClienteController {
     public ResponseEntity<ClienteDTO> actualizarCliente(
             @PathVariable Long id,
             @Valid @RequestBody CreateClienteDTO createDTO) {
-        ClienteDTO cliente = clienteService.actualizarCliente(id, createDTO);
-        return ResponseEntity.ok(cliente);
+
+        // LOG OBLIGATORIO AL INICIO PARA VER SI LLEGA AL BACKEND
+        System.out.println("=== CONTROLLER: PUT /api/clientes/" + id + " RECIBIDO ===");
+
+        try {
+            // Validar que el servicio no sea null
+            System.out.println("SERVICE INYECTADO: " + (clienteService != null ? "OK" : "NULL!!!"));
+
+            // Log de parámetros de entrada
+            System.out.println("UNICODE 🎯 CONTROLLER: Solicitud PUT /api/clientes/" + id);
+            System.out.println("📄 Datos recibidos: " + createDTO.nombre() + " / " + createDTO.email());
+
+            ClienteDTO cliente = clienteService.actualizarCliente(id, createDTO);
+            System.out.println("✅ CONTROLLER: Respuesta exitosa enviada para ID " + id);
+            return ResponseEntity.ok(cliente);
+
+        } catch (Exception e) {
+            System.err.println("❌ CONTROLLER: Error en PUT /api/clientes/" + id + ": " + e.getMessage());
+            e.printStackTrace();
+
+            // Mostrar más detalles del error
+            Throwable cause = e.getCause();
+            if (cause != null) {
+                System.err.println("CAUSA: " + cause.getClass().getSimpleName() + " - " + cause.getMessage());
+                cause.printStackTrace();
+            }
+
+            throw e; // Re-lanzar para que Spring maneje el error
+        }
     }
 
     /**

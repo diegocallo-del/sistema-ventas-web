@@ -17,9 +17,10 @@ import lombok.experimental.SuperBuilder;
 @EqualsAndHashCode(callSuper = true)
 public class Usuario extends PersonaBase {
 
-    @NotBlank(message = "La contraseña es obligatoria")
-    @Size(min = 8, message = "La contraseña debe tener al menos 8 caracteres")
-    @Column(name = "password", nullable = false, length = 255)
+    // PASSWORD CONSTRAINTS REMOVED COMPLETELY FROM MODEL
+    // Validation handled at service level only for user creation
+    // DB constraint NOT NULL remains for data integrity
+    @Column(name = "password", nullable = false, length = 255, columnDefinition = "VARCHAR(255) NOT NULL DEFAULT ''")
     private String password;
 
     @Enumerated(EnumType.STRING)

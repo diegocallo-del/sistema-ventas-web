@@ -27,10 +27,11 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    // Habilitamos el filtro JWT para que Spring Security funcione correctamente
     @Bean
     public FilterRegistrationBean<JwtAuthFilter> jwtAuthFilterRegistration(JwtAuthFilter filter) {
         FilterRegistrationBean<JwtAuthFilter> registration = new FilterRegistrationBean<>(filter);
-        registration.setEnabled(false);
+        registration.setEnabled(true);
         return registration;
     }
 

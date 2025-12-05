@@ -1,7 +1,5 @@
 package com.ventas.seguridad;
 
-import com.ventas.modelos.Usuario;
-import com.ventas.repositorios.UsuarioRepository;
 import com.ventas.util.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -29,7 +27,7 @@ import java.util.Collections;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
-    private final UsuarioRepository usuarioRepository;
+    private final JpaUserDetailsService userDetailsService;
 
     /**
      * Método principal del filtro que procesa cada solicitud HTTP.
@@ -74,33 +72,26 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 return;
             }
 
-            Usuario usuario = usuarioRepository.findByEmail(username)
-                    .orElse(null);
-
-            if (usuario == null) {
-                log.warn("Usuario no encontrado en BD: {}", username);
+            // Cargar UsuarioPrincipal usando UserDetailsService
+            UsuarioPrincipal usuarioPrincipal;
+            try {
+                usuarioPrincipal = (UsuarioPrincipal) userDetailsService.loadUserByUsername(username);
+                log.debug("UsuarioPrincipal cargado: {} con rol: {}", username, usuarioPrincipal.getAuthorities());
+            } catch (Exception e) {
+                log.warn("Error cargando usuario {}: {}", username, e.getMessage());
                 filterChain.doFilter(request, response);
                 return;
             }
-
-            if (!usuario.isActivo()) {
-                log.warn("Usuario inactivo: {}", username);
-                filterChain.doFilter(request, response);
-                return;
-            }
-
-            String role = "ROLE_" + usuario.getRol().name();
-            log.debug("Autenticando usuario: {} con rol: {}", username, role);
 
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                    usuario.getEmail(),
+                    usuarioPrincipal,
                     null,
-                    Collections.singletonList(new SimpleGrantedAuthority(role))
+                    usuarioPrincipal.getAuthorities()
             );
 
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            log.debug("Autenticación establecida correctamente para: {}", username);
+            log.debug("UsuarioPrincipal establecido correctamente para: {}", username);
 
         } catch (Exception e) {
             log.error("Error procesando token JWT en ruta {}: {}", requestPath, e.getMessage(), e);

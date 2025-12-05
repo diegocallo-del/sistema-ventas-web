@@ -107,9 +107,22 @@ public class UsuarioController {
     @PostMapping("/{id}/role")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UsuarioDTO> cambiarRol(@PathVariable Long id, @RequestParam String nuevoRol) {
+        log.info("Intentando cambiar rol de usuario {} a {}", id, nuevoRol);
+
         try {
             Usuario usuario = usuarioRepository.findById(id).orElse(null);
-            if (usuario == null || !(usuario.getRol() == RolUsuario.VENDEDOR || usuario.getRol() == RolUsuario.CLIENTE)) {
+            log.info("Usuario encontrado: {}", usuario != null ? usuario.getId() : "null");
+
+            if (usuario == null) {
+                log.error("Usuario {} no encontrado", id);
+                return ResponseEntity.notFound().build();
+            }
+
+            log.info("Rol actual del usuario {}: {}", usuario.getId(), usuario.getRol());
+
+            // Verificar que puede cambiar este tipo de usuario
+            if (!(usuario.getRol() == RolUsuario.VENDEDOR || usuario.getRol() == RolUsuario.CLIENTE)) {
+                log.error("Usuario {} tiene rol {} que no puede ser cambiado", usuario.getId(), usuario.getRol());
                 return ResponseEntity.notFound().build();
             }
 
@@ -119,12 +132,18 @@ public class UsuarioController {
             } else if ("CLIENTE".equalsIgnoreCase(nuevoRol)) {
                 rol = RolUsuario.CLIENTE;
             } else {
+                log.error("Nuevo rol '{}' no válido", nuevoRol);
                 return ResponseEntity.badRequest().build();
             }
 
+            log.info("Cambiando rol de {} a {}", usuario.getRol(), rol);
             usuario.setRol(rol);
             usuarioRepository.save(usuario);
-            return ResponseEntity.ok(convertirADTO(usuario));
+
+            UsuarioDTO response = convertirADTO(usuario);
+            log.info("Cambio de rol exitoso para usuario {}", id);
+
+            return ResponseEntity.ok(response);
 
         } catch (Exception e) {
             log.error("Error cambiando rol de usuario {}", id, e);

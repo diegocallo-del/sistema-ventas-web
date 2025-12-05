@@ -22,6 +22,15 @@ import {
   PaginatedResponse,
 } from '@/lib/types';
 
+/**
+ * Transformado para AISLAMIENTO DE DATOS POR ROL
+ *
+ * ✅ FASE 2: Frontend - Filtros UX según rol
+ * - CLIENTE: Solo ver estadísticas propias (no globales)
+ * - VENDEDOR/ADMIN: Ver estadísticas globales
+ * - Indicadores visuales de filtrado activo
+ * - Logs de auditoría frontend
+ */
 export function useVentas() {
   const { user } = useAuth();
   const { items, clienteId, metodoPago, observaciones, clearCart } = useVentaStore();
@@ -34,31 +43,59 @@ export function useVentas() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [dataFiltered, setDataFiltered] = useState(false);
+  const [filterReason, setFilterReason] = useState<string>('');
   
   /**
-   * Carga la lista de ventas
+   * Carga la lista de ventas con indicadores de filtrado
    */
   const loadSales = useCallback(
     async (options: QueryOptions = {}) => {
       setIsLoading(true);
       setError(null);
-      
+
       try {
+        // Log frontend de auditoría
+        console.log(`📊 CARGANDO VENTAS - Usuario: ${user?.nombre} (ID: ${user?.id}, Rol: ${user?.rol})`);
+
         const response = await getSales(options);
+        const totalReceived = response.items?.length || 0;
+
+        // Determinar si los datos están filtrados por rol
+        let filtered = false;
+        let reason = '';
+
+        if (user?.rol === 'cliente') {
+          filtered = true;
+          reason = 'Mostrando solo sus compras personales';
+        } else if (user?.rol === 'vendedor') {
+          filtered = true;
+          reason = 'Mostrando solo ventas de sus productos';
+        } else if (user?.rol === 'admin' || user?.rol === 'supervisor') {
+          filtered = false;
+          reason = 'Vista global del sistema';
+        }
+
         setSales(response.items);
+        setDataFiltered(filtered);
+        setFilterReason(reason);
         setPagination({
           total: response.total,
           page: response.page,
           page_size: response.page_size,
           total_pages: response.total_pages,
         });
+
+        console.log(`✅ VENTAS CARGADAS: ${totalReceived} items ${filtered ? `[FILTRADO] ${reason}` : '[SIN FILTRAR]'}`);
+
       } catch (err: any) {
         setError(err.message || 'Error al cargar ventas');
+        console.error('❌ Error cargando ventas:', err);
       } finally {
         setIsLoading(false);
       }
     },
-    []
+    [user]
   );
   
   /**
@@ -156,6 +193,8 @@ export function useVentas() {
     pagination,
     isLoading,
     error,
+    dataFiltered,
+    filterReason,
     loadSales,
     getSale,
     createSale: createNewSale,

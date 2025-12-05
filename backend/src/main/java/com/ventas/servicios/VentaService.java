@@ -14,6 +14,7 @@ import com.ventas.repositorios.ProductoRepository;
 import com.ventas.repositorios.VentaRepository;
 import com.ventas.repositorios.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class VentaService {
 
     // Hardcoded IGV para Perú 18%
@@ -228,6 +230,7 @@ public class VentaService {
     /**
      * Busca ventas por cliente.
      */
+    @Transactional(readOnly = true)
     public List<VentaDTO> obtenerVentasPorCliente(Long clienteId) {
         clienteRepository.findById(clienteId)
                 .filter(u -> u.isActivo() && "CLIENTE".equals(u.getRol()))
@@ -237,6 +240,60 @@ public class VentaService {
                 .filter(v -> v.isActivo() && v.getCliente() != null && v.getCliente().getId().equals(clienteId))
                 .map(this::convertirADTO)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Busca ventas por vendedor (productos del vendedor).
+     * Más tolerante: si no encuentra vendedor o no tiene productos, retorna lista vacía.
+     */
+    @Transactional(readOnly = true)
+    public List<VentaDTO> obtenerVentasPorVendedor(Long vendedorId) {
+        // Verificar si el vendedor existe (no requerido que sea estricto)
+        Usuario vendedor = usuarioRepository.findById(vendedorId)
+                .filter(u -> u.isActivo())
+                .orElse(null);
+
+        if (vendedor == null) {
+            log.warn("Vendedor con ID {} no encontrado o inactivo, retornando lista vacía", vendedorId);
+            return List.of();
+        }
+
+        // Verificar si tiene rol de vendedor (opcional para ser flexible)
+        if (!"VENDEDOR".equals(vendedor.getRol()) && !"ADMIN".equals(vendedor.getRol())) {
+            log.warn("Usuario {} con rol {} intentando ver ventas de vendedor, retornando lista vacía",
+                    vendedorId, vendedor.getRol());
+            return List.of();
+        }
+
+        log.info("Buscando ventas para vendedor {} ({})", vendedor.getNombre(), vendedorId);
+
+        // Obtener IDs de productos del vendedor de manera SEGURA
+        List<Long> productoIds = productoRepository.findAll().stream()
+                .filter(p -> p.isActivo())
+                // SOLO productos con vendedor asignado Y que pertenezcan a ESTE vendedor
+                .filter(p -> p.getVendedor() != null && p.getVendedor().getId().equals(vendedorId))
+                .map(Producto::getId)
+                .collect(Collectors.toList());
+
+        log.info("Vendedor {} tiene {} productos asociados", vendedorId, productoIds.size());
+
+        // Si no tiene productos, retornar lista vacía
+        if (productoIds.isEmpty()) {
+            log.info("Vendedor {} no tiene productos asociados", vendedorId);
+            return List.of();
+        }
+
+        // Buscar ventas que contengan productos del vendedor
+        List<VentaDTO> ventas = ventaRepository.findAll().stream()
+                .filter(v -> v.isActivo())
+                .filter(v -> v.getDetalles().stream()
+                    .anyMatch(d -> productoIds.contains(d.getProducto().getId())))
+                .map(this::convertirADTO)
+                .collect(Collectors.toList());
+
+        log.info("Vendedor {} tiene {} ventas en total", vendedorId, ventas.size());
+
+        return ventas;
     }
 
     /**

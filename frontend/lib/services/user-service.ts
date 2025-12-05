@@ -38,15 +38,12 @@ export async function getUsuarios(): Promise<UsuarioDTO[]> {
  */
 export async function cambiarRolUsuario(userId: number, nuevoRol: string): Promise<UsuarioDTO> {
   const token = localStorage.getItem('auth_token');
-  const formData = new FormData();
-  formData.append('nuevoRol', nuevoRol);
 
-  const response = await fetch(`/api/usuarios/${userId}/role`, {
+  const response = await fetch(`/api/usuarios/${userId}/role?nuevoRol=${encodeURIComponent(nuevoRol)}`, {
     method: 'POST',
     headers: {
       'Authorization': token ? `Bearer ${token}` : '',
     },
-    body: formData,
   });
 
   if (!response.ok) {

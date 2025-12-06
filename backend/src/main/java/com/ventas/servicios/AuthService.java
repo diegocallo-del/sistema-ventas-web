@@ -15,7 +15,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.UUID;
 
 /**
  * Servicio para la gestión de autenticación y gestión de usuarios.
@@ -172,27 +171,5 @@ public class AuthService {
         return jwtUtil.generateToken(usuario);
     }
 
-    /**
-     * Valida los datos de registro.
-     * 
-     * @param createUsuario Datos a validar
-     */
-    private void validarDatosRegistro(CreateUsuarioDTO createUsuario) {
-        if (createUsuario.nombre() == null || createUsuario.nombre().trim().isEmpty()) {
-            throw new ValidationException("El nombre es obligatorio");
-        }
 
-        if (createUsuario.username() == null || createUsuario.username().trim().isEmpty()) {
-            throw new ValidationException("El nombre de usuario es obligatorio");
-        }
-
-        if (createUsuario.password() == null || createUsuario.password().length() < 6) {
-            throw new ValidationException("La contraseña debe tener al menos 6 caracteres");
-        }
-
-        if (createUsuario.email() != null && !createUsuario.email().contains("@")) {
-            throw new ValidationException("El email debe tener un formato válido");
-        }
-
-    }
 }

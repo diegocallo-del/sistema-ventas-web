@@ -29,9 +29,11 @@ public class Publicacion {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "estado", nullable = false, columnDefinition = "ENUM('ACTIVA','PAUSADA','CERRADA') DEFAULT 'ACTIVA'")
+    @Builder.Default
     private EstadoPublicacion estado = EstadoPublicacion.ACTIVA;
 
     @Column(name = "visitas", nullable = false)
+    @Builder.Default
     private int visitas = 0;
 
     @Column(name = "fecha_creacion", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")

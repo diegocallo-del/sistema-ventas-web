@@ -2,6 +2,7 @@ package com.ventas.abstractas;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -33,6 +34,7 @@ public abstract class EntidadBase implements Serializable, Identificable {
     @Column(name = "fecha_modificacion")
     private LocalDateTime fechaModificacion;
 
+    @Builder.Default
     @Column(name = "activo", nullable = false, columnDefinition = "BOOLEAN DEFAULT true")
     private boolean activo = true;
 }

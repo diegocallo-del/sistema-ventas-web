@@ -24,8 +24,27 @@ export default function ReportesPage() {
     exportarProductos,
     exportarVentas,
     exportarClientes,
-    exportarReporteCompleto
+    exportarReporteCompleto,
+    exportarProductosXlsx,
+    exportarProductosPdf,
+    exportarVentasXlsx,
+    exportarVentasPdf,
+    exportarClientesXlsx,
+    exportarClientesPdf,
+    exportarReporteXlsx,
+    exportarReportePdf
   } = useExportacion();
+
+  function descargar(blob: Blob, nombre: string) {
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = nombre;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  }
 
   const reportesDisponibles = [
     {
@@ -156,7 +175,7 @@ export default function ReportesPage() {
                   </div>
                 </div>
 
-                {/* BOTÓN DE EXPORTACIÓN */}
+                {/* BOTONES DE EXPORTACIÓN */}
                 <Button
                   onClick={reporte.funcion}
                   disabled={!!exportando}
@@ -176,6 +195,33 @@ export default function ReportesPage() {
                   )}
                 </Button>
 
+                <div className="grid grid-cols-2 gap-2">
+                  <Button
+                    onClick={() => {
+                      const fn = reporte.id === 'productos' ? exportarProductosXlsx
+                        : reporte.id === 'ventas' ? exportarVentasXlsx
+                        : reporte.id === 'clientes' ? exportarClientesXlsx
+                        : exportarReporteXlsx;
+                      fn();
+                    }}
+                    variant="outline"
+                  >
+                    Excel
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      const fn = reporte.id === 'productos' ? exportarProductosPdf
+                        : reporte.id === 'ventas' ? exportarVentasPdf
+                        : reporte.id === 'clientes' ? exportarClientesPdf
+                        : exportarReportePdf;
+                      fn();
+                    }}
+                    variant="outline"
+                  >
+                    PDF
+                  </Button>
+                </div>
+
                 {/* INDICADOR DE ÉXITO */}
                 {exportando && exportando === reporte.id && (
                   <div className="flex items-center gap-2 text-green-400 text-sm">
@@ -188,6 +234,8 @@ export default function ReportesPage() {
           );
         })}
       </div>
+
+      {/* Importación deshabilitada temporalmente */}
 
       {/* FORMATO DE ARCHIVOS */}
       <Card className="border-slate-700 bg-slate-900/50">

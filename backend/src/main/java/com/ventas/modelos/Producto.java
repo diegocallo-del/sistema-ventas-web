@@ -60,5 +60,6 @@ public class Producto extends EntidadBase {
 
     @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("orden ASC")
+    @Builder.Default
     private List<ProductoImagen> imagenes = new ArrayList<>();
 }

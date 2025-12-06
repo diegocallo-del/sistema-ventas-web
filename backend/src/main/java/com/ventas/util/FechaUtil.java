@@ -7,17 +7,14 @@ import java.time.temporal.ChronoUnit;
 /**
  * Clase utilitaria para operaciones comunes con fechas y horas.
  * Contiene métodos estáticos para formateo, cálculos y validaciones de fechas.
- * Todos los métodos son thread-safe y no requieren instancia de la clase.
  */
 public final class FechaUtil {
 
-    /** Formato estándar para fechas en la aplicación */
+
     public static final String FORMATO_FECHA = "dd/MM/yyyy";
 
-    /** Formato estándar para fechas con hora completa */
     public static final String FORMATO_FECHA_HORA = "dd/MM/yyyy HH:mm:ss";
 
-    /** Formato ISO para APIs */
     public static final String FORMATO_ISO = "yyyy-MM-dd'T'HH:mm:ss";
 
     /** Constructor privado para prevenir instanciación */
@@ -84,16 +81,9 @@ public final class FechaUtil {
      * @return true si la fecha está en el rango (inclusive), false en caso contrario
      */
     public static boolean estaEnRango(LocalDateTime fecha, LocalDateTime inicio, LocalDateTime fin) {
-        if (fecha == null) {
-            return false;
-        }
-        if (inicio != null && fecha.isBefore(inicio)) {
-            return false;
-        }
-        if (fin != null && fecha.isAfter(fin)) {
-            return false;
-        }
-        return true;
+        return fecha != null &&
+               (inicio == null || !fecha.isBefore(inicio)) &&
+               (fin == null || !fecha.isAfter(fin));
     }
 
     /**

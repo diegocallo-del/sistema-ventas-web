@@ -46,5 +46,6 @@ public class Venta extends EntidadBase {
     private TipoPago tipoPago;
 
     @OneToMany(mappedBy = "orden", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<DetalleVenta> detalles = new ArrayList<>();
 }

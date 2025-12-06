@@ -22,17 +22,14 @@ const nextConfig = {
   // Configuración de Turbopack para silenciar warnings
   turbopack: {},
 
-  // Rewrites para proxy API requests al backend
   async rewrites() {
-    if (process.env.NODE_ENV === 'development') {
-      return [
-        {
-          source: '/api/:path*',
-          destination: 'http://localhost:8080/api/:path*',
-        },
-      ];
-    }
-    return [];
+    const backend = process.env.BACKEND_URL || 'http://localhost:8080';
+    return [
+      {
+        source: '/api/:path*',
+        destination: `${backend}/api/:path*`,
+      },
+    ];
   },
 };
 

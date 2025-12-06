@@ -2,17 +2,16 @@ package com.ventas.servicios;
 
 import com.ventas.dto.ClienteDTO;
 import com.ventas.dto.CreateClienteDTO;
+import com.ventas.dto.UpdateClienteDTO;
 import com.ventas.excepciones.ResourceNotFoundException;
 import com.ventas.excepciones.ValidationException;
-import com.ventas.modelos.Cliente;
 import com.ventas.modelos.Usuario;
 import com.ventas.repositorios.ClienteRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
-import jakarta.validation.Validator;
+
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -47,6 +46,10 @@ public class ClienteService {
      */
     @Transactional(readOnly = true)
     public ClienteDTO obtenerClientePorId(Long id) {
+        if (id == null) {
+            throw new ValidationException("El ID del cliente es obligatorio");
+        }
+
         Usuario cliente = clienteRepository.findById(id)
                 .filter(Usuario::isActivo)
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado con ID: " + id));
@@ -77,7 +80,7 @@ public class ClienteService {
         cliente.setDireccion(createDTO.direccion());
         cliente.setRol(com.ventas.enums.RolUsuario.CLIENTE);
         cliente.setActivo(true);
-        cliente.setPassword(""); // 🔒 CLIENTE SIN PASSWORD (cumple constraint NOT NULL)
+        cliente.setPassword(""); // LIENTE SIN PASSWORD 
 
         Usuario clienteGuardado = clienteRepository.save(cliente);
         return convertirADTO(clienteGuardado);
@@ -86,34 +89,38 @@ public class ClienteService {
     /**
      * Actualiza un cliente existente.
      * @param id ID del cliente a actualizar
-     * @param createDTO Datos actualizados del cliente
+     * @param updateDTO Datos actualizados del cliente
      * @return Cliente actualizado como DTO
      */
-    public ClienteDTO actualizarCliente(Long id, CreateClienteDTO createDTO) {
-        log.info("🎯 INICIANDO actualización de cliente ID: {}", id);
+    public ClienteDTO actualizarCliente(Long id, UpdateClienteDTO updateDTO) {
+        log.info("INICIANDO actualización de cliente ID: {}", id);
 
-        validarDatosCliente(createDTO);
-        log.info("✅ Validaciones básicas pasaron");
+        if (id == null) {
+            throw new ValidationException("El ID del cliente es obligatorio");
+        }
+
+        validarDatosCliente(updateDTO);
+        log.info("Validaciones básicas pasaron");
 
         Usuario cliente = clienteRepository.findById(id)
                 .filter(Usuario::isActivo)
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado con ID: " + id));
 
-        log.info("✅ Cliente encontrado: {} (Email actual: {}, Documento actual: {})",
+        log.info("Cliente encontrado: {} (Email actual: {}, Documento actual: {})",
                  cliente.getNombre(), cliente.getEmail(), cliente.getNumeroDocumento());
 
         // Verificar unicidad del email si cambió
-        if (!cliente.getEmail().equals(createDTO.email())) {
-            log.info("🔍 Cambio de email detectado. Verificando unicidad para: {}", createDTO.email());
-            if (clienteRepository.existsByEmail(createDTO.email())) {
-                log.error("❌ Email duplicado encontrado: {}", createDTO.email());
+        if (!cliente.getEmail().equals(updateDTO.email())) {
+            log.info("Cambio de email detectado. Verificando unicidad para: {}", updateDTO.email());
+            if (clienteRepository.existsByEmail(updateDTO.email())) {
+                log.error("Email duplicado encontrado: {}", updateDTO.email());
                 throw new ValidationException("Ya existe un cliente con ese email");
             }
         }
 
         // Verificar unicidad del número de documento (manejar nulls con cuidado)
         String currentDocumento = cliente.getNumeroDocumento();
-        String newDocumento = createDTO.numeroDocumento();
+        String newDocumento = updateDTO.numeroDocumento();
 
         if (newDocumento != null &&
             !newDocumento.equals(currentDocumento) &&
@@ -122,15 +129,15 @@ public class ClienteService {
             throw new ValidationException("Ya existe un cliente con ese número de documento");
         }
 
-        log.info("📝 Aplicando cambios...");
+        log.info("Aplicando cambios...");
 
         try {
             // Aplicar cambios uno por uno
-            cliente.setNombre(createDTO.nombre());
-            cliente.setEmail(createDTO.email());
-            cliente.setTelefono(createDTO.telefono());
-            cliente.setDireccion(createDTO.direccion());
-            cliente.setNumeroDocumento(createDTO.numeroDocumento());
+            cliente.setNombre(updateDTO.nombre());
+            cliente.setEmail(updateDTO.email());
+            cliente.setTelefono(updateDTO.telefono());
+            cliente.setDireccion(updateDTO.direccion());
+            cliente.setNumeroDocumento(updateDTO.numeroDocumento());
 
             // ASEGURAR QUE PASSWORD NO SEA NULL (BD constraint NOT NULL)
             if (cliente.getPassword() == null || cliente.getPassword().trim().isEmpty()) {
@@ -138,14 +145,14 @@ public class ClienteService {
                 log.info("🔒 Asignando password vacío para cliente sin password");
             }
 
-            log.info("💾 Intentando guardar cambios en BD...");
+            log.info("Intentando guardar cambios en BD...");
             Usuario clienteActualizado = clienteRepository.save(cliente);
-            log.info("✅ Cliente ID {} actualizado exitosamente", clienteActualizado.getId());
+            log.info("Cliente ID {} actualizado exitosamente", clienteActualizado.getId());
 
             return convertirADTO(clienteActualizado);
 
         } catch (Exception e) {
-            log.error("❌ ERROR JAP TRANSACTION durante save: {}", e.getMessage(), e);
+            log.error("ERROR JAP TRANSACTION durante save: {}", e.getMessage(), e);
             throw new RuntimeException("Error al guardar el cliente: " + e.getMessage(), e);
         }
     }
@@ -155,6 +162,10 @@ public class ClienteService {
      * @param id ID del cliente a eliminar
      */
     public void eliminarCliente(Long id) {
+        if (id == null) {
+            throw new ValidationException("El ID del cliente es obligatorio");
+        }
+
         Usuario cliente = clienteRepository.findById(id)
                 .filter(Usuario::isActivo)
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado con ID: " + id));
@@ -216,6 +227,20 @@ public class ClienteService {
      * @param dto Datos a validar
      */
     private void validarDatosCliente(CreateClienteDTO dto) {
+        if (dto.nombre() == null || dto.nombre().trim().isEmpty()) {
+            throw new ValidationException("El nombre es obligatorio");
+        }
+
+        if (dto.email() != null && !dto.email().contains("@")) {
+            throw new ValidationException("El email debe tener un formato válido");
+        }
+    }
+
+    /**
+     * Valida los datos del cliente antes de actualizar.
+     * @param dto Datos a validar
+     */
+    private void validarDatosCliente(UpdateClienteDTO dto) {
         if (dto.nombre() == null || dto.nombre().trim().isEmpty()) {
             throw new ValidationException("El nombre es obligatorio");
         }

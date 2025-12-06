@@ -4,9 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.net.MalformedURLException;
 import java.nio.file.Path;
@@ -18,6 +19,7 @@ import java.nio.file.Paths;
 @RestController
 @RequestMapping("/api/imagenes")
 @RequiredArgsConstructor
+@Tag(name = "Imágenes", description = "Servicio de archivos de imágenes de productos")
 public class ProductoImagenController {
 
     private final Path rootLocation = Paths.get("uploads/images/productos");
@@ -28,9 +30,11 @@ public class ProductoImagenController {
      * @return Archivo de imagen con headers apropiados
      */
     @GetMapping("/{filename:.+}")
+    @Operation(summary = "Obtener imagen", description = "Sirve una imagen del filesystem por nombre de archivo")
     public ResponseEntity<Resource> obtenerImagen(@PathVariable String filename) {
         try {
             Path file = rootLocation.resolve(filename);
+            @SuppressWarnings("null")
             Resource resource = new UrlResource(file.toUri());
 
             if (resource.exists() || resource.isReadable()) {
@@ -54,18 +58,12 @@ public class ProductoImagenController {
      */
     private String determinarContentType(String filename) {
         String extension = filename.substring(filename.lastIndexOf('.') + 1).toLowerCase();
-        switch (extension) {
-            case "jpg":
-            case "jpeg":
-                return "image/jpeg";
-            case "png":
-                return "image/png";
-            case "gif":
-                return "image/gif";
-            case "webp":
-                return "image/webp";
-            default:
-                return "application/octet-stream";
-        }
+        return switch (extension) {
+            case "jpg", "jpeg" -> "image/jpeg";
+            case "png" -> "image/png";
+            case "gif" -> "image/gif";
+            case "webp" -> "image/webp";
+            default -> "application/octet-stream";
+        };
     }
 }

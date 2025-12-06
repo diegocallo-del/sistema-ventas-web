@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Loader2, Users, UserPlus, Trash2 } from 'lucide-react';
-import { getUsuarios, cambiarRolUsuario } from '@/lib/services/user-service';
+import { getUsuarios, cambiarRolUsuario, eliminarUsuario as eliminarUsuarioService } from '@/lib/services/user-service';
 
 interface Usuario {
   id: number;
@@ -52,12 +52,11 @@ export default function UsuariosPage() {
     }
   };
 
-  const eliminarUsuario = async (usuarioId: number) => {
+  const handleEliminarUsuario = async (usuarioId: number) => {
     if (!confirm('¿Estás seguro de que quieres eliminar este usuario?')) return;
 
     try {
-      const response = await fetch(`/api/usuarios/${usuarioId}`, { method: 'DELETE' });
-      if (!response.ok) throw new Error('Error eliminando usuario');
+      await eliminarUsuarioService(usuarioId);
       await loadUsuarios();
     } catch (error) {
       console.error('Error eliminando usuario:', error);
@@ -173,7 +172,7 @@ export default function UsuariosPage() {
                   <div className="flex justify-end">
                     <Button
                       size="sm"
-                      onClick={() => eliminarUsuario(usuario.id)}
+                      onClick={() => handleEliminarUsuario(usuario.id)}
                       className="bg-red-600 hover:bg-red-700 text-white transition-colors duration-200"
                     >
                       <Trash2 className="w-3 h-3 mr-1" />

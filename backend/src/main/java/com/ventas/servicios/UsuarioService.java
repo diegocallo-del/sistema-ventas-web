@@ -36,6 +36,10 @@ public class UsuarioService {
      * Obtiene un usuario por ID
      */
     public UsuarioDTO obtenerUsuarioPorId(Long id) {
+        if (id == null) {
+            throw new ValidationException("El ID del usuario es obligatorio");
+        }
+
         Usuario usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con ID: " + id));
         return convertirADTO(usuario);
@@ -68,6 +72,10 @@ public class UsuarioService {
      * Actualiza un usuario existente
      */
     public UsuarioDTO actualizarUsuario(Long id, CreateUsuarioDTO updateDTO) {
+        if (id == null) {
+            throw new ValidationException("El ID del usuario es obligatorio");
+        }
+
         Usuario usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con ID: " + id));
 
@@ -95,6 +103,9 @@ public class UsuarioService {
      * Elimina un usuario
      */
     public void eliminarUsuario(Long id) {
+        if (id == null) {
+            throw new ValidationException("El ID del usuario es obligatorio");
+        }
         if (!usuarioRepository.existsById(id)) {
             throw new ResourceNotFoundException("Usuario no encontrado con ID: " + id);
         }
@@ -105,7 +116,10 @@ public class UsuarioService {
      * Marca usuario como inactivo en lugar de eliminar físicamente
      */
     public UsuarioDTO desactivarUsuario(Long id) {
-        Usuario usuario = usuarioRepository.findById(id)
+        if (id == null) {
+            throw new ValidationException("El ID del usuario es obligatorio");
+        }
+        Usuario usuario = usuarioRepository.findById(id )
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con ID: " + id));
 
         usuario.setActivo(false);

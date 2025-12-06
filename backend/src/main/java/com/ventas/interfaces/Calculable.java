@@ -1,6 +1,7 @@
 package com.ventas.interfaces;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 /**
  * Interfaz genérica que define contratos para cálculos de negocio.
@@ -43,7 +44,7 @@ public interface Calculable<T> {
         if (valor == null) {
             return BigDecimal.ZERO;
         }
-        return valor.setScale(2, BigDecimal.ROUND_HALF_UP);
+        return valor.setScale(2, RoundingMode.HALF_UP);
     }
 
     /**

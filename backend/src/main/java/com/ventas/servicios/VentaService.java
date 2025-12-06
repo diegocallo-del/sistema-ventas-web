@@ -4,7 +4,7 @@ import com.ventas.dto.CreateVentaDTO;
 import com.ventas.dto.DetalleVentaDTO;
 import com.ventas.dto.VentaDTO;
 import com.ventas.enums.EstadoVenta;
-import com.ventas.enums.TipoPago;
+import com.ventas.enums.RolUsuario;
 import com.ventas.excepciones.ResourceNotFoundException;
 import com.ventas.excepciones.ValidationException;
 import com.ventas.modelos.*;
@@ -17,10 +17,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.beans.factory.annotation.Value;
-
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -58,6 +57,10 @@ public class VentaService {
      */
     @Transactional(readOnly = true)
     public VentaDTO obtenerVentaPorId(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("ID no puede ser nulo");
+        }
+
         Venta venta = ventaRepository.findById(id)
                 .filter(Venta::isActivo)
                 .orElseThrow(() -> new ResourceNotFoundException("Venta no encontrada con ID: " + id));
@@ -69,14 +72,15 @@ public class VentaService {
      * Crea una nueva venta.
      */
     public VentaDTO crearVenta(CreateVentaDTO createDTO) {
-        if (createDTO.detalles() == null || createDTO.detalles().isEmpty()) {
+        if (createDTO.detalles().isEmpty()) {
             throw new ValidationException("La venta debe tener al menos un detalle");
         }
 
         Usuario cliente = null;
         if (createDTO.clienteId() != null) {
-            cliente = clienteRepository.findById(createDTO.clienteId())
-                    .filter(u -> u.isActivo() && "CLIENTE".equals(u.getRol()))
+            Long clienteId = Objects.requireNonNull(createDTO.clienteId());
+            cliente = clienteRepository.findById(clienteId)
+                    .filter(u -> u.isActivo() && u.getRol() == RolUsuario.CLIENTE)
                     .orElse(null);
         }
 
@@ -85,8 +89,14 @@ public class VentaService {
         // Calcular subtotal (precios base sin IGV)
         BigDecimal subtotal = BigDecimal.ZERO;
         for (var detalle : createDTO.detalles()) {
+            if (detalle.productoId() == null) {
+                throw new ValidationException("El ID del producto no puede ser nulo");
+            }
+
+            @SuppressWarnings("null")
             Producto producto = productoRepository.findById(detalle.productoId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado con ID: " + detalle.productoId()));
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Producto no encontrado con ID: " + detalle.productoId()));
 
             if (!producto.isActivo()) {
                 throw new ValidationException("Producto inactivo: " + producto.getNombre());
@@ -98,7 +108,8 @@ public class VentaService {
         // Calcular IGV y total
         BigDecimal igv = subtotal.multiply(ivaPercentage);
         BigDecimal total = subtotal.add(igv);
-        System.out.println("DEBUG: subtotal=" + subtotal + ", ivaPercentage=" + ivaPercentage + ", igv=" + igv + ", total=" + total);
+        System.out.println("DEBUG: subtotal=" + subtotal + ", ivaPercentage=" + ivaPercentage + ", igv=" + igv
+                + ", total=" + total);
 
         // Crear venta pendiente de pago
         Venta venta = new Venta();
@@ -114,22 +125,19 @@ public class VentaService {
 
         // Crear detalles y actualizar stock
         for (var detalleDTO : createDTO.detalles()) {
-            Producto producto = productoRepository.findById(detalleDTO.productoId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado con ID: " + detalleDTO.productoId()));
+            if (detalleDTO.productoId() == null) {
+                throw new ValidationException("El ID del producto no puede ser nulo");
+            }
 
-            // Crear variante temporal basada en el producto (simplificado)
-            ProductoVariante variante = new ProductoVariante();
-            variante.setId(producto.getId()); // Para esta impl, variante_id = producto_id
-            variante.setProducto(producto);
-            variante.setPrecio(producto.getPrecio());
-            variante.setStock(producto.getStock());
-            variante.setAtributo("DEFAULT");
-            variante.setValor("DEFAULT");
+            @SuppressWarnings("null")
+            Producto producto = productoRepository.findById(detalleDTO.productoId())
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Producto no encontrado con ID: " + detalleDTO.productoId()));
 
             DetalleVenta detalle = new DetalleVenta();
             detalle.setOrden(ventaGuardada);
             detalle.setProducto(producto);
-            detalle.setVariante(variante);
+            detalle.setVariante(null);
             detalle.setCantidad(detalleDTO.cantidad());
             detalle.setPrecio(producto.getPrecio());
             detalle.setActivo(true);
@@ -146,6 +154,10 @@ public class VentaService {
      * Actualiza el estado de una venta.
      */
     public VentaDTO actualizarEstadoVenta(Long id, EstadoVenta nuevoEstado) {
+        if (id == null) {
+            throw new IllegalArgumentException("ID no puede ser nulo");
+        }
+
         Venta venta = ventaRepository.findById(id)
                 .filter(Venta::isActivo)
                 .orElseThrow(() -> new ResourceNotFoundException("Venta no encontrada con ID: " + id));
@@ -164,12 +176,17 @@ public class VentaService {
      * Procesa el pago de una venta pendiente y la marca como pagada.
      */
     public VentaDTO procesarPagoVenta(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("ID no puede ser nulo");
+        }
+
         Venta venta = ventaRepository.findById(id)
                 .filter(Venta::isActivo)
                 .orElseThrow(() -> new ResourceNotFoundException("Venta no encontrada con ID: " + id));
 
         if (venta.getEstadoVenta() != EstadoVenta.PENDIENTE) {
-            throw new ValidationException("Solo se pueden procesar pagos de ventas pendientes. Estado actual: " + venta.getEstadoVenta());
+            throw new ValidationException(
+                    "Solo se pueden procesar pagos de ventas pendientes. Estado actual: " + venta.getEstadoVenta());
         }
 
         // Cambiar estado a PAGADA
@@ -183,12 +200,17 @@ public class VentaService {
      * Confirma el envío de una venta pagada.
      */
     public VentaDTO confirmarEnvioVenta(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("ID no puede ser nulo");
+        }
+
         Venta venta = ventaRepository.findById(id)
                 .filter(Venta::isActivo)
                 .orElseThrow(() -> new ResourceNotFoundException("Venta no encontrada con ID: " + id));
 
         if (venta.getEstadoVenta() != EstadoVenta.PAGADA) {
-            throw new ValidationException("Solo se pueden enviar ventas pagadas. Estado actual: " + venta.getEstadoVenta());
+            throw new ValidationException(
+                    "Solo se pueden enviar ventas pagadas. Estado actual: " + venta.getEstadoVenta());
         }
 
         venta.setEstadoVenta(EstadoVenta.ENVIADA);
@@ -201,12 +223,17 @@ public class VentaService {
      * Confirma la entrega de una venta enviada.
      */
     public VentaDTO confirmarEntregaVenta(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("ID no puede ser nulo");
+        }
+
         Venta venta = ventaRepository.findById(id)
                 .filter(Venta::isActivo)
                 .orElseThrow(() -> new ResourceNotFoundException("Venta no encontrada con ID: " + id));
 
         if (venta.getEstadoVenta() != EstadoVenta.ENVIADA) {
-            throw new ValidationException("Solo se pueden entregar ventas enviadas. Estado actual: " + venta.getEstadoVenta());
+            throw new ValidationException(
+                    "Solo se pueden entregar ventas enviadas. Estado actual: " + venta.getEstadoVenta());
         }
 
         venta.setEstadoVenta(EstadoVenta.ENTREGADA);
@@ -219,6 +246,10 @@ public class VentaService {
      * Elimina una venta lógicamente.
      */
     public void eliminarVenta(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("ID cannot be null");
+        }
+
         Venta venta = ventaRepository.findById(id)
                 .filter(Venta::isActivo)
                 .orElseThrow(() -> new ResourceNotFoundException("Venta no encontrada con ID: " + id));
@@ -232,8 +263,12 @@ public class VentaService {
      */
     @Transactional(readOnly = true)
     public List<VentaDTO> obtenerVentasPorCliente(Long clienteId) {
+        if (clienteId == null) {
+            throw new IllegalArgumentException("Cliente ID no puede ser null");
+        }
+
         clienteRepository.findById(clienteId)
-                .filter(u -> u.isActivo() && "CLIENTE".equals(u.getRol()))
+                .filter(u -> u.isActivo() && u.getRol() == RolUsuario.CLIENTE)
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado con ID: " + clienteId));
 
         return ventaRepository.findAll().stream()
@@ -244,10 +279,15 @@ public class VentaService {
 
     /**
      * Busca ventas por vendedor (productos del vendedor).
-     * Más tolerante: si no encuentra vendedor o no tiene productos, retorna lista vacía.
+     * Más tolerante: si no encuentra vendedor o no tiene productos, retorna lista
+     * vacía.
      */
     @Transactional(readOnly = true)
     public List<VentaDTO> obtenerVentasPorVendedor(Long vendedorId) {
+        if (vendedorId == null) {
+            return List.of();
+        }
+
         // Verificar si el vendedor existe (no requerido que sea estricto)
         Usuario vendedor = usuarioRepository.findById(vendedorId)
                 .filter(u -> u.isActivo())
@@ -259,7 +299,7 @@ public class VentaService {
         }
 
         // Verificar si tiene rol de vendedor (opcional para ser flexible)
-        if (!"VENDEDOR".equals(vendedor.getRol()) && !"ADMIN".equals(vendedor.getRol())) {
+        if (vendedor.getRol() != RolUsuario.VENDEDOR && vendedor.getRol() != RolUsuario.ADMIN) {
             log.warn("Usuario {} con rol {} intentando ver ventas de vendedor, retornando lista vacía",
                     vendedorId, vendedor.getRol());
             return List.of();
@@ -267,7 +307,7 @@ public class VentaService {
 
         log.info("Buscando ventas para vendedor {} ({})", vendedor.getNombre(), vendedorId);
 
-        // Obtener IDs de productos del vendedor de manera SEGURA
+        // Obtener IDs de productos del vendedor
         List<Long> productoIds = productoRepository.findAll().stream()
                 .filter(p -> p.isActivo())
                 // SOLO productos con vendedor asignado Y que pertenezcan a ESTE vendedor
@@ -287,7 +327,7 @@ public class VentaService {
         List<VentaDTO> ventas = ventaRepository.findAll().stream()
                 .filter(v -> v.isActivo())
                 .filter(v -> v.getDetalles().stream()
-                    .anyMatch(d -> productoIds.contains(d.getProducto().getId())))
+                        .anyMatch(d -> productoIds.contains(d.getProducto().getId())))
                 .map(this::convertirADTO)
                 .collect(Collectors.toList());
 
@@ -299,27 +339,22 @@ public class VentaService {
     /**
      * Valida stock suficiente para la venta.
      */
+    @SuppressWarnings("null")
     private void validarStock(List<com.ventas.dto.CreateDetalleVentaDTO> detalles) {
         for (var detalle : detalles) {
             Producto producto = productoRepository.findById(detalle.productoId())
                     .filter(Producto::isActivo)
-                    .orElseThrow(() -> new ValidationException("Producto no encontrado con ID: " + detalle.productoId()));
+                    .orElseThrow(
+                            () -> new ValidationException("Producto no encontrado con ID: " + detalle.productoId()));
 
             if (producto.getStock() < detalle.cantidad()) {
                 throw new ValidationException("Stock insuficiente para " + producto.getNombre() +
-                    ". Disponible: " + producto.getStock() + ", requerido: " + detalle.cantidad());
+                        ". Disponible: " + producto.getStock() + ", requerido: " + detalle.cantidad());
             }
         }
     }
 
-    /**
-     * Usuario temporal para testing (debería usar SecurityContext).
-     */
-    private Usuario getUsuarioTemporal() {
-        return usuarioRepository.findAll().stream()
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("No hay usuarios en el sistema"));
-    }
+
 
     /**
      * Convierte entidad Venta a DTO.
@@ -333,8 +368,7 @@ public class VentaService {
                         d.getProducto().getNombre(),
                         d.getCantidad(),
                         d.getPrecio(),
-                        d.getPrecio().multiply(BigDecimal.valueOf(d.getCantidad()))
-                ))
+                        d.getPrecio().multiply(BigDecimal.valueOf(d.getCantidad()))))
                 .collect(Collectors.toList());
 
         Usuario comprador = venta.getCliente();
@@ -353,7 +387,6 @@ public class VentaService {
                 venta.getFechaCreacion().toLocalDate().atStartOfDay(),
                 venta.getFechaCreacion(),
                 venta.isActivo(),
-                detallesDTO
-        );
+                detallesDTO);
     }
 }

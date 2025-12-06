@@ -39,7 +39,7 @@ export default function VentasPage() {
         const respuestaClientes = await getClients({});
         setClientes(respuestaClientes.items);
         await loadProducts();
-        await loadSales({ page_size: 50 }); // Cargar ventas para estadísticas
+        await loadSales({ page_size: Number.MAX_SAFE_INTEGER });
       } catch (error) {
         console.warn('Error cargando datos de ventas:', error);
       } finally {
@@ -103,7 +103,7 @@ export default function VentasPage() {
       const { clearCart } = useVentaStore.getState();
       clearCart();
       setVentaPendiente(null);
-      await loadSales({ page_size: 50 });
+      await loadSales({ page_size: Number.MAX_SAFE_INTEGER });
     } catch (error) {
       console.error('Error procesando pago:', error);
     } finally {
@@ -367,7 +367,7 @@ export default function VentasPage() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => loadSales({ page_size: 50 })}
+            onClick={() => loadSales({ page_size: Number.MAX_SAFE_INTEGER })}
             disabled={ventasCargando}
           >
             <Eye className="w-4 h-4 mr-2" />
@@ -389,7 +389,7 @@ export default function VentasPage() {
           {/* Lista compacta de ventas */}
           {sales && sales.length > 0 ? (
             <div className="space-y-3">
-              {sales.slice(0, 8).map((venta) => {
+              {sales.map((venta) => {
                 // Encontrar nombre del cliente
                 const clienteNombre = clientes.find(c => c.id === venta.cliente_id)?.nombre || 'Cliente';
                 const clienteApellido = clientes.find(c => c.id === venta.cliente_id)?.apellido || '';

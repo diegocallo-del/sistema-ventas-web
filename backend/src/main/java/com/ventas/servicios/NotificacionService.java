@@ -57,7 +57,7 @@ public class NotificacionService {
 
                 enviarNotificacionStockBajo(productosStockBajo);
             } else {
-                log.info("✅ Todos los productos tienen stock suficiente");
+                log.info("Todos los productos tienen stock suficiente");
             }
         } catch (Exception e) {
             log.error("Error al verificar alertas de stock: {}", e.getMessage());
@@ -81,7 +81,7 @@ public class NotificacionService {
      */
     private void enviarNotificacionStockBajo(List<Producto> productos) {
         // Simulación de envío de notificaciones
-        log.warn("📧 NOTIFICACIÓN ENVIADA - Stock Bajo: {} productos requieren atención", productos.size());
+        log.warn("NOTIFICACIÓN ENVIADA - Stock Bajo: {} productos requieren atención", productos.size());
 
         // En un sistema real esto enviaría:
         // emailService.send("admin@empresa.com", "Alerta de Stock Bajo", contenido);
@@ -93,7 +93,7 @@ public class NotificacionService {
      */
     @Scheduled(cron = "0 0 6 * * *") // Todos los días a las 6:00 AM
     public void enviarReporteDiario() {
-        log.info("📊 Generando reporte diario del sistema...");
+        log.info("Generando reporte diario del sistema...");
 
         // Este método podría:
         // - Calcular estadísticas del día anterior
@@ -101,12 +101,11 @@ public class NotificacionService {
         // - Enviar reporte por email
         // - Generar backups automáticos
 
-        String resumen = String.format(
-            "📈 Reporte Diario - %s\n" +
-            "- Estado del sistema: ✅ Operativo\n" +
-            "- Próximo mantenimiento programado\n",
-            LocalDateTime.now().toLocalDate().toString()
-        );
+        String resumen = """
+            Reporte Diario - %s
+            - Estado del sistema: Operativo
+            - Próximo mantenimiento programado
+            """.formatted(LocalDateTime.now().toLocalDate().toString());
 
         log.info("REPORTE DIARIO: {}", resumen);
     }
@@ -127,11 +126,12 @@ public class NotificacionService {
      * Notifica cambios en el estado de una venta
      */
     public void notificarCambioVenta(Venta venta, String cambio) {
-        String mensaje = String.format(
-            "Venta #%d - %s\n" +
-            "Cliente: %s\n" +
-            "Total: S/ %.2f\n" +
-            "Estado: %s",
+        String mensaje = String.format("""
+            Venta #%d - %s
+            Cliente: %s
+            Total: S/ %.2f
+            Estado: %s
+            """,
             venta.getId(),
             cambio,
             venta.getCliente() != null ? venta.getCliente().getNombre() : "Cliente contado",
@@ -146,11 +146,11 @@ public class NotificacionService {
      * Notifica creación de nuevas ventas
      */
     public void notificarNuevaVenta(Venta venta) {
-        String mensaje = String.format(
-            "🛒 Nueva venta registrada #%d\n" +
-            "Cliente: %s\n" +
-            "Total: S/ %.2f\n" +
-            "Productos: %d items",
+        String mensaje = String.format("""
+            🛒 Nueva venta registrada #%d
+            Cliente: %s
+            Total: S/ %.2f
+            Productos: %d items""",
             venta.getId(),
             venta.getCliente() != null ? venta.getCliente().getNombre() : "Cliente contado",
             venta.getTotal(),
@@ -165,12 +165,13 @@ public class NotificacionService {
      * Notifica productos nuevos agregados
      */
     public void notificarNuevoProducto(Producto producto) {
-        String mensaje = String.format(
-            "📦 Nuevo producto agregado\n" +
-            "Nombre: %s\n" +
-            "Código: %s\n" +
-            "Precio: S/ %.2f\n" +
-            "Stock inicial: %d unidades",
+        String mensaje = String.format("""
+            Nuevo producto agregado:
+            Nombre: %sl
+            Código: %s
+            Precio: S/ %.2f
+            Stock: %d
+            """,
             producto.getNombre(),
             String.valueOf(producto.getCodigo()),
             producto.getPrecio(),

@@ -6,6 +6,7 @@ import com.ventas.excepciones.ResourceNotFoundException;
 import com.ventas.excepciones.ValidationException;
 import com.ventas.modelos.Categoria;
 import com.ventas.repositorios.CategoriaRepository;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,7 +42,7 @@ public class CategoriaService {
      * @return Categoría como DTO
      */
     @Transactional(readOnly = true)
-    public CategoriaDTO obtenerCategoriaPorId(Long id) {
+    public CategoriaDTO obtenerCategoriaPorId(@NonNull Long id) {
         Categoria categoria = categoriaRepository.findById(id)
                 .filter(Categoria::isActivo)
                 .orElseThrow(() -> new ResourceNotFoundException("Categoría no encontrada con ID: " + id));
@@ -70,7 +71,7 @@ public class CategoriaService {
      * @param createDTO Datos actualizados de la categoría
      * @return Categoría actualizada como DTO
      */
-    public CategoriaDTO actualizarCategoria(Long id, CreateCategoriaDTO createDTO) {
+    public CategoriaDTO actualizarCategoria(@NonNull Long id, CreateCategoriaDTO createDTO) {
         Categoria categoria = categoriaRepository.findById(id)
                 .filter(Categoria::isActivo)
                 .orElseThrow(() -> new ResourceNotFoundException("Categoría no encontrada con ID: " + id));
@@ -89,7 +90,7 @@ public class CategoriaService {
      * Elimina lógicamente una categoría.
      * @param id ID de la categoría a eliminar
      */
-    public void eliminarCategoria(Long id) {
+    public void eliminarCategoria(@NonNull Long id) {
         Categoria categoria = categoriaRepository.findById(id)
                 .filter(Categoria::isActivo)
                 .orElseThrow(() -> new ResourceNotFoundException("Categoría no encontrada con ID: " + id));

@@ -12,8 +12,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import jakarta.validation.Valid;
+import org.springframework.lang.NonNull;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,6 +28,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/usuarios")
 @RequiredArgsConstructor
 @Slf4j
+@Tag(name = "Usuarios", description = "Gestión de usuarios VENDEDOR/CLIENTE")
 public class UsuarioController {
 
     private final UsuarioRepository usuarioRepository;
@@ -34,6 +38,7 @@ public class UsuarioController {
      * Lista todos los usuarios con roles VENDEDOR o CLIENTE
      */
     @GetMapping
+    @Operation(summary = "Listar usuarios básicos", description = "Lista usuarios con rol VENDEDOR o CLIENTE")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR')")
     public ResponseEntity<List<UsuarioDTO>> obtenerUsuariosBasicos() {
         try {
@@ -53,8 +58,9 @@ public class UsuarioController {
      * Obtiene un usuario por ID
      */
     @GetMapping("/{id}")
+    @Operation(summary = "Obtener usuario", description = "Obtiene usuario por ID")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR')")
-    public ResponseEntity<UsuarioDTO> obtenerUsuario(@PathVariable Long id) {
+    public ResponseEntity<UsuarioDTO> obtenerUsuario(@PathVariable @NonNull Long id) {
         try {
             Usuario usuario = usuarioRepository.findById(id).orElse(null);
             if (usuario == null || !(usuario.getRol() == RolUsuario.VENDEDOR || usuario.getRol() == RolUsuario.CLIENTE)) {
@@ -71,6 +77,7 @@ public class UsuarioController {
      * Crea un nuevo usuario VENDEDOR o CLIENTE
      */
     @PostMapping
+    @Operation(summary = "Crear usuario", description = "Crea usuario VENDEDOR o CLIENTE")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UsuarioDTO> crearUsuarioBasico(@Valid @RequestBody CreateUsuarioDTO createDTO) {
         try {
@@ -92,6 +99,7 @@ public class UsuarioController {
                 .activo(true)
                 .build();
 
+            @SuppressWarnings("null")
             Usuario usuarioGuardado = usuarioRepository.save(usuario);
             return new ResponseEntity<>(convertirADTO(usuarioGuardado), HttpStatus.CREATED);
 
@@ -105,8 +113,9 @@ public class UsuarioController {
      * Cambia el rol de un usuario entre VENDEDOR y CLIENTE
      */
     @PostMapping("/{id}/role")
+    @Operation(summary = "Cambiar rol", description = "Cambia rol entre VENDEDOR y CLIENTE")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<UsuarioDTO> cambiarRol(@PathVariable Long id, @RequestParam String nuevoRol) {
+    public ResponseEntity<UsuarioDTO> cambiarRol(@PathVariable @NonNull Long id, @RequestParam String nuevoRol) {
         log.info("Intentando cambiar rol de usuario {} a {}", id, nuevoRol);
 
         try {
@@ -155,8 +164,9 @@ public class UsuarioController {
      * Modifica los datos de un usuario VENDEDOR/CLIENTE
      */
     @PutMapping("/{id}")
+    @Operation(summary = "Actualizar usuario", description = "Actualiza datos de usuario VENDEDOR/CLIENTE")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<UsuarioDTO> actualizarUsuario(@PathVariable Long id, @Valid @RequestBody CreateUsuarioDTO updateDTO) {
+    public ResponseEntity<UsuarioDTO> actualizarUsuario(@PathVariable @NonNull Long id, @Valid @RequestBody CreateUsuarioDTO updateDTO) {
         try {
             Usuario usuario = usuarioRepository.findById(id).orElse(null);
             if (usuario == null || !(usuario.getRol() == RolUsuario.VENDEDOR || usuario.getRol() == RolUsuario.CLIENTE)) {
@@ -191,8 +201,9 @@ public class UsuarioController {
      * Desactiva un usuario VENDEDOR/CLIENTE (soft delete)
      */
     @DeleteMapping("/{id}")
+    @Operation(summary = "Eliminar usuario", description = "Desactiva usuario (soft delete)")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> eliminarUsuario(@PathVariable Long id) {
+    public ResponseEntity<Void> eliminarUsuario(@PathVariable @NonNull Long id) {
         try {
             Usuario usuario = usuarioRepository.findById(id).orElse(null);
             if (usuario == null || !(usuario.getRol() == RolUsuario.VENDEDOR || usuario.getRol() == RolUsuario.CLIENTE)) {

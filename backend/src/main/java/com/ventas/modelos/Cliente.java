@@ -1,7 +1,5 @@
 package com.ventas.modelos;
 
-import com.ventas.abstractas.PersonaBase;
-import com.ventas.enums.RolUsuario;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import lombok.*;

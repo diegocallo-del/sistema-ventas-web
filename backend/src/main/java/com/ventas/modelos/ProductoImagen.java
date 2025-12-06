@@ -23,5 +23,6 @@ public class ProductoImagen {
     private String url;  // URL completa de la imagen (externa o local)
 
     @Column(name = "orden", nullable = false)
+    @Builder.Default
     private int orden = 1;
 }

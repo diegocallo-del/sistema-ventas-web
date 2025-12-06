@@ -134,16 +134,9 @@ public final class NumeroUtil {
      * @return true si el número está en el rango, false en caso contrario
      */
     public static boolean estaEnRango(BigDecimal numero, BigDecimal minimo, BigDecimal maximo) {
-        if (numero == null) {
-            return false;
-        }
-        if (minimo != null && numero.compareTo(minimo) < 0) {
-            return false;
-        }
-        if (maximo != null && numero.compareTo(maximo) > 0) {
-            return false;
-        }
-        return true;
+        return numero != null &&
+               (minimo == null || numero.compareTo(minimo) >= 0) &&
+               (maximo == null || numero.compareTo(maximo) <= 0);
     }
 
     /**

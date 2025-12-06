@@ -150,7 +150,7 @@ public class JwtUtil {
             if (signedJWT.verify(verifier)) {
                 return signedJWT.getJWTClaimsSet();
             }
-        } catch (Exception e) {
+        } catch (java.text.ParseException | JOSEException e) {
             log.warn("Error al procesar token JWT: {}", e.getMessage());
         }
         return null;

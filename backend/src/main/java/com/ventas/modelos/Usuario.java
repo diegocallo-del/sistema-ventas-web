@@ -3,8 +3,6 @@ package com.ventas.modelos;
 import com.ventas.abstractas.PersonaBase;
 import com.ventas.enums.RolUsuario;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 

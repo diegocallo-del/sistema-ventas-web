@@ -52,3 +52,18 @@ export async function cambiarRolUsuario(userId: number, nuevoRol: string): Promi
 
   return response.json();
 }
+
+export async function eliminarUsuario(userId: number): Promise<void> {
+  const token = localStorage.getItem('auth_token');
+
+  const response = await fetch(`/api/usuarios/${userId}`, {
+    method: 'DELETE',
+    headers: {
+      'Authorization': token ? `Bearer ${token}` : '',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
+}

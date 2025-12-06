@@ -13,11 +13,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import jakarta.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
-
 
 /**
  * Controlador REST simple para autenticación básica.
@@ -26,6 +27,7 @@ import java.util.Map;
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 @Validated
+@Tag(name = "Auth", description = "Autenticación básica y bootstrap")
 public class AuthController {
 
     private final UsuarioRepository usuarioRepository;
@@ -37,6 +39,7 @@ public class AuthController {
      * Verifica si usuario existe y contraseña coincide.
      */
     @PostMapping("/login")
+    @Operation(summary = "Login", description = "Autentica usuario y devuelve token")
     public ResponseEntity<AuthResponseDTO> login(@Valid @RequestBody LoginRequestDTO loginRequest) {
         AuthResponseDTO response = authService.login(loginRequest);
         return ResponseEntity.ok(response);
@@ -47,6 +50,7 @@ public class AuthController {
      * Guarda usuario en BD con contraseña en texto plano.
      */
     @PostMapping("/register")
+    @Operation(summary = "Registro", description = "Registra usuario básico")
     public ResponseEntity<AuthResponseDTO> registrarUsuario(@Valid @RequestBody CreateUsuarioDTO createUsuario) {
         AuthResponseDTO response = authService.registrarUsuario(createUsuario);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
@@ -56,6 +60,7 @@ public class AuthController {
      * Endpoint de prueba.
      */
     @PostMapping("/test")
+    @Operation(summary = "Test", description = "Endpoint de prueba")
     public ResponseEntity<Map<String, Object>> testEndpoint(@RequestBody Map<String, Object> data) {
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
@@ -69,6 +74,8 @@ public class AuthController {
      * Inicializar admin simple.
      */
     @PostMapping("/bootstrap")
+    @Operation(summary = "Bootstrap admin", description = "Crea un usuario admin por defecto")
+    @SuppressWarnings("null")
     public ResponseEntity<String> bootstrapAdmin() {
         try {
             if (usuarioRepository.findByEmail("admin@sistema-ventas.com").isEmpty()) {

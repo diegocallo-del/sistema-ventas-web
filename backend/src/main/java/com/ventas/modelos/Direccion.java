@@ -35,5 +35,6 @@ public class Direccion {
     private String referencia;
 
     @Column(name = "principal")
+    @Builder.Default
     private boolean principal = false;
 }

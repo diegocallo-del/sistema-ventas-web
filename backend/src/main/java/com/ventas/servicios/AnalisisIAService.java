@@ -7,6 +7,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.dao.DataAccessException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Map;
@@ -17,13 +21,15 @@ import java.util.ArrayList;
 @Service
 public class AnalisisIAService {
 
+    private static final Logger logger = LoggerFactory.getLogger(AnalisisIAService.class);
+
     private final WebClient webClient;
     private final String apiKey;
     private final String model;
     private final ObjectMapper objectMapper;
     private final JdbcTemplate jdbcTemplate;
 
-    public AnalisisIAService(WebClient webClient, 
+    public AnalisisIAService(WebClient webClient,
                              @Value("${ia.api.key}") String apiKey,
                              @Value("${ia.api.model}") String model,
                              JdbcTemplate jdbcTemplate) {
@@ -43,7 +49,7 @@ public class AnalisisIAService {
 
             return new AnalisisIAResponseDTO(respuestaIA);
         } catch (WebClientResponseException e) {
-            throw new RuntimeException("Error al comunicarse con el servicio de IA: " + 
+            throw new RuntimeException("Error al comunicarse con el servicio de IA: " +
                 (e.getResponseBodyAsString() != null ? e.getResponseBodyAsString() : e.getMessage()), e);
         } catch (Exception e) {
             throw new RuntimeException("Error inesperado al procesar la solicitud de IA: " + e.getMessage(), e);
@@ -59,11 +65,11 @@ public class AnalisisIAService {
             }
             return "{\"mensaje\": \"No hay datos para el contexto especificado: " + contexto + "\"}";
         } catch (Exception e) {
-            System.err.println("Error al recopilar datos: " + e.getMessage());
+            logger.error("Error al recopilar datos", e);
             return "{\"error\": \"Error al obtener datos de la base de datos: " + e.getMessage() + "\"}";
         }
     }
-    
+
     private String obtenerDatosVentas() {
         try {
             // Primero verificar si la tabla existe
@@ -72,43 +78,44 @@ public class AnalisisIAService {
             if (tableCheck.isEmpty() || ((Number) tableCheck.get(0).get("count")).intValue() == 0) {
                 return "{\"mensaje\": \"La tabla 'ventas' no existe en la base de datos\", \"ventas_recientes\": [], \"estadisticas\": {}, \"productos_mas_vendidos\": []}";
             }
-            
+
             // Consulta simplificada para obtener datos de ventas recientes
             String sqlVentas = "SELECT v.id, v.fecha, v.subtotal, v.igv, v.total, v.metodo_pago, v.estado, " +
                                "COALESCE(c.nombre, 'Sin cliente') as cliente_nombre " +
                                "FROM ventas v " +
                                "LEFT JOIN clientes c ON v.cliente_id = c.id " +
                                "ORDER BY v.fecha DESC LIMIT 50";
-            
+
             List<Map<String, Object>> ventas = new ArrayList<>();
             try {
                 ventas = jdbcTemplate.queryForList(sqlVentas);
-            } catch (Exception e) {
-                System.err.println("Error en consulta de ventas: " + e.getMessage());
+            } catch (DataAccessException e) {
+                logger.error("Error en consulta de ventas", e);
                 // Intentar consulta más simple sin JOIN
                 try {
                     sqlVentas = "SELECT id, fecha, subtotal, igv, total, metodo_pago, estado FROM ventas ORDER BY fecha DESC LIMIT 50";
                     ventas = jdbcTemplate.queryForList(sqlVentas);
-                } catch (Exception e2) {
-                    System.err.println("Error en consulta simple de ventas: " + e2.getMessage());
+                } catch (DataAccessException e2) {
+                    logger.error("Error en consulta simple de ventas", e2);
                 }
             }
-            
+
             // Consulta para obtener estadísticas generales (con manejo de errores)
             Map<String, Object> estadisticas = new HashMap<>();
+
             try {
                 String sqlStats = "SELECT COUNT(*) as total_ventas, " +
                                  "COALESCE(SUM(total), 0) as total_ingresos, " +
                                  "COALESCE(AVG(total), 0) as promedio_venta " +
                                  "FROM ventas";
                 estadisticas = jdbcTemplate.queryForMap(sqlStats);
-            } catch (Exception e) {
-                System.err.println("Error en consulta de estadísticas: " + e.getMessage());
+            } catch (DataAccessException e) {
+                logger.error("Error en consulta de estadísticas", e);
                 estadisticas.put("total_ventas", 0);
                 estadisticas.put("total_ingresos", 0);
                 estadisticas.put("promedio_venta", 0);
             }
-            
+
             // Consulta para productos más vendidos (con manejo de errores)
             List<Map<String, Object>> productosVendidos = new ArrayList<>();
             try {
@@ -120,8 +127,8 @@ public class AnalisisIAService {
                                             "GROUP BY p.id, p.nombre, p.codigo " +
                                             "ORDER BY total_vendido DESC LIMIT 10";
                 productosVendidos = jdbcTemplate.queryForList(sqlProductosVendidos);
-            } catch (Exception e) {
-                System.err.println("Error en consulta de productos vendidos (detalle_venta): " + e.getMessage());
+            } catch (DataAccessException e) {
+                logger.error("Error en consulta de productos vendidos (detalle_venta)", e);
                 try {
                     // Intentar con detalle_ventas (plural)
                     String sqlProductosVendidos = "SELECT p.nombre, p.codigo, SUM(dv.cantidad) as total_vendido, SUM(dv.subtotal) as ingresos_producto " +
@@ -131,11 +138,11 @@ public class AnalisisIAService {
                                                 "GROUP BY p.id, p.nombre, p.codigo " +
                                                 "ORDER BY total_vendido DESC LIMIT 10";
                     productosVendidos = jdbcTemplate.queryForList(sqlProductosVendidos);
-                } catch (Exception e2) {
-                    System.err.println("Error en consulta de productos vendidos (detalle_ventas): " + e2.getMessage());
+                } catch (DataAccessException e2) {
+                    logger.error("Error en consulta de productos vendidos (detalle_ventas)", e2);
                 }
             }
-            
+
             // Formatear como JSON
             Map<String, Object> datos = new HashMap<>();
             datos.put("ventas_recientes", ventas != null ? ventas : new ArrayList<>());
@@ -143,15 +150,20 @@ public class AnalisisIAService {
             datos.put("productos_mas_vendidos", productosVendidos != null ? productosVendidos : new ArrayList<>());
             datos.put("periodo", "Todos los datos disponibles");
             datos.put("total_ventas_encontradas", ventas != null ? ventas.size() : 0);
-            
+
             return objectMapper.writeValueAsString(datos);
+        } catch (JsonProcessingException e) {
+            logger.error("Error al serializar datos de ventas", e);
+            return "{\"error\": \"Error al serializar datos de ventas: " + e.getMessage().replace("\"", "\\\"") + "\", \"ventas_recientes\": [], \"estadisticas\": {}, \"productos_mas_vendidos\": []}";
+        } catch (DataAccessException e) {
+            logger.error("Error al acceder a la base de datos durante la obtención de datos de ventas", e);
+            return "{\"error\": \"Error al obtener datos de ventas (base de datos): " + e.getMessage().replace("\"", "\\\"") + "\", \"ventas_recientes\": [], \"estadisticas\": {}, \"productos_mas_vendidos\": []}";
         } catch (Exception e) {
-            System.err.println("Error al obtener datos de ventas: " + e.getMessage());
-            e.printStackTrace();
-            return "{\"error\": \"Error al obtener datos de ventas: " + e.getMessage().replace("\"", "\\\"") + "\", \"ventas_recientes\": [], \"estadisticas\": {}, \"productos_mas_vendidos\": []}";
+            logger.error("Error inesperado al obtener datos de ventas", e);
+            return "{\"error\": \"Error inesperado al obtener datos de ventas: " + e.getMessage().replace("\"", "\\\"") + "\", \"ventas_recientes\": [], \"estadisticas\": {}, \"productos_mas_vendidos\": []}";
         }
     }
-    
+
     private String obtenerDatosInventario() {
         try {
             // Primero verificar si la tabla existe
@@ -160,7 +172,7 @@ public class AnalisisIAService {
             if (tableCheck.isEmpty() || ((Number) tableCheck.get(0).get("count")).intValue() == 0) {
                 return "{\"mensaje\": \"La tabla 'productos' no existe en la base de datos\", \"productos\": [], \"estadisticas\": {}, \"productos_stock_bajo\": []}";
             }
-            
+
             // Consulta simplificada para obtener datos de inventario
             List<Map<String, Object>> productos = new ArrayList<>();
             try {
@@ -171,17 +183,17 @@ public class AnalisisIAService {
                                       "WHERE p.activo = true OR p.activo IS NULL " +
                                       "ORDER BY p.stock ASC, p.nombre ASC";
                 productos = jdbcTemplate.queryForList(sqlInventario);
-            } catch (Exception e) {
-                System.err.println("Error en consulta de inventario con JOIN: " + e.getMessage());
+            } catch (DataAccessException e) {
+                logger.error("Error en consulta de inventario con JOIN", e);
                 // Intentar consulta más simple sin JOIN
                 try {
                     String sqlInventario = "SELECT id, codigo, nombre, descripcion, precio, stock, activo FROM productos ORDER BY stock ASC, nombre ASC";
                     productos = jdbcTemplate.queryForList(sqlInventario);
-                } catch (Exception e2) {
-                    System.err.println("Error en consulta simple de inventario: " + e2.getMessage());
+                } catch (DataAccessException e2) {
+                    logger.error("Error en consulta simple de inventario", e2);
                 }
             }
-            
+
             // Consulta para estadísticas de inventario (con manejo de errores)
             Map<String, Object> estadisticas = new HashMap<>();
             try {
@@ -192,36 +204,41 @@ public class AnalisisIAService {
                                  "COALESCE(AVG(precio), 0) as precio_promedio " +
                                  "FROM productos WHERE activo = true OR activo IS NULL";
                 estadisticas = jdbcTemplate.queryForMap(sqlStats);
-            } catch (Exception e) {
-                System.err.println("Error en consulta de estadísticas de inventario: " + e.getMessage());
+            } catch (DataAccessException e) {
+                logger.error("Error en consulta de estadísticas de inventario", e);
                 estadisticas.put("total_productos", productos != null ? productos.size() : 0);
                 estadisticas.put("stock_total", 0);
                 estadisticas.put("productos_sin_stock", 0);
                 estadisticas.put("productos_stock_bajo", 0);
                 estadisticas.put("precio_promedio", 0);
             }
-            
+
             // Productos con stock bajo (con manejo de errores)
             List<Map<String, Object>> stockBajo = new ArrayList<>();
             try {
                 String sqlStockBajo = "SELECT codigo, nombre, stock, precio FROM productos WHERE (activo = true OR activo IS NULL) AND stock < 10 ORDER BY stock ASC LIMIT 20";
                 stockBajo = jdbcTemplate.queryForList(sqlStockBajo);
-            } catch (Exception e) {
-                System.err.println("Error en consulta de stock bajo: " + e.getMessage());
+            } catch (DataAccessException e) {
+                logger.error("Error en consulta de stock bajo", e);
             }
-            
+
             // Formatear como JSON
             Map<String, Object> datos = new HashMap<>();
             datos.put("productos", productos != null ? productos : new ArrayList<>());
             datos.put("estadisticas", estadisticas);
             datos.put("productos_stock_bajo", stockBajo != null ? stockBajo : new ArrayList<>());
             datos.put("total_productos_encontrados", productos != null ? productos.size() : 0);
-            
+
             return objectMapper.writeValueAsString(datos);
+        } catch (JsonProcessingException e) {
+            logger.error("Error al serializar datos de inventario", e);
+            return "{\"error\": \"Error al serializar datos de inventario: " + e.getMessage().replace("\"", "\\\"") + "\", \"productos\": [], \"estadisticas\": {}, \"productos_stock_bajo\": []}";
+        } catch (DataAccessException e) {
+            logger.error("Error al acceder a la base de datos durante la obtención de datos de inventario", e);
+            return "{\"error\": \"Error al obtener datos de inventario (base de datos): " + e.getMessage().replace("\"", "\\\"") + "\", \"productos\": [], \"estadisticas\": {}, \"productos_stock_bajo\": []}";
         } catch (Exception e) {
-            System.err.println("Error al obtener datos de inventario: " + e.getMessage());
-            e.printStackTrace();
-            return "{\"error\": \"Error al obtener datos de inventario: " + e.getMessage().replace("\"", "\\\"") + "\", \"productos\": [], \"estadisticas\": {}, \"productos_stock_bajo\": []}";
+            logger.error("Error inesperado al obtener datos de inventario", e);
+            return "{\"error\": \"Error inesperado al obtener datos de inventario: " + e.getMessage().replace("\"", "\\\"") + "\", \"productos\": [], \"estadisticas\": {}, \"productos_stock_bajo\": []}";
         }
     }
 
@@ -234,9 +251,9 @@ public class AnalisisIAService {
     private String llamarIAExterna(String prompt) {
         // Lista de modelos a intentar (en orden de preferencia)
         List<String> modelos = List.of(model, "llama-3.1-8b-instant", "mixtral-8x7b-32768");
-        
+
         Exception ultimoError = null;
-        
+
         for (String modeloActual : modelos) {
             try {
                 System.out.println("--- INTENTANDO CON MODELO: " + modeloActual + " ---");
@@ -244,14 +261,14 @@ public class AnalisisIAService {
             } catch (WebClientResponseException e) {
                 String errorBody = e.getResponseBodyAsString();
                 // Si el error es por modelo descontinuado o no disponible, intentar con el siguiente
-                if (e.getStatusCode().value() == 400 && errorBody != null && 
+                if (e.getStatusCode().value() == 400 && errorBody != null &&
                     (errorBody.contains("decommissioned") || errorBody.contains("not found"))) {
                     System.out.println("Modelo " + modeloActual + " no disponible, intentando con siguiente modelo...");
                     ultimoError = e;
                     continue; // Intentar con el siguiente modelo
                 }
                 // Si es otro tipo de error, lanzarlo
-                throw new RuntimeException("Error en la API de Groq: " + 
+                throw new RuntimeException("Error en la API de Groq: " +
                     (errorBody != null ? errorBody : e.getMessage()) + " (Status: " + e.getStatusCode() + ")", e);
             } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
                 throw new RuntimeException("Error al parsear la respuesta JSON de la IA: " + e.getMessage(), e);
@@ -263,12 +280,12 @@ public class AnalisisIAService {
                 }
             }
         }
-        
+
         // Si todos los modelos fallaron, lanzar el último error
-        throw new RuntimeException("No se pudo conectar con ningún modelo disponible. Último error: " + 
+        throw new RuntimeException("No se pudo conectar con ningún modelo disponible. Último error: " +
             (ultimoError != null ? ultimoError.getMessage() : "Error desconocido"), ultimoError);
     }
-    
+
     private String llamarIAConModelo(String prompt, String modeloActual) throws com.fasterxml.jackson.core.JsonProcessingException {
         System.out.println("--- PROMPT ENVIADO A LA IA (Groq) ---");
         System.out.println(prompt);
@@ -279,13 +296,12 @@ public class AnalisisIAService {
             "role", "user",
             "content", prompt
         );
-        
-        Map<String, Object> requestBody = Map.of(
-            "model", modeloActual,
-            "messages", List.of(message),
-            "temperature", 0.7,
-            "max_tokens", 1000
-        );
+
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("model", modeloActual);
+        requestBody.put("messages", List.of(message));
+        requestBody.put("temperature", 0.7);
+        requestBody.put("max_tokens", 1000);
 
         String responseJson = webClient.post()
                 .header("Authorization", "Bearer " + apiKey)
@@ -296,7 +312,7 @@ public class AnalisisIAService {
 
         // Parsear la respuesta JSON de Groq
         JsonNode jsonNode = objectMapper.readTree(responseJson);
-        
+
         // Extraer el texto de la respuesta
         // La estructura de Groq es: choices[0].message.content
         JsonNode choices = jsonNode.get("choices");
@@ -311,7 +327,7 @@ public class AnalisisIAService {
                 }
             }
         }
-        
+
         // Si no se encuentra la estructura esperada, devolver un mensaje de error
         throw new RuntimeException("La respuesta de la IA no tiene el formato esperado: " + responseJson);
     }

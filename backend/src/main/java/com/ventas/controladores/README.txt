@@ -1,7 +1,6 @@
-﻿═══════════════════════════════════════════════════════════
-CARPETA: CONTROLADORES (API REST)
-RESPONSABLE: PERSONA 5 - Controladores y Seguridad
-═══════════════════════════════════════════════════════════
+﻿CARPETA: CONTROLADORES (API REST)
+RESPONSABLE: PATRICK - Controladores y Seguridad
+
 
 DESCRIPCIÓN:
 Controladores REST que exponen endpoints HTTP. Reciben DTOs, llaman a servicios

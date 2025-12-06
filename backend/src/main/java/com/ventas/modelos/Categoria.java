@@ -17,6 +17,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 public class Categoria extends CategoriaBase {
 
+    @Builder.Default
     @OneToMany(mappedBy = "categoria", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Producto> productos = new ArrayList<>();
 
@@ -24,6 +25,7 @@ public class Categoria extends CategoriaBase {
     @JoinColumn(name = "categoria_padre")
     private Categoria categoriaPadre;
 
+    @Builder.Default
     @OneToMany(mappedBy = "categoriaPadre", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Categoria> hijos = new ArrayList<>();
 }

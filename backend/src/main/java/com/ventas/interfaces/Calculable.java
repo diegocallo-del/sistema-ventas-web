@@ -8,15 +8,13 @@ import java.math.RoundingMode;
  * Los servicios que implementen esta interfaz pueden realizar cálculos especializados.
  * Se utiliza para centralizar lógica de cálculo compleja como totales, descuentos, etc.
  *
- * @param <T> El tipo de objeto sobre el cual se realizarán los cálculos
+ * @param <T> 
  */
 public interface Calculable<T> {
 
     /**
      * Realiza un cálculo sobre el objeto especificado.
      * La implementación define qué tipo de cálculo realizar.
-     * @param objeto El objeto sobre el cual calcular
-     * @return El resultado del cálculo como BigDecimal para precisión decimal
      */
     BigDecimal calcular(T objeto);
 

@@ -1,17 +1,9 @@
--- ====================================================================
--- SQL FINAL COMPLETO - SOLUCIONA ERROR 500 COMPLETAR VENTA
--- ====================================================================
--- Recrea todo desde cero para garantizar funcionalidad completa
--- Ejecutar TODO este archivo en MySQL Workbench
+
 
 USE sistema_ventas_db;
 
--- ====================================================================
--- PASO 1: BORRAR TODO Y RECREAR BASE DE DATOS DESDE CERO
--- ====================================================================
 SET FOREIGN_KEY_CHECKS = 0;
 
--- Drop all existing tables
 DROP TABLE IF EXISTS calificaciones;
 DROP TABLE IF EXISTS mensajes;
 DROP TABLE IF EXISTS envios;
@@ -32,9 +24,7 @@ DROP TABLE IF EXISTS usuarios;
 
 SET FOREIGN_KEY_CHECKS = 1;
 
--- ====================================================================
--- PASO 2: USUARIOS Y ROLES
--- ====================================================================
+
 CREATE TABLE usuarios (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(150) NOT NULL,
@@ -95,9 +85,7 @@ INSERT INTO direcciones (usuario_id, direccion, ciudad, distrito, principal) VAL
 (3,'Jr Luna 789','Lima','Callao',1),
 (4,'Mz A Lote 5','Arequipa','Yanahuara',1);
 
--- ====================================================================
--- PASO 3: PRODUCTOS Y VARIANTE
--- ====================================================================
+
 CREATE TABLE categorias (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(50) NOT NULL,
@@ -180,9 +168,6 @@ INSERT INTO publicaciones (producto_id, titulo) VALUES
 (4,'Audífonos Sony Noise Cancel'),
 (5,'Zapatillas Running Nike');
 
--- ====================================================================
--- PASO 4: ORDENES Y DETALLES (CORREGIDOS PARA WALK-IN CUSTOMERS)
--- ====================================================================
 CREATE TABLE ordenes (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     comprador_id BIGINT NULL COMMENT 'NULL significa venta de contado',
@@ -213,9 +198,7 @@ CREATE TABLE orden_items (
     FOREIGN KEY (variante_id) REFERENCES producto_variantes(id) ON DELETE CASCADE
 );
 
--- ====================================================================
--- PASO 5: VENTAS DE PRUEBA CON VALORES VÁLIDOS
--- ====================================================================
+
 
 -- PRIMERO: Crear variante extra para producto 4 (Audífonos Sony)
 INSERT INTO producto_variantes (producto_id, atributo, valor, precio, stock) VALUES
@@ -239,9 +222,7 @@ INSERT INTO orden_items (orden_id, producto_id, variante_id, cantidad, precio) V
 -- Venta 3: Audífonos Sony (producto_id=4, variante_id=6 - variante creada arriba)
 (3, 4, 6, 1, 150);
 
--- ====================================================================
--- PASO 6: PAGOS Y ENVIOS
--- ====================================================================
+
 CREATE TABLE pagos (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     orden_id BIGINT NOT NULL,
@@ -271,9 +252,6 @@ INSERT INTO envios (orden_id, empresa_envio, estado) VALUES
 (1, 'Olva', 'ENTREGADO'),
 (2, 'Serpost', 'ENTREGADO');
 
--- ====================================================================
--- PASO 7: RESTANTES (Opcionales)
--- ====================================================================
 CREATE TABLE carrito (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     usuario_id BIGINT NOT NULL,
@@ -324,9 +302,7 @@ INSERT INTO calificaciones (orden_id, usuario_id, puntuacion, comentario) VALUES
 (1,3,5,'Excelente producto'),
 (2,4,4,'Buen servicio');
 
--- ====================================================================
--- PASO 8: ÍNDICES DE OPTIMIZACIÓN
--- ====================================================================
+
 CREATE INDEX idx_productos_categoria ON productos(categoria_id);
 CREATE INDEX idx_productos_vendedor ON productos(vendedor_id);
 CREATE INDEX idx_productos_precio ON productos(precio);
@@ -335,11 +311,8 @@ CREATE INDEX idx_ordenes_comprador ON ordenes(comprador_id);
 CREATE INDEX idx_ordenes_estado ON ordenes(estado);
 CREATE INDEX idx_orden_items_orden ON orden_items(orden_id);
 
--- ====================================================================
--- PASO 9: VALIDACIÓN FINAL
--- ====================================================================
 SELECT
-    '🎉 VERIFICACIÓN COMPLETA DEL SISTEMA:' as estado,
+    'VERIFICACIÓN COMPLETA DEL SISTEMA:' as estado,
     CONCAT(
         'Ventas totales: ', (SELECT COUNT(*) FROM ordenes),
         ' | Ventas registradas: ', (SELECT COUNT(*) FROM ordenes WHERE comprador_id IS NOT NULL),
@@ -352,7 +325,7 @@ SELECT
     ) as resultados
 UNION ALL
 SELECT
-    '✅ STATUS SISTEMA',
+    ' STATUS SISTEMA',
     CASE
         WHEN (SELECT COUNT(*) FROM orden_items WHERE producto_id NOT IN (SELECT id FROM productos)) = 0
         THEN 'TODOS LOS PRODUCTOS SON VÁLIDOS'

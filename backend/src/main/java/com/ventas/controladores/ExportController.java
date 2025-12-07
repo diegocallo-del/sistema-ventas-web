@@ -33,12 +33,14 @@ import java.util.List;
 
 /**
  * Controlador para exportación de datos
- * Permite descargar reportes en diferentes formatos
+ * Permite descargar reportes en diferentes formatos, en un pricipio se intento implementar 
+ * jasperport pero hubo problemas 
+ * al generara jrlmx 
  */
 @RestController
 @RequestMapping("/api/export")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("hasAnyRole('ADMIN','SUPERVISOR','VENDEDOR')")
 @Tag(name = "Exportaciones", description = "Descarga de reportes en CSV, Excel y PDF")
 public class ExportController {
 
@@ -83,69 +85,98 @@ public class ExportController {
     @GetMapping("/productos/excel")
     @Operation(summary = "Exportar productos en Excel", description = "Genera un archivo XLSX con productos activos")
     public ResponseEntity<byte[]> exportarProductosExcel() {
-        List<Producto> productos = productoRepository.findAll().stream().filter(Producto::isActivo).toList();
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        Workbook wb = new XSSFWorkbook();
-        Sheet sheet = wb.createSheet("Productos");
-        Row header = sheet.createRow(0);
-        header.createCell(0).setCellValue("ID");
-        header.createCell(1).setCellValue("Nombre");
-        header.createCell(2).setCellValue("Código");
-        header.createCell(3).setCellValue("Precio");
-        header.createCell(4).setCellValue("Stock");
-        int r = 1;
-        for (Producto p : productos) {
-            Row row = sheet.createRow(r++);
-            row.createCell(0).setCellValue(p.getId());
-            row.createCell(1).setCellValue(p.getNombre());
-            row.createCell(2).setCellValue(p.getCodigo() != null ? p.getCodigo() : "");
-            row.createCell(3).setCellValue(p.getPrecio().doubleValue());
-            row.createCell(4).setCellValue(p.getStock());
-        }
         try {
+            List<Producto> productos = productoRepository.findAll().stream().filter(Producto::isActivo).toList();
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            Workbook wb = new XSSFWorkbook();
+            Sheet sheet = wb.createSheet("Productos");
+            Row header = sheet.createRow(0);
+            header.createCell(0).setCellValue("ID");
+            header.createCell(1).setCellValue("Nombre");
+            header.createCell(2).setCellValue("Código");
+            header.createCell(3).setCellValue("Precio");
+            header.createCell(4).setCellValue("Stock");
+            int r = 1;
+            for (Producto p : productos) {
+                if (p == null)
+                    continue;
+                Row row = sheet.createRow(r++);
+                row.createCell(0).setCellValue(p.getId() != null ? p.getId() : 0);
+                row.createCell(1).setCellValue(p.getNombre() != null ? p.getNombre() : "");
+                row.createCell(2).setCellValue(p.getCodigo() != null ? p.getCodigo() : "");
+                row.createCell(3).setCellValue(p.getPrecio() != null ? p.getPrecio().doubleValue() : 0.0);
+                row.createCell(4).setCellValue(p.getStock());
+            }
             wb.write(out);
             wb.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=productos.xlsx")
+                    .contentType(MediaType
+                            .parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                    .body(out.toByteArray());
+        } catch (Exception e) {
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            try {
+                Workbook wb = new XSSFWorkbook();
+                Sheet sheet = wb.createSheet("Error");
+                Row r0 = sheet.createRow(0);
+                r0.createCell(0).setCellValue("Error al exportar productos");
+                Row r1 = sheet.createRow(1);
+                r1.createCell(0).setCellValue(e.getMessage() != null ? e.getMessage() : "Error desconocido");
+                wb.write(out);
+                wb.close();
+            } catch (IOException ignored) {
+            }
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=productos.xlsx")
+                    .contentType(MediaType
+                            .parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                    .body(out.toByteArray());
         }
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=productos.xlsx")
-                .contentType(
-                        MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
-                .body(out.toByteArray());
     }
 
     @GetMapping("/productos/pdf")
     @Operation(summary = "Exportar productos en PDF", description = "Genera un archivo PDF con productos activos")
     public ResponseEntity<byte[]> exportarProductosPDF() {
-        List<Producto> productos = productoRepository.findAll().stream().filter(Producto::isActivo).toList();
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        Document doc = new Document(PageSize.A4.rotate());
         try {
-            PdfWriter.getInstance(doc, out);
-            doc.open();
-            PdfPTable table = new PdfPTable(5);
-            table.addCell("ID");
-            table.addCell("Nombre");
-            table.addCell("Código");
-            table.addCell("Precio");
-            table.addCell("Stock");
-            for (Producto p : productos) {
-                table.addCell(String.valueOf(p.getId()));
-                table.addCell(p.getNombre());
-                table.addCell(p.getCodigo() != null ? p.getCodigo() : "");
-                table.addCell(String.format("%.2f", p.getPrecio()));
-                table.addCell(String.valueOf(p.getStock()));
+            List<Producto> productos = productoRepository.findAll().stream().filter(Producto::isActivo).toList();
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            Document doc = new Document(PageSize.A4.rotate());
+            PdfWriter writer = null;
+            try {
+                writer = PdfWriter.getInstance(doc, out);
+                doc.open();
+                PdfPTable table = new PdfPTable(5);
+                table.addCell("ID");
+                table.addCell("Nombre");
+                table.addCell("Código");
+                table.addCell("Precio");
+                table.addCell("Stock");
+                for (Producto p : productos) {
+                    if (p == null)
+                        continue;
+                    table.addCell(p.getId() != null ? String.valueOf(p.getId()) : "0");
+                    table.addCell(p.getNombre() != null ? p.getNombre() : "");
+                    table.addCell(p.getCodigo() != null ? p.getCodigo() : "");
+                    table.addCell(p.getPrecio() != null ? String.format("%.2f", p.getPrecio().doubleValue()) : "0.00");
+                    table.addCell(String.valueOf(p.getStock()));
+                }
+                doc.add(table);
+                doc.close();
+            } catch (DocumentException e) {
+                throw new RuntimeException("Error al generar documento PDF: " + e.getMessage(), e);
+            } finally {
+                if (doc.isOpen()) {
+                    doc.close();
+                }
             }
-            doc.add(table);
-            doc.close();
-        } catch (DocumentException e) {
-            throw new RuntimeException(e);
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=productos.pdf")
+                    .contentType(MediaType.parseMediaType("application/pdf"))
+                    .body(out.toByteArray());
+        } catch (Exception e) {
+            throw new RuntimeException("Error al exportar productos a PDF: " + e.getMessage(), e);
         }
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=productos.pdf")
-                .contentType(MediaType.parseMediaType("application/pdf"))
-                .body(out.toByteArray());
     }
 
     /**
@@ -239,7 +270,7 @@ public class ExportController {
                 table.addCell(String.valueOf(v.getId()));
                 table.addCell(v.getFechaCreacion().format(fmt));
                 table.addCell(v.getCliente() != null ? v.getCliente().getNombre() : "Cliente contado");
-                table.addCell(String.format("%.2f", v.getTotal()));
+                table.addCell(String.format("%.2f", v.getTotal().doubleValue()));
                 table.addCell(v.getEstadoVenta().toString());
                 table.addCell(v.getTipoPago() != null ? v.getTipoPago().toString() : "N/A");
             }
@@ -421,86 +452,126 @@ public class ExportController {
     @GetMapping("/reporte-completo/excel")
     @Operation(summary = "Exportar reporte completo en Excel", description = "Genera un XLSX con KPIs y totales del sistema")
     public ResponseEntity<byte[]> exportarReporteCompletoExcel() {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        Workbook wb = new XSSFWorkbook();
-        Sheet sheet = wb.createSheet("Resumen");
-        Row r0 = sheet.createRow(0);
-        r0.createCell(0).setCellValue("REPORTE COMPLETO DEL SISTEMA");
-        List<Producto> productos = productoRepository.findAll().stream().filter(Producto::isActivo).toList();
-        List<Venta> ventas = ventaRepository.findAll();
-        List<?> usuarios = clienteRepository.findAll();
-        long totalClientes = usuarios.stream().filter(u -> u instanceof Cliente).map(u -> (Cliente) u)
-                .filter(Cliente::isActivo).count();
-        BigDecimal valorInventario = productos.stream()
-                .map(p -> p.getPrecio().multiply(BigDecimal.valueOf(p.getStock())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-        BigDecimal ingresosTotales = ventas.stream().map(Venta::getTotal).reduce(BigDecimal.ZERO, BigDecimal::add);
-        Row r2 = sheet.createRow(2);
-        r2.createCell(0).setCellValue("TOTAL PRODUCTOS");
-        r2.createCell(1).setCellValue(productos.size());
-        Row r3 = sheet.createRow(3);
-        r3.createCell(0).setCellValue("VALOR INVENTARIO");
-        r3.createCell(1).setCellValue(valorInventario.doubleValue());
-        Row r4 = sheet.createRow(4);
-        r4.createCell(0).setCellValue("TOTAL VENTAS");
-        r4.createCell(1).setCellValue(ventas.size());
-        Row r5 = sheet.createRow(5);
-        r5.createCell(0).setCellValue("INGRESOS TOTALES");
-        r5.createCell(1).setCellValue(ingresosTotales.doubleValue());
-        Row r6 = sheet.createRow(6);
-        r6.createCell(0).setCellValue("TOTAL CLIENTES");
-        r6.createCell(1).setCellValue(totalClientes);
         try {
-            wb.write(out);
-            wb.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            Workbook wb = new XSSFWorkbook();
+            Sheet sheet = wb.createSheet("Resumen");
+            Row r0 = sheet.createRow(0);
+            r0.createCell(0).setCellValue("REPORTE COMPLETO DEL SISTEMA");
+
+            List<Producto> productos = productoRepository.findAll().stream().filter(Producto::isActivo).toList();
+            List<Venta> ventas = ventaRepository.findAll();
+            List<?> usuarios = clienteRepository.findAll();
+            long totalClientes = usuarios.stream()
+                    .filter(u -> u instanceof Cliente)
+                    .map(u -> (Cliente) u)
+                    .filter(Cliente::isActivo)
+                    .count();
+
+            // Calcular valor de inventario con null safety
+            BigDecimal valorInventario = productos.stream()
+                    .filter(p -> p != null && p.getPrecio() != null && p.getStock() >= 0)
+                    .map(p -> p.getPrecio().multiply(BigDecimal.valueOf(p.getStock())))
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            // Calcular ingresos totales con null safety
+            BigDecimal ingresosTotales = ventas.stream()
+                    .filter(v -> v != null && v.getTotal() != null)
+                    .map(Venta::getTotal)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            Row r2 = sheet.createRow(2);
+            r2.createCell(0).setCellValue("TOTAL PRODUCTOS");
+            r2.createCell(1).setCellValue(productos.size());
+
+            Row r3 = sheet.createRow(3);
+            r3.createCell(0).setCellValue("VALOR INVENTARIO");
+            r3.createCell(1).setCellValue(valorInventario.doubleValue());
+
+            Row r4 = sheet.createRow(4);
+            r4.createCell(0).setCellValue("TOTAL VENTAS");
+            r4.createCell(1).setCellValue(ventas.size());
+
+            Row r5 = sheet.createRow(5);
+            r5.createCell(0).setCellValue("INGRESOS TOTALES");
+            r5.createCell(1).setCellValue(ingresosTotales.doubleValue());
+
+            Row r6 = sheet.createRow(6);
+            r6.createCell(0).setCellValue("TOTAL CLIENTES");
+            r6.createCell(1).setCellValue(totalClientes);
+
+            try {
+                wb.write(out);
+                wb.close();
+            } catch (IOException e) {
+                throw new RuntimeException("Error al generar archivo Excel: " + e.getMessage(), e);
+            }
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=reporte-sistema.xlsx")
+                    .contentType(
+                            MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                    .body(out.toByteArray());
+        } catch (Exception e) {
+            throw new RuntimeException("Error al exportar reporte completo a Excel: " + e.getMessage(), e);
         }
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=reporte-sistema.xlsx")
-                .contentType(
-                        MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
-                .body(out.toByteArray());
     }
 
     @GetMapping("/reporte-completo/pdf")
     @Operation(summary = "Exportar reporte completo en PDF", description = "Genera un PDF con KPIs y totales del sistema")
     public ResponseEntity<byte[]> exportarReporteCompletoPDF() {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        Document doc = new Document(PageSize.A4);
         try {
-            PdfWriter.getInstance(doc, out);
-            doc.open();
-            PdfPTable table = new PdfPTable(2);
-            List<Producto> productos = productoRepository.findAll().stream().filter(Producto::isActivo).toList();
-            List<Venta> ventas = ventaRepository.findAll();
-            List<Usuario> usuarios = clienteRepository.findAll();
-            long totalClientes = usuarios.stream()
-                    .filter(u -> RolUsuario.CLIENTE.equals(u.getRol()) && u.isActivo())
-                    .count();
-            BigDecimal valorInventario = productos.stream()
-                    .map(p -> p.getPrecio().multiply(BigDecimal.valueOf(p.getStock())))
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
-            BigDecimal ingresosTotales = ventas.stream().map(Venta::getTotal).reduce(BigDecimal.ZERO, BigDecimal::add);
-            table.addCell("TOTAL PRODUCTOS");
-            table.addCell(String.valueOf(productos.size()));
-            table.addCell("VALOR INVENTARIO");
-            table.addCell(String.format("%.2f", valorInventario));
-            table.addCell("TOTAL VENTAS");
-            table.addCell(String.valueOf(ventas.size()));
-            table.addCell("INGRESOS TOTALES");
-            table.addCell(String.format("%.2f", ingresosTotales));
-            table.addCell("TOTAL CLIENTES");
-            table.addCell(String.valueOf(totalClientes));
-            doc.add(table);
-            doc.close();
-        } catch (DocumentException e) {
-            throw new RuntimeException(e);
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            Document doc = new Document(PageSize.A4);
+            try {
+                PdfWriter.getInstance(doc, out);
+                doc.open();
+                PdfPTable table = new PdfPTable(2);
+                List<Producto> productos = productoRepository.findAll().stream().filter(Producto::isActivo).toList();
+                List<Venta> ventas = ventaRepository.findAll();
+                List<Usuario> usuarios = clienteRepository.findAll();
+                long totalClientes = usuarios.stream()
+                        .filter(u -> u != null && RolUsuario.CLIENTE.equals(u.getRol()) && u.isActivo())
+                        .count();
+
+                // Calcular valor de inventario con null safety
+                BigDecimal valorInventario = productos.stream()
+                        .filter(p -> p != null && p.getPrecio() != null && p.getStock() >= 0)
+                        .map(p -> p.getPrecio().multiply(BigDecimal.valueOf(p.getStock())))
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+                // Calcular ingresos totales con null safety
+                BigDecimal ingresosTotales = ventas.stream()
+                        .filter(v -> v != null && v.getTotal() != null)
+                        .map(Venta::getTotal)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+                table.addCell("TOTAL PRODUCTOS");
+                table.addCell(String.valueOf(productos.size()));
+                table.addCell("VALOR INVENTARIO");
+                table.addCell(String.format("%.2f", valorInventario.doubleValue()));
+                table.addCell("TOTAL VENTAS");
+                table.addCell(String.valueOf(ventas.size()));
+                table.addCell("INGRESOS TOTALES");
+                table.addCell(String.format("%.2f", ingresosTotales.doubleValue()));
+                table.addCell("TOTAL CLIENTES");
+                table.addCell(String.valueOf(totalClientes));
+                doc.add(table);
+                doc.close();
+            } catch (DocumentException e) {
+                throw new RuntimeException("Error al generar documento PDF: " + e.getMessage(), e);
+            } finally {
+                if (doc.isOpen()) {
+                    doc.close();
+                }
+            }
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=reporte-sistema.pdf")
+                    .contentType(MediaType.parseMediaType("application/pdf"))
+                    .body(out.toByteArray());
+        } catch (Exception e) {
+            throw new RuntimeException("Error al exportar reporte completo a PDF: " + e.getMessage(), e);
         }
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=reporte-sistema.pdf")
-                .contentType(MediaType.parseMediaType("application/pdf"))
-                .body(out.toByteArray());
     }
 
     /**

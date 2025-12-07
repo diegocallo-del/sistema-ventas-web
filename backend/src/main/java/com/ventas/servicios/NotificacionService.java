@@ -49,11 +49,7 @@ public class NotificacionService {
 
                 log.warn("ALERTA STOCK: {}", mensaje);
 
-                // En un sistema real, aquí enviaríamos:
-                // - Correo electrónico
-                // - Notificaciones push
-                // - Mensajes Slack/WhatsApp
-                // - Alertas en el dashboard
+
 
                 enviarNotificacionStockBajo(productosStockBajo);
             } else {
@@ -64,9 +60,6 @@ public class NotificacionService {
         }
     }
 
-    /**
-     * Verifica ventas pendientes de entrega cada 10 minutos
-     */
     @Scheduled(fixedRate = 600000) // 10 minutos
     public void verificarVentasPendientes() {
         log.info("🔍 Verificando ventas pendientes...");
@@ -75,22 +68,15 @@ public class NotificacionService {
         // Por ejemplo: ventas procesadas que necesitan entrega física
     }
 
-    /**
-     * Envía notificación de stock bajo
-     * En implementación real, enviaría emails, push notifications, etc.
-     */
+ 
     private void enviarNotificacionStockBajo(List<Producto> productos) {
         // Simulación de envío de notificaciones
         log.warn("NOTIFICACIÓN ENVIADA - Stock Bajo: {} productos requieren atención", productos.size());
 
-        // En un sistema real esto enviaría:
-        // emailService.send("admin@empresa.com", "Alerta de Stock Bajo", contenido);
-        // pushNotificationService.send("Stock Bajo", contenido);
+
     }
 
-    /**
-     * Genera reporte diario de estado del sistema
-     */
+
     @Scheduled(cron = "0 0 6 * * *") // Todos los días a las 6:00 AM
     public void enviarReporteDiario() {
         log.info("Generando reporte diario del sistema...");

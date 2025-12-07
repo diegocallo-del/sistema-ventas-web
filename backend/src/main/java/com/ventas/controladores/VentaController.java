@@ -86,39 +86,39 @@ public class VentaController {
                     userRole = "ADMIN";
                 }
 
-                log.info("🔄 Datos hardcodeados - {} (ID: {}, Rol: {})", username, userId, userRole);
+                log.info("Datos hardcodeados - {} (ID: {}, Rol: {})", username, userId, userRole);
             }
         } catch (Exception e) {
-            log.error("❌ Error obteniendo información de usuario: {}", e.getMessage(), e);
+            log.error("Error obteniendo información de usuario: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 
-        log.info("🔍 Procesando consulta de ventas para {} (ID: {}, Rol: {})",
+        log.info("Procesando consulta de ventas para {} (ID: {}, Rol: {})",
                  username, userId, userRole);
 
         List<VentaDTO> ventas;
 
         switch(userRole) {
             case "CLIENTE" -> {
-                log.debug("👤 Cliente consultando sus compras");
+                log.debug("Cliente consultando sus compras");
                 ventas = ventaService.obtenerVentasPorCliente(userId);
-                log.info("✅ Cliente {} ve {} compras propias", userId, ventas.size());
+                log.info("Cliente {} ve {} compras propias", userId, ventas.size());
             }
 
             case "VENDEDOR" -> {
-                log.debug("🏪 Vendedor consultando ventas de sus productos");
+                log.debug("Vendedor consultando ventas de sus productos");
                 ventas = ventaService.obtenerVentasPorVendedor(userId);
-                log.info("✅ Vendedor {} ve {} ventas de sus productos", userId, ventas.size());
+                log.info("Vendedor {} ve {} ventas de sus productos", userId, ventas.size());
             }
 
             case "ADMIN", "SUPERVISOR" -> {
                 log.debug("⚡ Admin/Supervisor consultando todas las ventas");
                 ventas = ventaService.obtenerTodasLasVentas();
-                log.info("✅ Admin {} ve todas las {} ventas del sistema", userId, ventas.size());
+                log.info("Admin {} ve todas las {} ventas del sistema", userId, ventas.size());
             }
 
             default -> {
-                log.error("🚫 Rol desconocido: {} para usuario {}", userRole, userId);
+                log.error("Rol desconocido: {} para usuario {}", userRole, userId);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
         }

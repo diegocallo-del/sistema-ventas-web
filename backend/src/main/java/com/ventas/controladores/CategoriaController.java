@@ -29,7 +29,6 @@ public class CategoriaController {
 
     /**
      * Obtiene todas las categorías activas.
-     * @return Lista de categorías activas
      */
     @GetMapping
     @Operation(summary = "Listar categorías", description = "Obtiene categorías activas")
@@ -40,8 +39,6 @@ public class CategoriaController {
 
     /**
      * Obtiene una categoría por su ID.
-     * @param id ID de la categoría
-     * @return Categoría encontrada
      */
     @GetMapping("/{id}")
     @Operation(summary = "Obtener categoría", description = "Obtiene una categoría por ID")
@@ -51,9 +48,7 @@ public class CategoriaController {
     }
 
     /**
-     * Busca categorías por nombre aproximado.
-     * @param nombre Nombre a buscar
-     * @return Lista de categorías que coinciden
+     * Busca categorías por nombre aproximado, se usa la misma sintaxis anterior 
      */
     @GetMapping("/buscar")
     @Operation(summary = "Buscar categorías", description = "Busca categorías por nombre aproximado")
@@ -63,8 +58,7 @@ public class CategoriaController {
     }
 
     /**
-     * Obtiene categorías que tienen productos asociados.
-     * @return Lista de categorías con productos
+     * Aqui tambien parecida 
      */
     @GetMapping("/con-productos")
     @Operation(summary = "Categorías con productos", description = "Obtiene categorías que tienen productos asociados")
@@ -74,9 +68,7 @@ public class CategoriaController {
     }
 
     /**
-     * Crea una nueva categoría.
-     * @param createDTO Datos de la categoría a crear
-     * @return Categoría creada
+     * de la misma manera crea una nueva categoría
      */
     @PostMapping
     @Operation(summary = "Crear categoría", description = "Crea una nueva categoría")
@@ -86,10 +78,7 @@ public class CategoriaController {
     }
 
     /**
-     * Actualiza una categoría existente.
-     * @param id ID de la categoría a actualizar
-     * @param createDTO Datos actualizados de la categoría
-     * @return Categoría actualizada
+     * Actualiza una categoría existente
      */
     @PutMapping("/{id}")
     @Operation(summary = "Actualizar categoría", description = "Actualiza datos de una categoría")
@@ -101,9 +90,7 @@ public class CategoriaController {
     }
 
     /**
-     * Elimina lógicamente una categoría.
-     * @param id ID de la categoría a eliminar
-     * @return Respuesta sin contenido
+     * Elimina lógicamente una categoría
      */
     @DeleteMapping("/{id}")
     @Operation(summary = "Eliminar categoría", description = "Elimina lógicamente una categoría")

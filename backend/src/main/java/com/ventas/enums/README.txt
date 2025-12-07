@@ -1,12 +1,12 @@
-﻿═══════════════════════════════════════════════════════════
+﻿
 CARPETA: ENUMS (Enumeraciones)
-RESPONSABLE: PERSONA 1 - DBA (Administrador de Base de Datos)
-═══════════════════════════════════════════════════════════
+RESPONSABLE: Sebastian - DBA (Administrador de Base de Datos)
+
 
 DESCRIPCIÓN:
 Enumeraciones para valores constantes del sistema que se almacenan en la base de datos.
 
-ENUMS QUE DEBES CREAR:
+ENUMS QUE SE CREO:
   • RolUsuario.java (ADMIN, SUPERVISOR, VENDEDOR, CLIENTE)
   • EstadoVenta.java (PENDIENTE, COMPLETADA, CANCELADA)
   • TipoPago.java (EFECTIVO, TARJETA, TRANSFERENCIA)

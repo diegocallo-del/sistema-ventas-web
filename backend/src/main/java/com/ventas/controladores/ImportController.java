@@ -36,7 +36,7 @@ public class ImportController {
     private final ClienteRepository clienteRepository;
 
     @PostMapping(value = "/productos/excel", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @Operation(summary = "Importar productos desde Excel", description = "Actualiza productos existentes por código desde un archivo XLSX")
+    @Operation(summary = "Importar productos desde Ecel", description = "Actualiza productos existentes por código desde un archivo XLSX")
     public ResponseEntity<Map<String, Object>> importarProductosExcel(@RequestParam("file") MultipartFile file) {
         Map<String, Object> resumen = new HashMap<>();
         int total = 0, updated = 0, skipped = 0;
@@ -131,6 +131,7 @@ public class ImportController {
         resumen.put("updated", updated);
         resumen.put("skipped", skipped);
         return ResponseEntity.ok(resumen);
+        
     }
 
     private String getString(Row row, int idx) {

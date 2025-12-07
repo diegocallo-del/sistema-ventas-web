@@ -58,8 +58,7 @@ public class ProductoController {
     /**
      * Obtiene un producto por su ID.
      * 
-     * @param id ID del producto
-     * @return Producto encontrado
+
      */
     @GetMapping("/{id}")
     @Operation(summary = "Obtener producto", description = "Obtiene un producto por ID")
@@ -217,8 +216,7 @@ public class ProductoController {
     /**
      * Elimina lógicamente un producto.
      * 
-     * @param id ID del producto a eliminar
-     * @return Respuesta sin contenido
+
      */
     @DeleteMapping("/{id}")
     @Operation(summary = "Eliminar producto", description = "Elimina lógicamente un producto")

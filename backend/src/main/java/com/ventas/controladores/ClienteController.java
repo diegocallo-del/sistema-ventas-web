@@ -29,18 +29,15 @@ import java.util.List;
 @Tag(name = "Clientes", description = "CRUD y consultas de clientes")
 public class ClienteController {
 
-    // LOG GLOBAL PARA VERIFICAR QUE EL CONTROLADOR FUNCIONE
     static {
-        System.out.println("✅ ClienteController inicializado OK");
+        System.out.println("ClienteController inicializado OK");
     }
 
     private final ClienteService clienteService;
 
     private final Logger logger = LoggerFactory.getLogger(ClienteController.class);
 
-    /**
-     * Obtiene todos los clientes activos.
-     * @return Lista de clientes activos
+    /**La sintaxis es similar en varias
      */
     @GetMapping
     @Operation(summary = "Listar clientes", description = "Obtiene clientes activos")
@@ -51,9 +48,6 @@ public class ClienteController {
     }
 
     /**
-     * Obtiene un cliente por su ID.
-     * @param id ID del cliente
-     * @return Cliente encontrado
      */
     @GetMapping("/{id}")
     @Operation(summary = "Obtener cliente", description = "Obtiene un cliente por ID")
@@ -63,9 +57,7 @@ public class ClienteController {
     }
 
     /**
-     * Busca clientes por nombre aproximado.
-     * @param nombre Nombre a buscar
-     * @return Lista de clientes que coinciden
+     * Busca clientes por nombre aproximado
      */
     @GetMapping("/buscar")
     @Operation(summary = "Buscar clientes", description = "Busca clientes por nombre aproximado")

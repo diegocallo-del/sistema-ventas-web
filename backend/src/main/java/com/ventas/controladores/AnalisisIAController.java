@@ -27,7 +27,7 @@ public class AnalisisIAController {
     public ResponseEntity<AnalisisIAResponseDTO> analizarDatos(
             @RequestBody AnalisisIARequestDTO request) {
         // Aquí se llamaría al servicio para procesar la petición
-        // El servicio se encargaría de recoger datos y consultar la IA externa
+        // El servicio se encargaría de recoger datos y consultar la IA externa, se hace de manera simple 
         AnalisisIAResponseDTO response = analisisIAService.obtenerAnalisis(request);
         return ResponseEntity.ok(response);
     }

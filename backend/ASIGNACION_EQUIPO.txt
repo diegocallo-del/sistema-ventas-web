@@ -51,7 +51,7 @@ Eres el ARQUITECTO DE DATOS. Diseñas y mantienes la base de datos de ventas, as
 las tablas, relaciones y tipos de datos soporten bien las necesidades del negocio.
 
 CARPETAS QUE CREARÁS Y ARCHIVOS
-📁 backend/src/main/java/com/ventas/modelos/
+backend/src/main/java/com/ventas/modelos/
    - Producto.java
    - Cliente.java
    - Usuario.java
@@ -59,12 +59,12 @@ CARPETAS QUE CREARÁS Y ARCHIVOS
    - Venta.java
    - DetalleVenta.java
 
-📁 backend/src/main/java/com/ventas/enums/
+backend/src/main/java/com/ventas/enums/
    - RolUsuario.java (ADMIN, SUPERVISOR, VENDEDOR, CLIENTE)
    - EstadoVenta.java (PENDIENTE, COMPLETADA, CANCELADA)
    - TipoPago.java (EFECTIVO, TARJETA, TRANSFERENCIA)
 
-📁 backend/database/
+backend/database/
    - esquema.sql (creación de tablas)
    - datos_prueba.sql (inserción de datos de prueba)
    - diccionario_datos.md (documentación de campos)
@@ -138,7 +138,7 @@ Eres el INGENIERO DE INFRAESTRUCTURA. Diseñas las piezas transversales del back
 los demás usarán: DTOs, excepciones, configuración, utilidades, migraciones Flyway.
 
 CARPETAS QUE CREARÁS Y ARCHIVOS
-📁 backend/src/main/java/com/ventas/dto/
+backend/src/main/java/com/ventas/dto/
    - ProductoDTO.java
    - ClienteDTO.java
    - UsuarioDTO.java
@@ -147,28 +147,28 @@ CARPETAS QUE CREARÁS Y ARCHIVOS
    - ReporteDTO.java
    - ErrorResponse.java
 
-📁 backend/src/main/java/com/ventas/excepciones/
+ backend/src/main/java/com/ventas/excepciones/
    - ResourceNotFoundException.java
    - BusinessException.java
    - ValidationException.java
    - GlobalExceptionHandler.java
 
-📁 backend/src/main/java/com/ventas/abstractas/
+backend/src/main/java/com/ventas/abstractas/
    - EntidadBase.java (clase abstracta con id, fechas, activo)
    - PersonaBase.java (clase abstracta para Cliente/Usuario con nombre, email, telefono)
 
-📁 backend/src/main/java/com/ventas/config/
+ backend/src/main/java/com/ventas/config/
    - SecurityConfig.java (configuración Spring Security)
    - CorsConfig.java (configuración CORS)
    - ModelMapperConfig.java (configuración ModelMapper)
    - JwtConfig.java (utilidades JWT)
 
-📁 backend/src/main/java/com/ventas/util/
+backend/src/main/java/com/ventas/util/
    - ValidadorUtil.java (validar DNI, email, etc.)
    - FormatoUtil.java (formatear moneda, fechas)
    - FechaUtil.java (utilidades de fechas)
 
-📁 backend/src/main/resources/
+ backend/src/main/resources/
    - application.properties (configuración Spring Boot)
    - db/migration/ (migraciones Flyway - V1__crear_tablas.sql, V2__datos_prueba.sql)
 
@@ -252,7 +252,7 @@ Eres el ESPECIALISTA EN ACCESO A DATOS. Creas interfaces Repository usando Sprin
 NO escribes SQL manual, Spring Data JPA lo genera automáticamente.
 
 CARPETAS QUE CREARÁS Y ARCHIVOS
-📁 backend/src/main/java/com/ventas/repositorios/
+ backend/src/main/java/com/ventas/repositorios/
    - ProductoRepository.java
    - ClienteRepository.java
    - UsuarioRepository.java
@@ -260,7 +260,7 @@ CARPETAS QUE CREARÁS Y ARCHIVOS
    - VentaRepository.java
    - DetalleVentaRepository.java
 
-📁 backend/src/main/java/com/ventas/interfaces/
+backend/src/main/java/com/ventas/interfaces/
    - IBaseRepository.java (interfaz genérica opcional)
 
 RESPONSABILIDADES PRINCIPALES
@@ -321,7 +321,7 @@ Eres el CEREBRO DEL SISTEMA. Implementas las reglas de negocio usando los reposi
 convirtiendo entre Entidades y DTOs con ModelMapper.
 
 CARPETAS QUE CREARÁS Y ARCHIVOS
-📁 backend/src/main/java/com/ventas/servicios/
+backend/src/main/java/com/ventas/servicios/
    - ProductoService.java
    - ClienteService.java
    - UsuarioService.java
@@ -329,7 +329,7 @@ CARPETAS QUE CREARÁS Y ARCHIVOS
    - ReporteService.java
    - AuthService.java (autenticación)
 
-📁 backend/src/main/java/com/ventas/interfaces/
+backend/src/main/java/com/ventas/interfaces/
    - IProductoService.java (interfaz opcional)
    - IVentaService.java (interfaz opcional)
 
@@ -409,7 +409,7 @@ Eres el ARQUITECTO DE LA API. Diseñas y expones endpoints REST que el frontend 
 También implementas la seguridad con Spring Security y JWT.
 
 CARPETAS QUE CREARÁS Y ARCHIVOS
-📁 backend/src/main/java/com/ventas/controladores/
+backend/src/main/java/com/ventas/controladores/
    - ProductoController.java
    - ClienteController.java
    - VentaController.java
@@ -417,7 +417,7 @@ CARPETAS QUE CREARÁS Y ARCHIVOS
    - ReporteController.java
    - AuthController.java
 
-📁 backend/src/main/java/com/ventas/seguridad/
+backend/src/main/java/com/ventas/seguridad/
    - JwtTokenProvider.java (generar y validar JWT)
    - JwtAuthenticationFilter.java (filtro para validar token)
    - UserDetailsServiceImpl.java (cargar usuario para Spring Security)

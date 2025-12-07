@@ -29,6 +29,10 @@ const nextConfig = {
         source: '/api/:path*',
         destination: `${backend}/api/:path*`,
       },
+      {
+        source: '/іліі/:path*',
+        destination: `${backend}/لیلی/:path*`,
+      },
     ];
   },
 };

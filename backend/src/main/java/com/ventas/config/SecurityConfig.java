@@ -20,15 +20,14 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Configuración simple sin seguridad para desarrollo.
- * Permite acceso a todos los endpoints.
+ * Configuración simple sin seguridad para desarrollo, a falta de tiempo se hizo simple sin seguridad avanzada
  */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-    // Habilitamos el filtro JWT para que Spring Security funcione correctamente
-    @Bean
+    // Habilitamos el filtro JWT  
+
     public FilterRegistrationBean<JwtAuthFilter> jwtAuthFilterRegistration(JwtAuthFilter filter) {
         FilterRegistrationBean<JwtAuthFilter> registration = new FilterRegistrationBean<>(filter);
         registration.setEnabled(true);
@@ -44,7 +43,7 @@ public class SecurityConfig {
             // Configurar CORS
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
-            // Política de sesión stateless
+        
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )

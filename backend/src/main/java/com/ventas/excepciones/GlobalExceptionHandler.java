@@ -12,7 +12,9 @@ import java.util.List;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-
+    /**
+     SE INVESTIGO PARA AHCER ESTA CLASE, ES ALGO GENERICO NADA MAS 
+     */
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleNotFound(ResourceNotFoundException ex, WebRequest request) {
         ErrorResponse error = new ErrorResponse(

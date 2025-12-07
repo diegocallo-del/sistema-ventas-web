@@ -7,7 +7,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
-
+/**
+ * Esta clase se encarga de preparar nuestro cliente HTTP para hablar con la API de IA
+ * Así no tenemos que repetir esta configuración cada vez que hagamos una solicitud, Iinformacion sacada de la
+ * documentacion de spring sibre Web client: https://docs.spring.io/spring-framework/docs/current/reference/html/web-reactive.html#webflux-client 
+ */
 @Configuration
 public class AIConfig {
 

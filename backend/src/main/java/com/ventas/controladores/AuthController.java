@@ -20,9 +20,7 @@ import jakarta.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Controlador REST simple para autenticación básica.
- */
+
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -46,54 +44,13 @@ public class AuthController {
     }
 
     /**
-     * Endpoint para registro simple.
-     * Guarda usuario en BD con contraseña en texto plano.
+     * Endpoint para registro simpl
+     * Guarda usuario en BD con contraseña en texto plano, en un pricipio se penso en Bycript pero se complico  
      */
     @PostMapping("/register")
     @Operation(summary = "Registro", description = "Registra usuario básico")
     public ResponseEntity<AuthResponseDTO> registrarUsuario(@Valid @RequestBody CreateUsuarioDTO createUsuario) {
         AuthResponseDTO response = authService.registrarUsuario(createUsuario);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
-    }
-
-    /**
-     * Endpoint de prueba.
-     */
-    @PostMapping("/test")
-    @Operation(summary = "Test", description = "Endpoint de prueba")
-    public ResponseEntity<Map<String, Object>> testEndpoint(@RequestBody Map<String, Object> data) {
-        Map<String, Object> response = new HashMap<>();
-        response.put("success", true);
-        response.put("timestamp", System.currentTimeMillis());
-        response.put("received", data);
-        response.put("message", "Test endpoint working!");
-        return ResponseEntity.ok(response);
-    }
-
-    /**
-     * Inicializar admin simple.
-     */
-    @PostMapping("/bootstrap")
-    @Operation(summary = "Bootstrap admin", description = "Crea un usuario admin por defecto")
-    @SuppressWarnings("null")
-    public ResponseEntity<String> bootstrapAdmin() {
-        try {
-            if (usuarioRepository.findByEmail("admin@sistema-ventas.com").isEmpty()) {
-                Usuario admin = Usuario.builder()
-                        .nombre("Administrador")
-                        .email("admin@sistema-ventas.com")
-                        .password(passwordEncoder.encode("admin123"))
-                        .rol(RolUsuario.ADMIN)
-                        .activo(true)
-                        .build();
-
-                usuarioRepository.save(admin);
-                return ResponseEntity.ok("Admin creado: admin@sistema-ventas.com / admin123");
-            } else {
-                return ResponseEntity.ok("Admin ya existe: admin@sistema-ventas.com / admin123");
-            }
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("Error creando admin: " + e.getMessage());
-        }
     }
 }
